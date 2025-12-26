@@ -1,0 +1,10 @@
+﻿RunAction "RunTimeResultFolder", oneIteration
+RunAction "TC1_Create_a_Triangular_sales", oneIteration
+RunAction "TC2_02ORD0201_033_Create_a_Tria", oneIteration
+RunAction "DataTransfer_1", oneIteration
+RunAction "TC3_Negative_test_Duplicate", oneIteration
+RunAction "TC4_Frnachise_Deliv_Note_w_915", oneIteration
+RunAction "TC5_PO_created_via_ME21N_TASE", oneIteration
+RunAction "DataTransfer_2", oneIteration
+RunAction "TC6_Post_Deliv_Note_in_closed", oneIteration
+RunAction "TC7_Posting_Date_prior_to_Deliv", oneIteration

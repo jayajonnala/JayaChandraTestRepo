@@ -1,0 +1,1 @@
+﻿var __testDataSource={items:[{dataFilePath:'Default.xlsx',dataFileFormat:'excel',dataFileFolder:'S:\\14_Jira_Migration\\Automation_Repo\\UFT Test Sets\\FICO\\DS_FICO\\P1\\AT_4.2.2 Manual Posting of GL Document - ledger specific_TASE\\Report',namePairs:[]}]};

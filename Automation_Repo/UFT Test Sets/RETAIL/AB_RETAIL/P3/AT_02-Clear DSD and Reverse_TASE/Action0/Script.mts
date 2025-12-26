@@ -1,0 +1,14 @@
+﻿RunAction "RunTimeResultFolderCreation", oneIteration
+RunAction "TC1_Test_02GR03_004_Loc", oneIteration
+RunAction "TC2_Test_02GR03_004", oneIteration
+RunAction "DataTransfer", oneIteration
+RunAction "TC3_Test_02GR02_002", oneIteration
+RunAction "DataTransfer_2", oneIteration
+RunAction "TC4_Test_02GR04_002", oneIteration
+RunAction "TC5_Test_02GR03_004", oneIteration
+RunAction "TC6_Test_02GR03_007", oneIteration
+RunAction "TC7_Test_02GR04_003", oneIteration
+RunAction "DataTransfer_3", oneIteration
+RunAction "TC8_Test_02GR02_001_Clear", oneIteration
+RunAction "DataTransfer_4", oneIteration
+RunAction "TC9_Test_02GR04_001", oneIteration

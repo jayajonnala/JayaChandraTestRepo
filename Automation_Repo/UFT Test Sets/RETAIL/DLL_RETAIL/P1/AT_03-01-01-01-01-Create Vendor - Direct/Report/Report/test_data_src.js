@@ -1,0 +1,1 @@
+﻿var __testDataSource={items:[{dataFilePath:'Default.xlsx',dataFileFormat:'excel',dataFileFolder:'S:\\14_Jira_Migration\\Automation_Repo\\UFT Test Sets\\RETAIL\\DLL_RETAIL\\P1\\AT_03-01-01-01-01-Create Vendor - Direct\\Report',namePairs:[]}]};

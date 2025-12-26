@@ -1,0 +1,1 @@
+﻿var __testDataSource={items:[{dataFilePath:'Default.xlsx',dataFileFormat:'excel',dataFileFolder:'C:\\Users\\JJONN\\Documents\\UFT One\\Test_SRM_Approve_SC_TASE\\Res3',namePairs:[]}]};

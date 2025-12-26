@@ -1,0 +1,9 @@
+﻿RunAction "TC0_RunTimeResultFolder", oneIteration
+RunAction "TC1_PRE_Create_PO_ZMPO_PO", oneIteration
+RunAction "TC2_DT1_DataTransfer_One", oneIteration
+RunAction "TC3_Test_P2P_01_01_01_P1", oneIteration
+RunAction "TC4_Test_P2P_01_01_01_P2", oneIteration
+RunAction "TC5_DT2_DataTransfer_Two", oneIteration
+RunAction "TC6_Test_P2P_01_01_01_P3", oneIteration
+RunAction "TC7_Test_P2P_01_01_01_P4", oneIteration
+RunAction "TC8_Test_P2P_01_01_01_P5", oneIteration

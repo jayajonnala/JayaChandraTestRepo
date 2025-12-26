@@ -1,0 +1,17 @@
+﻿RunAction "TC0_RunTimeResultFolder", oneIteration
+RunAction "TC1_Test_GL0002", oneIteration
+RunAction "TC2_Test_GL0003", oneIteration
+RunAction "TC3_Test_GL0005", oneIteration
+RunAction "TC4_Test_GL0013", oneIteration
+RunAction "TC5_Test_GL0014", oneIteration
+RunAction "TC6_Test_GL0015", oneIteration
+RunAction "TC7_Test_GL0016", oneIteration
+RunAction "TC8_Test_GL0028", oneIteration
+RunAction "TC9_Test_GL0031", oneIteration
+RunAction "TC10_Test_GL0033", oneIteration
+RunAction "TC11_Test_GL0034", oneIteration
+RunAction "TC12_Test_GL0036", oneIteration
+RunAction "TC13_Test_GL0039", oneIteration
+RunAction "TC14_Test_GL0040", oneIteration
+RunAction "TC15_Test_GL0045", oneIteration
+RunAction "TC16_Test_GL0046", oneIteration

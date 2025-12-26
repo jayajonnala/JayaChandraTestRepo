@@ -1,0 +1,12 @@
+﻿RunAction "TC0_RunTimeResultFolder", oneIteration
+RunAction "TC1_Test_P2P_01_01_053_Modify", oneIteration
+RunAction "TC2_DT1_DataTransfer_One", oneIteration
+RunAction "TC3_Wait", oneIteration
+RunAction "TC4_Test_PRE_Get_Art_MB51", oneIteration
+RunAction "TC5_DT2_DataTransfer_Two", oneIteration
+RunAction "TC6_P2P_01_01_053_P2", oneIteration
+RunAction "TC7_DataTransfer_three", oneIteration
+RunAction "TC8_Test_P2P_01_01_053_P3", oneIteration
+RunAction "TC9_DataTransfer_four", oneIteration
+RunAction "TC10_Test_P2P_01_01_053_P4_DOC1", oneIteration
+RunAction "TC11_Test_P2P_01_01_053_P4_DOC2", oneIteration

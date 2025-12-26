@@ -1,0 +1,9 @@
+﻿RunAction "RunTimeResultFolder", oneIteration
+RunAction "TC1_PRE_02IMP00_007_P1_TASE", oneIteration
+RunAction "DataTransfer_1", oneIteration
+RunAction "TC2_PRE_02IMP00_001_P3_TASE", oneIteration
+RunAction "DataTransfer_2", oneIteration
+RunAction "TC3_PRE_02IMP00_007_P4_TASE", oneIteration
+RunAction "TC4_PRE_02IMP00_007_P5_TASE", oneIteration
+RunAction "DataTransfer_3", oneIteration
+RunAction "TC5_02IMP00_007_Special_Cases", oneIteration

@@ -1,0 +1,293 @@
+﻿
+'//---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------//
+'.................Test Script Name :Test_MD_01_01_013-Create Display Article - SAP_P1    
+'.................Author : TCS 
+'................ Creation Date :
+'.................Modified By :
+'.................Modified Date/Details :
+
+'//---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------//
+
+
+If qtpParamExist("gstrInputExcelFilePathAndName") Then
+	gstrInputExcelFilePathAndName= Parameter("gstrInputExcelFilePathAndName")	
+End If
+
+If qtpParamExist("gstrresultFolderPath") Then
+	gstrresultFolderPath= Parameter("gstrresultFolderPath")	
+End If
+
+If qtpParamExist("datatable_row") Then
+	DataRowSet= Parameter("datatable_row")	
+End If
+If qtpParamExist("RunTimeResultFolder") Then
+	RunTimeResultFolder= Parameter("RunTimeResultFolder")	
+End If
+gstrresultFolderPath = ReadTxtFileResult(RunTimeResultFolder)
+
+gstrTestCaseName = "Test_MD_01_01_013-Create Display Article - SAP_P1"
+gstrTCDescription = ""'.....Please give TestCase Description.
+gstrTCPrerequisite = ""'.....Please mention the pre-requisites for TestCase If any.
+''gstrInputExcelFilePathAndName="S:\TASETestData\P3\MI\RETAIL\TASE_DT_MD_01_01_013-Create Display Article - SAP_P1.xls"
+'//---------------------------------------------------------------------------------------------------------------------------------------------------AUTOMATION TEST SCRIPT------------------------------------------------------------------------------------------------------------------------------------------------------------//
+
+'DataRowSet = 2
+Call StartExecution(gstrInputExcelFilePathAndName,"Global",DataRowSet,gstrresultFolderPath)  '.......................Mandatory Initial Call only in First Component in a Test Scenario
+Call WriteRunTimeDataToExcelGlobalSheet ("DT_INCREMENT",(Cint(DT_INCREMENT)+1))
+Call GetInputFromExcel(gstrInputExcelFilePathAndName,"Global",DataRowSet)
+'''''''--------------login----------------'''''
+
+''''Call LaunchSAPConnection("C:\Program Files (x86)\SAP\FrontEnd\SAPgui\saplogon.exe",DT_SAPSYSTEM)
+SAPGuiUtil.OpenConnection(DT_SAPSYSTEM)
+Call Login(DT_SAPUSER,DT_SAPPASSWORD)
+Call PressEnter() 
+
+
+''--------TransactionCode-MM41----------''''
+
+Call SetTcode(DT_SAPTRANSACTIONCODE)     
+Call PressEnter()     
+Call TakeScreenShot
+Call CheckTCodeScreen(DT_SAPTRANSACTIONCODE)
+
+Call SendKey("{F4}")
+Call SetTextbox("Article description", "G_SELFLD_TAB-LOW", 0, DT_MM41_0220_GTIN, True)
+Call PressEnter()
+Call VerifyStatusBar(DT_EXPECTEDVALUE_OCC1)
+Call TakeScreenShot
+Call ClickButton("Cancel   \(F12\)",True)
+Call SetComboByKey("RMMW1-MTART", DT_MM41_0100_ARTICLE_TYPE)
+Call SetTextbox("Supplier","RMMW1-LIFNR","",DT_MM41_0100_VENDOR,false)
+Call SetTextbox("Purchasing Org.","RMMW1-EKORG","",DT_MM41_0100_PURCHASING_ORG,false)
+Call SetComboByKey("Artl category", DT_MM41_0100_ARTL_CATEGORY)
+Call SetTextbox("Mdse Catgry","RMMW1-MATKL","",DT_MM41_0100_MDSE_CATGRY,false)
+Call TakeScreenShot
+Call PressEnter()     
+Call TakeScreenShot
+
+Call SetTableData("SAPLMGD2TC_ME_8022", "SUn", 1, "<NA>", "<NA>", DT_MM41_0100_SAPLMGMWTAB_CONT_0100, False)
+Call SetTableData("SAPLMGD2TC_ME_8022", "OUn", 2, "<NA>", "<NA>", DT_MM41_0100_SAPLMGMWTAB_CONT_0100, False)
+Call SetTableData("SAPLMGD2TC_ME_8022", "D/I", 2, "<NA>", "<NA>", DT_MM41_0100_SAPLMGMWTAB_CONT_0100, False)
+Call SetTableData("SAPLMGD2TC_ME_8022", "AUoM", 1, "<NA>", "<NA>", DT_MM41_8022_TABLECELL_AUOM_0, False)
+Call SetTableData("SAPLMGD2TC_ME_8022", "AUoM", 2, "<NA>", "<NA>", DT_MM41_8022_TABLECELL_AUOM_1, False)
+Call SetTableData("SAPLMGD2TC_ME_8022", "AUoM", 3, "<NA>", "<NA>", DT_MM41_8022_TABLECELL_AUOM_2, False)
+Call SetTableData("SAPLMGD2TC_ME_8022", "AUoM", 4, "<NA>", "<NA>", DT_MM41_8022_TABLECELL_AUOM_3, False)
+Call TakeScreenShot
+Call SetTableData("SAPLMGD2TC_ME_8022", "Number", 2, "<NA>", "<NA>", DT_MM41_8022_TABLECELL_NUMBER_1, False)
+Call SetTableData("SAPLMGD2TC_ME_8022", "Number", 3, "<NA>", "<NA>", DT_MM41_8022_TABLECELL_NUMBER_1, False)
+Call SetTableData("SAPLMGD2TC_ME_8022", "Number", 4, "<NA>", "<NA>", DT_MM41_8022_TABLECELL_NUMBER_2, False)
+
+Call SetTableData("SAPLMGD2TC_ME_8022", "LUn", 2, "<NA>", "<NA>", DT_MM41_8022_TABLECELL_LUN_1, False)
+Call SetTableData("SAPLMGD2TC_ME_8022", "LUn", 3, "<NA>", "<NA>", DT_MM41_8022_TABLECELL_LUN_2, False)
+Call SetTableData("SAPLMGD2TC_ME_8022", "LUn", 4, "<NA>", "<NA>", DT_MM41_8022_TABLECELL_LUN_3, False)
+Call SetTableData("SAPLMGD2TC_ME_8022", "GTIN", 1, "<NA>", "<NA>", DT_MM41_8022_TABLECELL_GTIN_0, False)
+Call TakeScreenShot
+
+Call SetTableData("SAPLMGD2TC_ME_8022", "Gross Weight", 1, "<NA>", "<NA>", DT_MM41_8022_TABLECELL_GROSS_WEIGHT_0, False)
+Call SetTableData("SAPLMGD2TC_ME_8022", "Gross Weight", 2, "<NA>", "<NA>", DT_MM41_8022_TABLECELL_GROSS_WEIGHT_1, False)
+Call SetTableData("SAPLMGD2TC_ME_8022", "Gross Weight", 3, "<NA>", "<NA>", DT_MM41_8022_TABLECELL_GROSS_WEIGHT_2, False)
+Call SetTableData("SAPLMGD2TC_ME_8022", "Gross Weight", 4, "<NA>", "<NA>", DT_MM41_8022_TABLECELL_GROSS_WEIGHT_3, False)
+Call SetTableData("SAPLMGD2TC_ME_8022", "Net Weight", 1, "<NA>", "<NA>", DT_MM41_8022_TABLECELL_NET_WEIGHT_0, False)
+Call TakeScreenShot
+
+
+Call SetTableData("SAPLMGD2TC_ME_8022", "Wt", 2, "<NA>", "<NA>", DT_MM41_8022_TABLECELL_WT_1, False)
+Call SetTableData("SAPLMGD2TC_ME_8022", "Wt", 3, "<NA>", "<NA>", DT_MM41_8022_TABLECELL_WT_2, False)
+Call SetTableData("SAPLMGD2TC_ME_8022", "Wt", 4, "<NA>", "<NA>", DT_MM41_8022_TABLECELL_WT_3, False)
+
+Call SetTableData("SAPLMGD2TC_ME_8022", "Length", 1, "<NA>", "<NA>", DT_MM41_8022_TABLECELL_LENGTH_0, False)
+Call SetTableData("SAPLMGD2TC_ME_8022", "Length", 2, "<NA>", "<NA>", DT_MM41_8022_TABLECELL_LENGTH_1, False)
+Call SetTableData("SAPLMGD2TC_ME_8022", "Length", 3, "<NA>", "<NA>", DT_MM41_8022_TABLECELL_LENGTH_2, False)
+Call SetTableData("SAPLMGD2TC_ME_8022", "Length", 4, "<NA>", "<NA>", DT_MM41_8022_TABLECELL_LENGTH_3, False)
+
+Call SetTableData("SAPLMGD2TC_ME_8022", "Width", 1, "<NA>", "<NA>", DT_MM41_8022_TABLECELL_WIDTH_0, False)
+Call SetTableData("SAPLMGD2TC_ME_8022", "Width", 2, "<NA>", "<NA>", DT_MM41_8022_TABLECELL_WIDTH_1, False)
+Call SetTableData("SAPLMGD2TC_ME_8022", "Width", 3, "<NA>", "<NA>", DT_MM41_8022_TABLECELL_WIDTH_2, False)
+Call SetTableData("SAPLMGD2TC_ME_8022", "Width", 4, "<NA>", "<NA>", DT_MM41_8022_TABLECELL_WIDTH_3, False)
+
+Call SetTableData("SAPLMGD2TC_ME_8022", "Height", 1, "<NA>", "<NA>", DT_MM41_8022_TABLECELL_HEIGHT_0, False)
+Call SetTableData("SAPLMGD2TC_ME_8022", "Height", 2, "<NA>", "<NA>", DT_MM41_8022_TABLECELL_HEIGHT_1, False)
+Call SetTableData("SAPLMGD2TC_ME_8022", "Height", 3, "<NA>", "<NA>", DT_MM41_8022_TABLECELL_HEIGHT_2, False)
+Call SetTableData("SAPLMGD2TC_ME_8022", "Height", 4, "<NA>", "<NA>", DT_MM41_8022_TABLECELL_HEIGHT_3, False)
+
+Call TakeScreenShot
+
+Call SetTableData("SAPLMGD2TC_ME_8022", "Unit of Dimension", 1, "<NA>", "<NA>", DT_MM41_8022_TABLECELL_UNIT_OF_DIMENSION_0, False)
+Call SetTableData("SAPLMGD2TC_ME_8022", "Unit of Dimension", 2, "<NA>", "<NA>", DT_MM41_8022_TABLECELL_UNIT_OF_DIMENSION_1, False)
+Call SetTableData("SAPLMGD2TC_ME_8022", "Unit of Dimension", 3, "<NA>", "<NA>", DT_MM41_8022_TABLECELL_UNIT_OF_DIMENSION_2, False)
+Call SetTableData("SAPLMGD2TC_ME_8022", "Unit of Dimension", 4, "<NA>", "<NA>", DT_MM41_8022_TABLECELL_UNIT_OF_DIMENSION_3, False)
+Call PressEnter()     
+Call TakeScreenShot
+Call SetTextbox("Division","MARA-SPART","",DT_MM41_2001_DIVISION,false)
+Call SetTextbox("ABC Indicator","MAW1-WMAAB","",DT_MM41_2001_ABC_INDICATOR,false)
+Call TakeScreenShot
+Call ClickButton("MLAN_STEU", False)  ''Tax data button
+
+
+Call SetTableData("SAPLMGD2TC_STEUERN", "#1", 2, "<NA>", "<NA>", DT_MM41_2181_TABLECELL__1, False)
+Call SetTableData("SAPLMGD2TC_STEUERN", "#3", 2, "<NA>", "<NA>", DT_MM41_2181_TABLECELL__1_OCC1, False)
+Call SetTableData("SAPLMGD2TC_STEUERN", "#5", 2, "<NA>", "<NA>", DT_MM41_2181_TABLECELL__1_OCC2, False)
+Call ClickButton("Go to main data   \(Ctrl\+Shift\+F3\)", False)
+
+Call SetTextbox("Purch. group","MAW1-WEKGR","",DT_MM41_2003_PURCH_GROUP,false)
+Call SetTextbox("Astmt List Type","MAW1-BBTYP","",DT_MM41_2003_ASTMT_LIST_TYPE,false)
+Call SetTextbox("Supply source","MARA-BWSCL","",DT_MM41_2003_SUPPLY_SOURCE,false)
+Call SetTextbox("Trans. Group","MARA-TRAGR","",DT_MM41_2003_TRANS_GROUP,false)
+Call SetTextbox("Loading Group","MAW1-WLADG","",DT_MM41_2003_LOADING_GROUP,false)
+
+Call TakeScreenShot
+
+Call SetTextbox("Ctry of origin","MAW1-WHERL","",DT_MM41_2002_CTRY_OF_ORIGIN,false)
+Call SetTextbox("Stor.conditions","MARA-RAUBE","",DT_MM41_2002_STORCONDITIONS,false)
+Call SetTextbox("Temperature","MARA-TEMPB","",DT_MM41_2002_TEMPERATURE,false)
+
+Call TakeScreenShot
+
+Call ClickButton("OES_PDOWN", False)  
+Call TakeScreenShot
+Call ClickButton("OES_PDOWN", False)  
+Call TakeScreenShot
+
+Call ClickButton("OES_PDOWN", False)
+Call ClickButton("OES_PFIRST", False)
+Call ClickButton("OES_PLAST", False)
+Call ClickButton("OES_PUP", False)
+
+Call SetTextbox("Electronic shelf label","RCTMS-MWERT","",DT_MM41_4000_RCTMSMWERT,false)
+Call SetTextbox("Recommended glass","RCTMS-MWERT","",DT_MM41_4000_RCTMSMWERT_OCC1,false)
+Call SetTextbox("Color","RCTMS-MWERT","",DT_MM41_4000_RCTMSMWERT_OCC2,false)
+Call SetTextbox("Package type","RCTMS-MWERT","",DT_MM41_4000_RCTMSMWERT_OCC3,false)
+Call SetTextbox("Sales relevant indicator APPRO","RCTMS-MWERT","",DT_MM41_4000_RCTMSMWERT_OCC4,false)
+
+Call TakeScreenShot
+
+Call ClickButton("OES_PDOWN", False)
+Call TakeScreenShot
+Call ClickButton("OES_PDOWN", False)
+
+Call SetTableData("SAPLWRF_ARTICLE_SCREENSTC_AH_ASSIGNM", "Main Assignment", 1, "<NA>", "<NA>", DT_MM41_2021_TABLECELL_MAIN_ASSIGNMENT_0, False)
+Call SetTableData("SAPLWRF_ARTICLE_SCREENSTC_AH_ASSIGNM", "Hierarchy Node", 1, "<NA>", "<NA>", DT_MM41_2021_TABLECELL_HIERARCHY_NODE_0, False)
+Call SetTextbox("Brand","MARA-ZZBRAND","",DT_MM41_0001_BRAND,false)
+Call SetTextbox("Sub Brand","MARA-ZZSUB_BRAND","",DT_MM41_0001_SUB_BRAND,false)
+Call TakeScreenShot
+Call ClickButton("LEGACY_PUSH", False)   'Extended data
+
+Call SelectCheckbox("ZMDAM_MARAEXT-FAIR_TRADE", 0, DT_MM41_4007_FAIR_TRADE, False)
+Call SelectCheckbox("ZMDAM_MARAEXT-PRESENCE_OF_BBD", 0, DT_MM41_4007_PRESENCE_OF_BBD, False)
+
+Call SetTextbox("Unit weight \(gr\)","ZMDAM_MARAEXT-UNIT_WEIGHT",0,DT_MM41_4007_UNIT_WEIGHT__GR,false)
+''Call SetTextbox("Unit weight \(gr\)","ZMDAM_MARAEXT-PRIVATE_BRAND",3,DT_MM41_4007_UNIT_WEIGHT__GR_OCC1,false)
+
+Call SelectCellGuiTable("SAPLZMDAM_EXT_SCRTC_LTEXT", "Text", "LangNu", "0", False)
+Call ClickCellTable("SAPLZMDAM_EXT_SCRTC_LTEXT", "#1", 1, "<NA>", "<NA>", False)
+Call SelectCellGuiTable("SAPLZMDAM_EXT_SCRTC_LTEXT", "Text", "LangNu", "0", False)
+Call ClickButton("Create text", False)
+Call TakeScreenShot
+Call SetComboByKey("GV_DESC_LANGU_NEW", DT_MM41_0005_CREATE_TEXT_IN)
+Call TakeScreenShot
+Call ClickButton("Enter   \(Enter\)", True)
+Call SetTextArea(DT_MM41_4007_TEXTEDIT_SHELL)
+Call ClickButton("Create text", False)
+Call TakeScreenShot
+Call SetComboByKey("GV_DESC_LANGU_NEW", DT_MM41_0005_CREATE_TEXT_IN_OCC1)
+Call SetComboByKey("GV_DESC_LANGU_NEW_VORLAGE", DT_MM41_0005_COPY_FROM)
+Call TakeScreenShot
+Call ClickButton("Enter   \(Enter\)", True)
+Call TakeScreenShot
+Call ClickButton("Back   \(F3\)", False)
+Call SelectTab("TABSPR1", "Purchasing", False)
+Call SelectCheckbox("EINA-RELIF", 0, "ON", False)
+Call SetTextbox("Net Price","EINE-NETPR","",DT_MM41_2223_NET_PRICE,false)
+
+Call SetTextbox("/","EINE-PEINH","",1,false)
+Call SetTextbox("/","EINE-BPRME","","EA",false)
+
+Call SetTextbox("PurchasingGroup","EINE-EKGRP","",DT_MM41_2222_PURCHASINGGROUP,false)
+Call TakeScreenShot
+Call SetTextbox("Available from","EINA-LIFAB","",ConvertDate(DT_MM41_2221_AVAILABLE_FROM),false)
+Call SetTextbox("Available to","EINA-LIFBI","",ConvertDate(DT_MM41_2221_AVAILABLE_TO),false)
+Call SetTextbox("Vendor artl no.","EINA-IDNLF","",DT_MM41_2221_VENDOR_ARTL_NO,false)
+Call TakeScreenShot
+Call ClickButton("KONDI_PUSH", False)
+Call TakeScreenShot
+Call ClickButton("Back   \(F3\)", False)
+Call TakeScreenShot
+Call SetTextbox("Minimum Qty","EINE-MINBM","",DT_MM41_2222_MINIMUM_QTY,false)
+Call TakeScreenShot
+Call SetTextbox("Var. Order Unit","EINA-VABME","",DT_MM41_2221_VAR_ORDER_UNIT,false)
+
+Call SetTextbox("VSR Sort No\.","EINA-LTSSF","","",false)
+Call TakeScreenShot
+Call ClickButton("btn\[30\]", False)    ''Additional data
+Call SelectCellGuiTable("SAPLMGD2TC_KTXT", "Material Description", "Language", "ID", False)
+Call ClickButton("KT_DELETE", False)
+Call ClickButton("KT_DELETE", False)
+Call ClickButton("KT_DELETE", False)
+Call ClickButton("KT_DELETE", False)
+Call SetTableData("SAPLMGD2TC_KTXT", "Material Description", 1, "<NA>", "<NA>", DT_MM41_8000_TABLECELL_ARTICLE_DESCRIPTION_0, False)
+Call SetTableData("SAPLMGD2TC_KTXT", "Material Description", 2, "<NA>", "<NA>", DT_MM41_8000_TABLECELL_ARTICLE_DESCRIPTION_1, False)
+Call SelectTab("TABSPR1", "Additional GTINs", False)
+Call TakeScreenShot
+Call SetTableData("SAPLMGD2TC_EAN", "AV", 2, "<NA>", "<NA>", DT_MM41_8025_TABLECELL_AV_1, False)
+Call SetTableData("SAPLMGD2TC_EAN", "MV", 2, "<NA>", "<NA>", DT_MM41_8025_TABLECELL_MV_1, False)
+Call ClickButton("btn\[39\]", False)   ''Main data
+Call TakeScreenShot
+'''''''''''''''''' steps added newly based on business inputs
+Call SelectTab("TABSPR1", "Sales", False)
+Call ClickButton("Switch area of validity   \(Shift\+F1\)", False)  
+Call TakeScreenShot
+Call SetTextbox("Sales Org\.","RMMW1-VKORG","",DT_SALES_ORG,True)
+Call SetTextbox("Distr\. Channel","RMMW1-VTWEG","",DT_DISTRIBUTION_CHANNEL,True)
+Call TakeScreenShot
+Call ClickButton("Continue   \(Enter\)", True)  
+Call TakeScreenShot
+Call ClickButton("Other Sales Data", False)  
+Call SetTextbox("Article pricing grp","MVKE-KONDM","",DT_ARTICLE_PRICING_GRP,False)
+Call TakeScreenShot
+Call ClickButton("Go to main data   \(Ctrl\+Shift\+F3\)", False)
+''''''''''''''''''''''''
+Call SelectTab("TABSPR1", "POS", False)
+Call TakeScreenShot
+Call SetTableData("SAPLMGD2TC_BON", "L", 1, "<NA>", "<NA>", DT_MM41_2273_TABLECELL_L_0, False)
+Call SetTableData("SAPLMGD2TC_BON", "L", 2, "<NA>", "<NA>", DT_MM41_2273_TABLECELL_L_1, False)
+Call SetTableData("SAPLMGD2TC_BON", "AUn", 1, "<NA>", "<NA>", DT_MM41_2273_TABLECELL_AUN_0, False)
+Call SetTableData("SAPLMGD2TC_BON", "AUn", 2, "<NA>", "<NA>", DT_MM41_2273_TABLECELL_AUN_0, False)
+Call SetTableData("SAPLMGD2TC_BON", "Till rcpt texts for unit", 1, "<NA>", "<NA>", DT_MM41_2273_TABLECELL_TILL_RCPT_TEXTS_FOR_UNIT_0, False)
+Call SetTableData("SAPLMGD2TC_BON", "Till rcpt texts for unit", 2, "<NA>", "<NA>", DT_MM41_2273_TABLECELL_TILL_RCPT_TEXTS_FOR_UNIT_0, False)
+
+Call ClickButton("Save   \(Ctrl\+S\)", False)
+Call TakeScreenShot
+Call GetStatusBar("item1", "DT_MM41_0100_CHECK_MESSAGEPARAMETER_OF_STATUSBAR_OUTPUT")
+Call VerifyStatusBar("Article "&DT_MM41_0100_CHECK_MESSAGEPARAMETER_OF_STATUSBAR_OUTPUT&" created")
+
+Call LogOff()
+
+Call FinalStatus ()
+
+
+
+
+
+
+
+
+'//------------------------------------------(       ......        UTILITY STATEMENTS    ......        )---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------//
+
+'Call CreateRunTimeExcelFile(strFileName)       ................Can use this function if user want to Create Run Time Excel Sheet which captures the run time data 
+'Call GetRunTimeDataFromExcel(strRunTimeExcelFileName,IterationIndex)          ................Can use this function if user want to Get Run Time captured data from run time excel sheet 
+'Call WriteRunTimeScenarioData(strRunTimeExcelFileName,strVariableName,strVariableValue)          ................Can use this function if user want to Write Run Time captured data to run time excel sheet 
+
+'//---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------//
+
+
+'// ---- Script Generated in [0] Minutes , [8,3437477]  Seconds ---- //
+'//---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------//
+' ................NOTE: 
+'.................1		This file is auto converted code from pre-recorded QTP script suitable for TASE Framework only .Please verify each function for applicability
+'.................2		Default Index value 0 is used. If Multiple objects with similar names exists in application,replace 0 with 1/2 etc in case of failure.See the comment line
+'.................3		User supplied Data is auto-parametized with relevant variable Names.See the comment line for details
+'.................4		Input test data excel file is auto generated along with this script in the same location as this file.Input excel file contains all variable names and use defined data as appearing in this script initially
+' ................5		If required additional logic  like  IF - Else , While Loop etc ,can be inserted in between lines  
+'//---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------//
+
+

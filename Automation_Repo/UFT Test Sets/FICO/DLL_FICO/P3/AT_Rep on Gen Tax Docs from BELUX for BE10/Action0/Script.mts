@@ -1,0 +1,11 @@
+﻿RunAction "RunTimeResultFolder", oneIteration
+RunAction "TC1_PRE_01_E10G07P02S01V01", oneIteration
+RunAction "TC2_PRE_02_E10G07P02S01V01", oneIteration
+RunAction "TC3_PRE_03_E10G07P02S01V01", oneIteration
+RunAction "TC4_PRE_04_E10G07P02S01V01", oneIteration
+RunAction "TC5t_PRE_05_E10G07P02S01V01", oneIteration
+RunAction "TC6_PRE_06_E10G07P02S01V01", oneIteration
+RunAction "TC7_PRE_07_E10G07P02S01V01", oneIteration
+RunAction "TC8_PRE_08_E10G07P02S01V01", oneIteration
+RunAction "DataTransfer_1", oneIteration
+RunAction "TC9_E10G07P02S01V01", oneIteration

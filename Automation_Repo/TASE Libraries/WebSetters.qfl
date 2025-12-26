@@ -1,0 +1,4234 @@
+﻿
+'**************************************************
+
+Public Function SetAttributeSAPList(creationTime,listName,listHtmlTag,listIndex,listValue)
+
+	If Not (Environment.Value("blnFatalError") or listValue = DS_SKIP) Then
+		If blnShowNotification Then BalloonTooltip.Show "TASE Automation","Executing Now : SetAttributeSAPList"
+
+		''ALMvalue=getEnvironmentVariable("ALMFlag")
+		''If  ALMvalue=1 Then
+		'	'PopUpCreationtime=Cint(creationTime) + 1
+		'else
+			PopUpCreationtime=Cint(creationTime)
+		'End If
+
+		Dim objSAPList
+		strStepName = " Set "  & "'" & listValue & "'" & " in SAPList : " & "'"& listName & "'"   
+		If listName <> "" OR listHtmlTag<> "" OR  listIndex <> "" Then
+			Set objSAPList =Browser("CreationTime:="& PopUpCreationtime).Page("Index:=" & PopUpCreationtime).SAPList("name:="& listName,"html tag:="& listHtmlTag,"index:=" & listIndex)
+			If  objSAPList.Exist(gObjectTimeoutLimit)  then 
+				objSAPList.Object.setAttribute "value", listValue
+				If blnCaptureFlag  or  blnCreateImageEachStep or blnCreateTrainingDoc Then
+					ImagePath=CaptureScreenshot(strStepName,objSAPList,False,False,True)
+			    End if
+	            
+	            strStatus = "DONE"
+	            strMsg= "SAPList value set successfully"
+	            Call ReporterFunction(strLibraryFileName,"SetAttributeSAPList","2",strStepName,strMsg)
+          	else
+          		blnObjectError=True
+				strStatus = "FAIL"	
+				strMsg = "SAPList: " & listName & " Not found"
+				Call ReporterFunction(strLibraryFileName,"SetAttributeSAPList","1",strStepName,strMsg)
+			
+          end if
+		else
+            strStatus = "FAIL"
+            strMsg = "Function Parameter Not Passed Properly. Check the -SetAttributeSAPList-- Function Call"
+            Call ReporterFunction(strLibraryFileName,"SetAttributeSAPList","1",strStepName,strMsg)
+  		end if
+
+	If  blnObjectError  Then
+		Environment.Value("blnFatalError")=True
+	End If
+
+	If strStatus = "FAIL"  Then
+		SetAttributeSAPList = strMsg
+		blnMainFailFlag = True
+		ImagePath=CaptureScreenshot(strStepName,objSAPList,False,False,True)
+	Else
+		SetAttributeSAPList = True
+	End If
+
+	If blnDefault_eSwiftReporting Then  
+		Call UpdateResultHtml(strStepName,listValue,strMsg,strStatus,"")
+	End If
+
+	Set objSAPList=Nothing
+	
+	End If
+
+End function
+
+'**********************************************************************************************************************
+
+Public Function SetAttributeSAPListSAPPortal(creationTime,listName,listHtmlTag,listIndex,listValue)
+
+	If Not (Environment.Value("blnFatalError") or listValue = DS_SKIP) Then
+		If blnShowNotification Then BalloonTooltip.Show "TASE Automation","Executing Now : SetAttributeSAPListSAPPortal"
+	
+		ALMvalue=Environment.Value("ALMFlag")
+		If  ALMvalue=1 Then
+			PopUpCreationtime=Cint(creationTime) + 1
+		else
+			PopUpCreationtime=Cint(creationTime)	
+		End If
+
+		Dim objSAPList
+		strStepName = " Set "  & "'" & listValue & "'" & " in SAPListSAPPortal : " & "'" & listName & "'"  
+
+		Set objSAPList =Browser("CreationTime:="& PopUpCreationtime).SAPPortal("Index:=" & PopUpCreationtime).SAPList("name:="& listName,"html tag:="& listHtmlTag,"index:=" & listIndex)
+		If  objSAPList.Exist(gObjectTimeoutLimit)  then
+		     
+			If listName <> ""   OR listHtmlTag<> "" OR  listIndex <> "" Then
+				objSAPList.Object.setAttribute "value", listValue
+				If blnCaptureFlag  or  blnCreateImageEachStep or blnCreateTrainingDoc Then
+					ImagePath=CaptureScreenshot(strStepName,objSAPList,False,False,True)
+				End if
+				strStatus = "DONE"
+				strMsg= "SAPList value set successfully"
+				Call ReporterFunction(strLibraryFileName,"SetAttributeSAPListSAPPortal","2",strStepName,strMsg)
+			else
+               	strStatus = "FAIL"
+               	strMsg = "Function Parameter Not Passed Properly. Check the -SetAttributeSAPListSAPPortal-- Function Call"
+               	Call ReporterFunction(strLibraryFileName,"SetAttributeSAPListSAPPortal","1",strStepName,strMsg)
+			end if
+		else
+				blnObjectError=True
+        		strStatus = "FAIL"	
+        		strMsg = "SAPListSAPPortal: " & listName & " Not found"
+        		Call ReporterFunction(strLibraryFileName,"SetAttributeSAPListSAPPortal","1",strStepName,strMsg)
+		end if
+  
+	If  blnObjectError  Then
+		Environment.Value("blnFatalError")=True
+	End If
+
+	If strStatus = "FAIL"  Then
+		SetAttributeSAPListSAPPortal = strMsg
+		blnMainFailFlag = True
+		ImagePath=CaptureScreenshot(strStepName,objSAPList,False,False,True)
+	Else
+		SetAttributeSAPListSAPPortal = True
+	End If
+
+	If blnDefault_eSwiftReporting Then  
+		Call UpdateResultHtml(strStepName,listValue,strMsg,strStatus,"")
+	End If
+
+	Set objSAPList=Nothing
+	
+	End If
+
+End function
+
+'**************************************************************************************************************************
+
+Public Function SetSAPCalendar(creationTime,calendarName,strDate)
+	If Not (Environment.Value("blnFatalError") or strDate = DS_SKIP) Then
+		If blnShowNotification Then BalloonTooltip.Show "TASE Automation","Executing Now : SetSAPCalendar"
+
+		ALMvalue=Environment.Value("ALMFlag")
+		If  ALMvalue=1 Then
+			PopUpCreationtime=Cint(creationTime) + 1
+		else
+			PopUpCreationtime=Cint(creationTime)
+		End If
+
+		Dim objSAPCal
+		strStepName = "Set Date: " & strDate & " in calendar"
+		If calendarName <> "" or strDate <> "" Then
+
+			Set objSAPCal =Browser("CreationTime:="& PopUpCreationtime).Page("Index:="& PopUpCreationtime).SAPCalendar("logical name:="& calendarName,"type:=text","html tag:=INPUT")
+			If  objSAPCal.Exist(gObjectTimeoutLimit)  then 
+				objSAPCal.SetDate strDate
+				wait(8)
+				objSAPCal.Click
+			   	If blnCaptureFlag  or  blnCreateImageEachStep or blnCreateTrainingDoc Then
+					ImagePath=CaptureScreenshot(strStepName,objSAPCal,False,False,True)
+			  	End if
+			  	strStatus = "DONE"
+			  	strMsg= "Calender date set successfully"
+			  	Call ReporterFunction(strLibraryFileName,"SetSAPCalendar","2",strStepName,strMsg)
+			else
+				blnObjectError=True	
+			 	strStatus = "FAIL"
+			 	strMsg = "The Calender: "& calendarName & " is not Found--Check the Screen Properly"
+			 	Call ReporterFunction(strLibraryFileName,"SetSAPCalendar","1",strStepName,strMsg)
+			end if
+		else
+			
+			strStatus = "FAIL"
+			strMsg = "Function Parameter Not Passed Properly. Check the -SetSAPCalendar-- Function Call"
+			Call ReporterFunction(strLibraryFileName,"SetSAPCalendar","1",strStepName,strMsg)
+              
+		end if
+ 
+	If  blnObjectError  Then
+		Environment.Value("blnFatalError")=True
+	End If
+
+	If strStatus = "FAIL"  Then
+		SetSAPCalendar = strMsg
+		blnMainFailFlag = True
+		ImagePath=CaptureScreenshot(strStepName,objSAPCal,False,False,True)
+	Else
+		SetSAPCalendar = True
+	End If
+
+	If blnDefault_eSwiftReporting Then  
+		Call UpdateResultHtml(strStepName,strDate,strMsg,strStatus,"")
+	End If
+
+	Set objSAPCal=Nothing
+	
+	End If
+End function
+
+'**********************************************************************************************************************
+
+Public Function SetSAPCalendarSAPPortal(creationTime,calendarName,strDate)
+
+	If Not (Environment.Value("blnFatalError") or strDate = DS_SKIP) Then
+		If blnShowNotification Then BalloonTooltip.Show "TASE Automation","Executing Now : SetSAPCalendarSAPPortal"
+	
+		ALMvalue=Environment.Value("ALMFlag")
+		If  ALMvalue=1 Then
+			PopUpCreationtime=Cint(creationTime) + 1
+		else
+			PopUpCreationtime=Cint(creationTime)
+		End If
+
+		strStepName = "Set Date: " & strDate & " in calendar"
+		Dim objSAPCal
+		If calendarName <> "" or strDate <> "" Then
+
+			Set objSAPCal =Browser("CreationTime:="& PopUpCreationtime).SAPPortal("Index:="& PopUpCreationtime).SAPCalendar("logical name:="& calendarName,"type:=text","html tag:=INPUT")
+			If  objSAPCal.Exist(gObjectTimeoutLimit)  then 
+    	   			objSAPCal.SetDate strDate
+		      		wait(8)
+		     		objSAPCal.Click
+				If blnCaptureFlag  or  blnCreateImageEachStep or blnCreateTrainingDoc Then
+					ImagePath=CaptureScreenshot(strStepName,objSAPCal,False,False,True)
+				End If
+				strStatus = "DONE"
+				strMsg= "Calender date set successfully"
+				Call ReporterFunction(strLibraryFileName,"SetSAPCalendarSAPPortal","2",strStepName,strMsg)
+			else
+				blnObjectError=True
+			 	strStatus = "FAIL"
+			 	strMsg = "The Calender: "& calendarName & " is not Found--Check the Screen Properly"
+			 	Call ReporterFunction(strLibraryFileName,"SetSAPCalendarSAPPortal","1",strStepName,strMsg)
+			end if
+		else
+				
+			strStatus = "FAIL"
+			strMsg = "Function Parameter Not Passed Properly. Check the -SetSAPCalendarSAPPortal-- Function Call"
+			Call ReporterFunction(strLibraryFileName,"SetSAPCalendarSAPPortal","1",strStepName,strMsg)
+		end if
+
+	If  blnObjectError  Then
+		Environment.Value("blnFatalError")=True
+	End If
+
+	If strStatus = "FAIL"  Then
+		SetSAPCalendarSAPPortal = strMsg
+		blnMainFailFlag = True
+		ImagePath=CaptureScreenshot(strStepName,objSAPCal,False,False,True)
+	Else
+		SetSAPCalendarSAPPortal = True
+	End If
+
+	If blnDefault_eSwiftReporting Then  
+		Call UpdateResultHtml(strStepName,strDate,strMsg,strStatus,"")
+	End If
+
+	Set objSAPCal=Nothing
+	
+	End If
+
+End Function
+'**************************************************************************************************************************
+
+Public Function SetSAPCalendarSAPFrame(creationTime,frameTitle,calendarName,strDate)
+
+	If Not (Environment.Value("blnFatalError") or strDate = DS_SKIP) Then
+     		If blnShowNotification Then BalloonTooltip.Show "TASE Automation","Executing Now : SetSAPCalendarSAPFrame"
+	
+		ALMvalue=Environment.Value("ALMFlag")
+		If  ALMvalue=1 Then
+			PopUpCreationtime=Cint(creationTime) + 1
+		else
+			PopUpCreationtime=Cint(creationTime)
+		End If
+
+		Dim objSAPCal
+		strStepName = "Set Date: " & strDate & " in calendar"
+		If calendarName <> "" or strDate <> "" or frameTitle <> "" Then
+
+			Set objSAPCal=Browser("CreationTime:="& PopUpCreationtime).Page("Index:="& PopUpCreationtime).SAPFrame("title:="&frameTitle).SAPCalendar("logical name:="& calendarName,"type:=text","html tag:=INPUT")
+ 			If  objSAPCal.Exist(gObjectTimeoutLimit)  then 
+				objSAPCal.SetDate strDate
+				wait(8)
+		   		objSAPCal.Click
+				If blnCaptureFlag  or  blnCreateImageEachStep or blnCreateTrainingDoc Then
+					ImagePath=CaptureScreenshot(strStepName,objSAPCal,False,False,True)
+				End if
+	         	strStatus = "DONE"
+	         	strMsg= "Calender date set successfully"
+	         	Call ReporterFunction(strLibraryFileName,"SetSAPCalendarSAPFrame","2",strStepName,strMsg)
+			else
+				blnObjectError=True	
+	       		strStatus = "FAIL"
+	       		strMsg = "The Calender: "& calendarName & " Object Missing--Check the Screen Properly"
+	       		Call ReporterFunction(strLibraryFileName,"SetSAPCalendarSAPFrame","1",strStepName,strMsg)
+    		end if
+		else
+		
+			strStatus = "FAIL"
+			strMsg = "Function Parameter Not Passed Properly. Check the -SetSAPCalendarSAPFrame-- Function Call"
+			Call ReporterFunction(strLibraryFileName,"SetSAPCalendarSAPFrame","1",strStepName,strMsg)
+		end if
+
+	If  blnObjectError  Then
+		Environment.Value("blnFatalError")=True
+	End If
+
+	If strStatus = "FAIL"  Then
+		SetSAPCalendarSAPFrame = strMsg
+		blnMainFailFlag = True
+		ImagePath=CaptureScreenshot(strStepName,objSAPCal,False,False,True)
+	Else
+		SetSAPCalendarSAPFrame = True
+	End If
+
+	If blnDefault_eSwiftReporting Then  
+		Call UpdateResultHtml(strStepName,strDate,strMsg,strStatus,"")
+	End If
+
+
+	Set objSAPCal=Nothing
+	
+	End If
+
+End Function
+
+'******************************************************************************************************************
+
+
+Public Function SetSAPEdit(creationTime,SAPAttachedtext,SAPEditTexttype,SAPEditIndex,val)
+
+	If Not (Environment.Value("blnFatalError") or val = DS_SKIP) Then
+     		If blnShowNotification Then BalloonTooltip.Show "TASE Automation","Executing Now : SetSAPEdit"
+	
+'		ALMvalue=Environment.Value("ALMFlag")
+'		If  ALMvalue=1 Then
+'			PopUpCreationtime=Cint(creationTime) + 1
+'		else
+			PopUpCreationtime=Cint(creationTime)
+'		End If
+
+		Dim objSAPEdit
+		strStepName = "Set text box :"& SAPAttachedtext
+		If SAPAttachedtext<> ""  or SAPEditTexttype <> "" or SAPEditIndex <> "" Then
+			Set objSAPEdit =Browser("CreationTime:="& PopUpCreationtime).Page("Index:="& PopUpCreationtime).SAPEdit("sap attached text:="& SAPAttachedtext,"type:="& SAPEditTexttype,"index:="&SAPEditIndex)
+ 			If  objSAPEdit.Exist(gObjectTimeoutLimit)  then 
+				objSAPEdit.Click
+				objSAPEdit.Set val
+				Wait(1)
+				If blnCaptureFlag  or  blnCreateImageEachStep or blnCreateTrainingDoc Then
+					ImagePath=CaptureScreenshot(strStepName,objSAPEdit,False,False,True)
+				End if
+				strStatus = "DONE"
+				strMsg= "SAPEdit value set successfully"
+				Call ReporterFunction(strLibraryFileName,"SetSAPEdit","2",strStepName,strMsg)
+			else
+				blnObjectError=True
+        		strStatus = "FAIL"	
+        		strMsg = "SAPEdit: " & SAPAttachedtext & " Not found"
+        		Call ReporterFunction(strLibraryFileName,"SetSAPEdit","1",strStepName,strMsg)
+        		
+    		end if
+		else
+				strStatus = "FAIL"
+				strMsg = "Function Parameter Not Passed Properly. Check the -SetSAPEdit-- Function Call"
+				Call ReporterFunction(strLibraryFileName,"SetSAPEdit","1",strStepName,strMsg)
+		end if
+
+	If  blnObjectError  Then
+		Environment.Value("blnFatalError")=True
+	End If
+
+	If strStatus = "FAIL"  Then
+		SetSAPEdit = strMsg
+		blnMainFailFlag = True
+		ImagePath=CaptureScreenshot(strStepName,objSAPEdit,False,False,True)
+	Else
+		SetSAPEdit = True
+	End If
+
+	If blnDefault_eSwiftReporting Then  
+		Call UpdateResultHtml(strStepName,val,strMsg,strStatus,"")
+	End If
+
+	Set objSAPEdit=Nothing
+	
+	End If
+End function
+
+'******************************************************************************************************************
+
+Public Function SetSAPEditSAPPortal(creationTime,SAPAttachedtext,SAPEditTexttype,SAPEditIndex,val)
+	If Not (Environment.Value("blnFatalError") or val = DS_SKIP) Then
+		If blnShowNotification Then BalloonTooltip.Show "TASE Automation","Executing Now : SetSAPEditSAPPortal"
+
+		ALMvalue=Environment.Value("ALMFlag")
+		If  ALMvalue=1 Then
+			PopUpCreationtime=Cint(creationTime) + 1
+		else
+			PopUpCreationtime=Cint(creationTime)
+		End If
+
+		Dim objSAPEdit
+		strStepName = "Set text box ::"& SAPAttachedtext
+		If SAPAttachedtext<> "" or SAPEditTexttype <> "" or SAPEditIndex <> "" Then
+			Set objSAPEdit=Browser("CreationTime:="& PopUpCreationtime).SAPPortal("Index:="& PopUpCreationtime).SAPEdit("sap attached text:="& SAPAttachedtext,"type:="& SAPEditTexttype,"index:="&SAPEditIndex)
+ 			If  objSAPEdit.Exist(gObjectTimeoutLimit)  then 
+		 		objSAPEdit.Click
+		 		objSAPEdit.Set val
+		 		Wait(1)
+				If blnCaptureFlag  or  blnCreateImageEachStep or blnCreateTrainingDoc Then
+								ImagePath=CaptureScreenshot(strStepName,objSAPEdit,False,False,True)
+                 End if
+	            strStatus = "DONE"
+	            strMsg= "SAP Text  value set successfully"
+	            Call ReporterFunction(strLibraryFileName,"SetSAPEditSAPPortal","2",strStepName,strMsg)
+			else
+				blnObjectError=True
+               	strStatus = "FAIL"
+               	strMsg = "Object Missing--Check the Screen Properly"
+               	Call ReporterFunction(strLibraryFileName,"SetSAPEditSAPPortal","1",strStepName,strMsg)
+			end if
+		else
+			
+            strStatus = "FAIL"
+            strMsg = "Function Parameter Not Passed Properly. Check the -SetSAPEditSAPPortal-- Function Call"
+            Call ReporterFunction(strLibraryFileName,"SetSAPEditSAPPortal","1",strStepName,strMsg)
+		end if
+
+	If  blnObjectError  Then
+		Environment.Value("blnFatalError")=True
+	End If
+
+	If strStatus = "FAIL"  Then
+		SetSAPEditSAPPortal = strMsg
+		blnMainFailFlag = True
+		ImagePath=CaptureScreenshot(strStepName,objSAPEdit,False,False,True)
+	Else
+		SetSAPEditSAPPortal = True
+	End If
+
+	If blnDefault_eSwiftReporting Then  
+		Call UpdateResultHtml(strStepName,val,strMsg,strStatus,"")
+	End If
+
+	Set objSAPEdit=Nothing
+	
+	End If
+End function
+
+'******************************************************************************************************************
+Public Function SetSAPEditSAPFrame(creationTime,frameTitle,SAPAttachedtext,SAPEditTexttype,SAPEditIndex,val)
+
+	If Not (Environment.Value("blnFatalError") or val = DS_SKIP) Then
+		If blnShowNotification Then BalloonTooltip.Show "TASE Automation","Executing Now : SetSAPEditSAPFrame"
+
+'		ALMvalue=Environment.Value("ALMFlag")
+'		If  ALMvalue=1 Then
+'			PopUpCreationtime=Cint(creationTime) + 1
+'		else
+			PopUpCreationtime=Cint(creationTime)
+'		End If
+
+		Dim objSAPEdit
+		strStepName = "Set text box ::"& SAPAttachedtext
+
+		If SAPAttachedtext<> "" or SAPEditTexttype <> "" or SAPEditIndex <> "" Then
+			Set objSAPEdit=Browser("CreationTime:="& PopUpCreationtime).Page("Index:="& PopUpCreationtime).SAPFrame("title:="& frameTitle).SAPEdit("sap attached text:="& SAPAttachedtext,"type:="& SAPEditTexttype,"index:="& SAPEditIndex)
+ 			If  objSAPEdit.Exist(gObjectTimeoutLimit)  then 
+				objSAPEdit.Click
+				objSAPEdit.Set val
+				Wait(1)
+				If blnCaptureFlag  or  blnCreateImageEachStep or blnCreateTrainingDoc Then
+					ImagePath=CaptureScreenshot(strStepName,objSAPEdit,False,False,True)
+				End if
+				strStatus = "DONE"
+				strMsg= "SAP Text  value set successfully"
+				Call ReporterFunction(strLibraryFileName,"SetSAPEditSAPFrame","2",strStepName,strMsg)
+			else
+				blnObjectError=True
+               	strStatus = "FAIL"
+               	strMsg = "Object Missing--Check the Screen Properly"
+               	Call ReporterFunction(strLibraryFileName,"SetSAPEditSAPFrame","1",strStepName,strMsg)
+			end if
+		else
+        	
+            strStatus = "FAIL"
+            strMsg = "Function Parameter Not Passed Properly. Check the -SetSAPEditSAPFrame-- Function Call"
+            Call ReporterFunction(strLibraryFileName,"SetSAPEditSAPFrame","1",strStepName,strMsg)
+		end if
+
+	If  blnObjectError  Then
+		Environment.Value("blnFatalError")=True
+	End If
+
+	If strStatus = "FAIL"  Then
+		SetSAPEditSAPFrame = strMsg
+		blnMainFailFlag = True
+		ImagePath=CaptureScreenshot(strStepName,objSAPEdit,False,False,True)
+	Else
+		SetSAPEditSAPFrame = True
+	End If
+
+	If blnDefault_eSwiftReporting Then  
+		Call UpdateResultHtml(strStepName,val,strMsg,strStatus,"")
+	End If
+
+	Set objSAPEdit=Nothing
+	
+	End If
+
+End Function
+
+'***************************************************************************************************************************************************
+Public Function VerifySAPEditFrame(creationTime,frameTitle,SAPAttachedtext,SAPEditTexttype,SAPEditIndex,val)
+
+	If Not (Environment.Value("blnFatalError") or val = DS_SKIP) Then
+		If blnShowNotification Then BalloonTooltip.Show "TASE Automation","Executing Now : VerifySAPEditFrame"
+
+'		ALMvalue=Environment.Value("ALMFlag")
+'		If  ALMvalue=1 Then
+'			PopUpCreationtime=Cint(creationTime) + 1
+'		else
+			PopUpCreationtime=Cint(creationTime)
+'		End If
+
+		Dim objSAPEdit
+		strStepName = "Verify text box ::"& SAPAttachedtext
+
+		If SAPAttachedtext<> "" or SAPEditTexttype <> "" or SAPEditIndex <> "" Then
+			Set objSAPEdit=Browser("CreationTime:="& PopUpCreationtime).Page("Index:="& PopUpCreationtime).Frame("title:="& frameTitle).SAPEdit("sap attached text:="& SAPAttachedtext,"type:="& SAPEditTexttype,"index:="& SAPEditIndex)
+'			objSAPEdit.FireEvent "ondblclick"
+ 			If  objSAPEdit.Exist(gObjectTimeoutLimit)  then 
+				objSAPEditValue=objSAPEdit.getROproperty("value")
+
+			    If objSAPEditValue=val then 
+				Wait(1)
+				If blnCaptureFlag  or  blnCreateImageEachStep or blnCreateTrainingDoc Then
+					ImagePath=CaptureScreenshot(strStepName,objSAPEdit,False,False,True)
+				End if
+				strStatus = "PASS"
+				strMsg= "SAP Text  value verified successfully,Expected value is "& val &" is matching with the actual value "& objSAPEditValue &""
+				Call ReporterFunction(strLibraryFileName,"VerifySAPEditFrame","2",strStepName,strMsg)
+				else
+				strStatus = "FAIL"
+				strMsg= "SAP Text  value  verification failed,Expected value is "& val &" is not matching with the actual value "& objSAPEditValue &""
+				Call ReporterFunction(strLibraryFileName,"VerifySAPEditFrame","1",strStepName,strMsg)
+				End if
+				
+			else
+				blnObjectError=True
+               	strStatus = "FAIL"
+               	strMsg = "Object Missing--Check the Screen Properly"
+               	Call ReporterFunction(strLibraryFileName,"VerifySAPEditFrame","1",strStepName,strMsg)
+			end if
+		else
+        	
+            strStatus = "FAIL"
+            strMsg = "Function Parameter Not Passed Properly. Check the -VerifySAPEditFrame-- Function Call"
+            Call ReporterFunction(strLibraryFileName,"VerifySAPEditFrame","1",strStepName,strMsg)
+		end if
+
+	If  blnObjectError  Then
+		Environment.Value("blnFatalError")=True
+	End If
+
+	If strStatus = "FAIL"  Then
+		VerifySAPEditFrame = strMsg
+		blnMainFailFlag = True
+		ImagePath=CaptureScreenshot(strStepName,objSAPEdit,False,False,True)
+	Else
+		VerifySAPEditFrame = True
+	End If
+
+	If blnDefault_eSwiftReporting Then  
+		Call UpdateResultHtml(strStepName,val,strMsg,strStatus,"")
+	End If
+
+	Set objSAPEdit=Nothing
+	
+	End If
+
+End Function
+
+Public Function  SetSAPEditUniversal(creationTime,SAPAttachedtext,textboxName,val)
+
+	If Not (Environment.Value("blnFatalError") or val = DS_SKIP) Then
+		If blnShowNotification Then BalloonTooltip.Show "TASE Automation","Executing Now : SetSAPEditUniversal"
+		
+		ALMvalue=Environment.Value("ALMFlag")
+		If  ALMvalue=1 Then
+			PopUpCreationtime=Cint(creationTime) + 1
+		else
+			PopUpCreationtime=Cint(creationTime)
+		End If
+
+
+		LinkCondition=0
+		strStepName  = "Set value " & val & " in the textbox "& SAPAttachedtext
+		If Browser("CreationTime:="& PopUpCreationtime).Page("Index:="& PopUpCreationtime).Exist then
+			BrowserFound=True
+			If SAPAttachedtext <> ""  Then	
+				set oDesc=Description.Create()
+				oDesc("micclass").value="SAPEdit"
+				Set list=Browser("CreationTime:="& PopUpCreationtime).Page("Index:="& PopUpCreationtime).ChildObjects(oDesc)
+				For i=0 to list.count-1
+				If list(i).getroproperty("sap attached text")=SAPAttachedtext  Then
+					list(i).set val
+			   		If blnCaptureFlag  or  blnCreateImageEachStep or blnCreateTrainingDoc Then
+						ImagePath=CaptureScreenshot(strStepName,Browser("CreationTime:="& PopUpCreationtime).Page("Index:="& PopUpCreationtime),False,False,True)
+			  		End if
+            		LinkCondition = 1
+				Exit for
+				end if 
+				Next
+			else
+ 				set oDesc=Description.Create()
+				oDesc("micclass").value="SAPEdit"
+				Set list=Browser("CreationTime:="& PopUpCreationtime).Page("Index:="& PopUpCreationtime).ChildObjects(oDesc)
+				For i=0 to list.count-1
+				If list(i).getroproperty("name")=textboxName then
+					list(i).set val
+             		If blnCaptureFlag  or  blnCreateImageEachStep or blnCreateTrainingDoc Then
+						ImagePath=CaptureScreenshot(strStepName,Browser("CreationTime:="& PopUpCreationtime).Page("Index:="& PopUpCreationtime),False,False,True)
+					End if
+					LinkCondition = 1
+				Exit for
+				end if 
+				Next
+			end if
+		else
+			
+			strStatus = "FAIL"
+			strMsg = "Page missing"
+			Call ReporterFunction(strLibraryFileName,"SetSAPEditUniversal","1",strStepName,strMsg)
+			BrowserFound=False
+		end if
+	If LinkCondition=1 and BrowserFound Then
+		strStatus = "DONE"
+		strMsg= "Text value set successfully"
+		Call ReporterFunction(strLibraryFileName,"SetSAPEditUniversal","2",strStepName,strMsg)
+		
+	ElseIf LinkCondition=0 and BrowserFound Then 
+		blnObjectError=True
+		strStatus = "FAIL"
+		strMsg = SAPAttachedtext&" SAPEdit Not found"
+		Call ReporterFunction(strLibraryFileName,"SetSAPEditUniversal","1",strStepName,strMsg)
+	End If
+
+
+	If  blnObjectError  Then
+		Environment.Value("blnFatalError")=True
+	End If
+
+	If strStatus = "FAIL"  Then
+		SetSAPEditUniversal = strMsg
+		blnMainFailFlag = True
+		ImagePath=CaptureScreenshot(strStepName,Browser("CreationTime:="& PopUpCreationtime).Page("Index:="& PopUpCreationtime),False,False,True)
+	Else
+		SetSAPEditUniversal = True
+	End If
+
+	If blnDefault_eSwiftReporting Then  
+		Call UpdateResultHtml(strStepName,val,strMsg,strStatus,"")
+	End If
+
+	
+	End If
+End function
+
+'******************************************************************************************************************
+
+Public Function SetSAPEditSAPPortalByName(creationTime,SAPEditName,Val)
+	If Not (Environment.Value("blnFatalError") or Val = DS_SKIP) Then
+		If blnShowNotification Then BalloonTooltip.Show "TASE Automation","Executing Now : SetSAPEditSAPPortalByName"
+
+		ALMvalue=Environment.Value("ALMFlag")
+		If  ALMvalue=1 Then
+			PopUpCreationtime=Cint(creationTime) + 1
+		else
+			PopUpCreationtime=Cint(creationTime)
+		End If
+		Dim objEdit
+		strStepName = "Set Value:"& Val &" in SAP Portal"
+		If SAPEditName<>"" Then
+		
+			Set objEdit = Browser("CreationTime:=" & PopUpCreationtime).SAPPortal("Index:=" & PopUpCreationtime).SAPEdit("name:="& SAPEditName)
+			If objEdit.Exist(gObjectTimeoutLimit) Then
+				objEdit.Set Val
+				If blnCaptureFlag  or  blnCreateImageEachStep or blnCreateTrainingDoc Then
+					ImagePath=CaptureScreenshot(strStepName,objEdit,False,False,True)
+			    End if
+			    
+	            strStatus = "DONE"
+		        strMsg ="Text is Set Successfully in SAPEdit : "& SAPEditName
+		        Call ReporterFunction(strLibraryFileName,"SetSAPEditSAPPortalByName","2",strStepName,strMsg)
+			Else
+				blnObjectError=True
+               	strStatus = "FAIL"
+		       	strMsg ="SAPEdit Not Found"
+		       	Call ReporterFunction(strLibraryFileName,"SetSAPEditSAPPortalByName","1",strStepName,strMsg)
+			End If
+		Else
+			
+            strStatus = "FAIL"
+            strMsg = "Function Parameter Not Passed Properly. Check the -SetSAPEditSAPPortalByName-- Function Call"
+            Call ReporterFunction(strLibraryFileName,"SetSAPEditSAPPortalByName","1",strStepName,strMsg)
+		End If
+
+	If  blnObjectError  Then
+		Environment.Value("blnFatalError")=True
+	End If
+
+	If strStatus = "FAIL"  Then
+		SetSAPEditSAPPortalByName = strMsg
+		blnMainFailFlag = True
+		ImagePath=CaptureScreenshot(strStepName,objEdit,False,False,True)
+	Else
+		SetSAPEditSAPPortalByName = True
+	End If
+
+	If blnDefault_eSwiftReporting Then  
+		Call UpdateResultHtml(strStepName,Val,strMsg,strStatus,"")
+	End If
+
+	Set objEdit=Nothing
+	
+	End If
+End function
+
+'**************************************************************************************************************************************************************
+Public Function SetWebEdit(creationTime,windowText,webeditName,webeditTexttype,webeditIndex,val,blnIsItPopup)
+	If Not (Environment.Value("blnFatalError") or val = DS_SKIP) Then
+		If blnShowNotification Then BalloonTooltip.Show "TASE Automation","Executing Now : SetWebEdit"
+
+'		ALMvalue=getEnvironmentVariable("ALMFlag")
+'		If  ALMvalue=1 Then
+'			PopUpCreationtime=Cint(creationTime) + 1
+'		else
+			PopUpCreationtime=Cint(creationTime)
+'		End If
+
+		Dim objWebEdit
+'		strStepName = "Set text box : "& webeditName
+		strStepName = " Set "  & "'" & val & "'" & " in Textbox : " & "'"& webeditName & "'"  
+		If webeditName<> ""  or webeditTexttype <> "" or webeditIndex <> "" Then
+
+			If blnIsItPopup Then
+				Set objWebEdit = Browser("CreationTime:="& PopUpCreationtime).Window("text:="&windowText).Page("Index:="& PopUpCreationtime).WebEdit("name:="&webeditName,"type:=" &webeditTexttype,"index:="&webeditIndex)
+			else
+    				Set objWebEdit = Browser("CreationTime:="& PopUpCreationtime).Page("Index:="& PopUpCreationtime).WebEdit("name:="&webeditName,"type:=" &webeditTexttype,"index:="&webeditIndex)
+			End If
+			If  objWebEdit.Exist(gObjectTimeoutLimit)  then 
+     			     If InSTR(1,UCASE(webeditTexttype),"PASSWORD",VBTextCompare) >=1 Then
+'     			         objWebEdit.Highlight
+   	 		         objWebEdit.SetSecure val
+   	 		     Else 
+'   	 		    	 objWebEdit.Highlight
+   	 		         objWebEdit.Click
+   	 		         objWebEdit.Set val
+   	 		         
+   	 		     End If    
+   
+	 			Wait(1)
+      			If blnCaptureFlag  or  blnCreateImageEachStep or blnCreateTrainingDoc Then
+					ImagePath=CaptureScreenshot(strStepName,objWebEdit,True,False,False)
+	  			End if
+				
+	            strStatus = "DONE"
+	            strMsg= "WebEdit value set successfully"
+	            Call ReporterFunction(strLibraryFileName,"SetWebEdit","2",strStepName,strMsg)
+  			else
+  				blnObjectError=True
+               	strStatus = "FAIL"
+               	strMsg = "Object Missing--Check the Screen Properly"
+               	Call ReporterFunction(strLibraryFileName,"SetWebEdit","1",strStepName,strMsg)
+  			end if
+		else
+               	strStatus = "FAIL"
+               	strMsg = "Function Parameter Not Passed Properly. Check the -SetWebEdit-- Function Call"
+               	Call ReporterFunction(strLibraryFileName,"SetWebEdit","1",strStepName,strMsg)
+		end if
+
+	If  blnObjectError  Then
+		Environment.Value("blnFatalError")=True
+	End If
+
+	If strStatus = "FAIL"  Then
+		SetWebEdit = strMsg
+		blnMainFailFlag = True
+		ImagePath=CaptureScreenshot(strStepName,objWebEdit,False,False,True)
+	Else
+		SetWebEdit = True
+	End If
+
+	If blnDefault_eSwiftReporting Then  
+		Call UpdateResultHtml(strStepName,val,strMsg,strStatus,"")
+	End If
+
+	Set objWebEdit=Nothing
+	
+	End If
+End function
+
+
+'**************************************************************************************************************************************************
+
+Public Function SetWebEditDeviceReplay(creationTime,windowText,webeditName,webeditTexttype,webeditIndex,val,blnIsItPopup)
+	If Not (Environment.Value("blnFatalError") or val = DS_SKIP) Then
+		If blnShowNotification Then BalloonTooltip.Show "TASE Automation","Executing Now : SetWebEditDeviceReplay"
+
+    			PopUpCreationtime=Cint(creationTime)
+		Dim objWebEdit
+		strStepName = "Set text box : "& webeditName
+		If webeditName<> ""  or webeditTexttype <> "" or webeditIndex <> "" Then
+
+			If blnIsItPopup Then
+    				Set objWebEdit =Browser("CreationTime:="& PopUpCreationtime).Window("text:="&windowText).Page("Index:="& PopUpCreationtime).WebEdit("name:="&webeditName,"type:=" &webeditTexttype,"index:="&webeditIndex)
+			else
+    				Set objWebEdit =Browser("CreationTime:="& PopUpCreationtime).Page("Index:="& PopUpCreationtime).WebEdit("name:="&webeditName,"type:=" &webeditTexttype,"index:="&webeditIndex)
+			End If
+ 			If  objWebEdit.Exist(gObjectTimeoutLimit)  then 
+				objWebEdit.Click
+				Set objDeviceReplay = CreateObject("Mercury.DeviceReplay")
+				objDeviceReplay.SendString val
+				Set objDeviceReplay = nothing 
+				Wait(1)
+				objWebEdit.Submit
+              	If blnCaptureFlag  or  blnCreateImageEachStep or blnCreateTrainingDoc Then
+					ImagePath=CaptureScreenshot(strStepName,objWebEdit,False,False,True)
+			 	End if
+	          	strStatus = "DONE"
+	          	strMsg= "WebEdit value set successfully"
+	          	Call ReporterFunction(strLibraryFileName,"SetWebEditDeviceReplay","2",strStepName,strMsg)
+  			else
+  				blnObjectError=True
+               	strStatus = "FAIL"
+               	strMsg = "Object Missing--Check the Screen Properly"
+               	Call ReporterFunction(strLibraryFileName,"SetWebEditDeviceReplay","1",strStepName,strMsg)
+  			end if
+		else
+                
+               	strStatus = "FAIL"
+               	strMsg = "Function Parameter Not Passed Properly. Check the -SetWebEditDeviceReplay-- Function Call"
+               	Call ReporterFunction(strLibraryFileName,"SetWebEditDeviceReplay","1",strStepName,strMsg)
+		end if
+
+	If  blnObjectError  Then
+		Environment.Value("blnFatalError")=True
+	End If
+
+	If strStatus = "FAIL"  Then
+		SetWebEditDeviceReplay = strMsg
+		blnMainFailFlag = True
+		ImagePath=CaptureScreenshot(strStepName,objWebEdit,False,False,True)
+	Else
+		SetWebEditDeviceReplay = True
+	End If
+
+	If blnDefault_eSwiftReporting Then  
+		Call UpdateResultHtml(strStepName,val,strMsg,strStatus,"")
+	End If
+
+	Set objWebEdit=Nothing
+	
+	End If
+End function
+
+'******************************************************************************************************************
+
+Public Function SetWebEditSAPPortal(creationTime,webeditName,webeditTexttype,webeditIndex,val)
+
+	If Not (Environment.Value("blnFatalError") or val = DS_SKIP) Then
+		If blnShowNotification Then BalloonTooltip.Show "TASE Automation","Executing Now : SetWebEditSAPPortal"
+
+		ALMvalue=Environment.Value("ALMFlag")
+		If  ALMvalue=1 Then
+			PopUpCreationtime=Cint(creationTime) + 1
+		else
+			PopUpCreationtime=Cint(creationTime)
+		End If
+
+		Dim objWebEdit
+		strStepName = "Set text box ::"& webeditName
+		If webeditName<> ""  or webeditTexttype <> "" or webeditIndex <> "" Then
+
+			Set objWebEdit =Browser("CreationTime:="& PopUpCreationtime).SAPPortal("Index:="& PopUpCreationtime).WebEdit("name:="&webeditName,"type:=" &webeditTexttype,"index:="&webeditIndex)
+ 			If  objWebEdit.Exist(gObjectTimeoutLimit)  then 
+				objWebEdit.Click
+			 	objWebEdit.Set val
+			 	Wait(1)
+			 	objWebEdit.Click
+             	If blnCaptureFlag  or  blnCreateImageEachStep or blnCreateTrainingDoc Then
+					ImagePath=CaptureScreenshot(strStepName,objWebEdit,False,False,True)
+	          	End if
+	           	strStatus = "DONE"
+	           	strMsg= "Web Edit value set successfully"
+	           	Call ReporterFunction(strLibraryFileName,"SetWebEditSAPPortal","2",strStepName,strMsg)
+  			else
+  				blnObjectError=True
+               	strStatus = "FAIL"
+               	strMsg = "Object Missing--Check the Screen Properly"
+               	Call ReporterFunction(strLibraryFileName,"SetWebEditSAPPortal","1",strStepName,strMsg)
+  			end if
+		else
+           	strStatus = "FAIL"
+           	strMsg = "Function Parameter Not Passed Properly. Check the -SetWebEditSAPPortal-- Function Call"
+           	 Call ReporterFunction(strLibraryFileName,"SetWebEditSAPPortal","1",strStepName,strMsg)
+		end if
+
+	If  blnObjectError  Then
+		Environment.Value("blnFatalError")=True
+	End If
+
+	If strStatus = "FAIL"  Then
+		SetWebEditSAPPortal = strMsg
+		blnMainFailFlag = True
+		ImagePath=CaptureScreenshot(strStepName,objWebEdit,False,False,True)
+	Else
+		SetWebEditSAPPortal = True
+	End If
+
+	If blnDefault_eSwiftReporting Then  
+		Call UpdateResultHtml(strStepName,val,strMsg,strStatus,"")
+	End If
+
+	Set objWebEdit=Nothing
+	
+	End If
+End function
+
+'******************************************************************************************************************
+
+Public Function SetWebEditSAPFrame(creationTime,frameTitle,webeditName,webeditTexttype,webeditIndex,val)
+	If Not (Environment.Value("blnFatalError") or val = DS_SKIP) Then
+		If blnShowNotification Then BalloonTooltip.Show "TASE Automation","Executing Now : SetWebEditSAPFrame"
+
+'		ALMvalue=Environment.Value("ALMFlag")
+'		If  ALMvalue=1 Then
+'			PopUpCreationtime=Cint(creationTime) + 1
+'		else
+			PopUpCreationtime=Cint(creationTime)
+'		End If
+
+		Dim objWebEdit
+		strStepName = "Set text box : "& webeditName
+		If webeditName<> ""  or webeditTexttype <> "" or webeditIndex <> "" Then
+
+			Set objWebEdit =Browser("CreationTime:="& PopUpCreationtime).Page("Index:="& PopUpCreationtime).SAPFrame("title:=" & frameTitle).WebEdit("name:="&webeditName,"type:=" &webeditTexttype,"index:="&webeditIndex)
+ 			If  objWebEdit.Exist(gObjectTimeoutLimit)  then 
+				objWebEdit.Click
+				objWebEdit.Set val
+				Wait(1)
+				objWebEdit.Click
+				
+				If blnCaptureFlag  or  blnCreateImageEachStep or blnCreateTrainingDoc Then
+					ImagePath=CaptureScreenshot(strStepName,objWebEdit,False,False,True)
+				End if
+             	strStatus = "DONE"
+	          	strMsg= "Web Edit value set successfully"
+	          	Call ReporterFunction(strLibraryFileName,"SetWebEditSAPFrame","2",strStepName,strMsg)
+  		else
+  			blnObjectError=True
+            strStatus = "FAIL"
+            strMsg = "Object Missing--Check the Screen Properly"
+            Call ReporterFunction(strLibraryFileName,"SetWebEditSAPFrame","1",strStepName,strMsg)
+		end if
+	else
+       		
+            strStatus = "FAIL"
+            strMsg = "Function Parameter Not Passed Properly. Check the -SetWebEditSAPFrame-- Function Call"
+            Call ReporterFunction(strLibraryFileName,"SetWebEditSAPFrame","1",strStepName,strMsg)
+	end if
+
+	If  blnObjectError  Then
+		Environment.Value("blnFatalError")=True
+	End If
+
+	If strStatus = "FAIL"  Then
+		SetWebEditSAPFrame = strMsg
+		blnMainFailFlag = True
+		ImagePath=CaptureScreenshot(strStepName,objWebEdit,False,False,True)
+	Else
+		SetWebEditSAPFrame = True
+	End If
+
+	If blnDefault_eSwiftReporting Then  
+		Call UpdateResultHtml(strStepName,val,strMsg,strStatus,"")
+	End If
+
+
+	Set objWebEdit=Nothing
+	
+	End If
+End function
+
+'******************************************************************************************************************
+
+Public Function SetWebEditSAPFrameByTitle(creationTime,frameTitle,webeditTitle,webeditTexttype,webeditIndex,val)
+	If Not (Environment.Value("blnFatalError") or val = DS_SKIP) Then
+		If blnShowNotification Then BalloonTooltip.Show "TASE Automation","Executing Now : SetWebEditSAPFrameByTitle"
+
+'		ALMvalue=Environment.Value("ALMFlag")
+'		If  ALMvalue=1 Then
+'			PopUpCreationtime=Cint(creationTime) + 1
+'		else
+			PopUpCreationtime=Cint(creationTime)
+'		End If
+
+		Dim objWebEdit
+		strSteptitle = "Set text box : "& webeditTitle
+		If webeditTitle<> ""  or webeditTexttype <> "" or webeditIndex <> "" Then
+		
+	
+			Set objWebEdit =Browser("CreationTime:="& PopUpCreationtime).Page("Index:="& PopUpCreationtime).SAPFrame("title:=" & frameTitle).WebEdit("title:="&webeditTitle,"type:=" &webeditTexttype,"index:="&webeditIndex)
+			objWebEdit.FireEvent "ondblclick"
+ 			If  objWebEdit.Exist(gObjectTimeoutLimit)  then 
+ 			Set ObjWebEditObJ = Browser("CreationTime:="& PopUpCreationtime).Page("Index:="& PopUpCreationtime).SAPFrame("title:=" & frameTitle).WebEdit("title:="&webeditTitle,"type:=" &webeditTexttype,"index:="&webeditIndex).Object
+ 				
+ 				ObjWebEditObJ.Focus
+				objWebEdit.Click
+				Wait 5
+				objWebEdit.set val
+				Wait(1)
+				objWebEdit.Click
+				
+				If blnCaptureFlag  or  blnCreateImageEachStep or blnCreateTrainingDoc Then
+					ImagePath=CaptureScreenshot(strSteptitle,objWebEdit,False,False,True)
+				End if
+             	strStatus = "DONE"
+	          	strMsg= "Web Edit value set successfully"
+	          	Call ReporterFunction(strLibraryFiletitle,"SetWebEditSAPFrameByTitle","2",strSteptitle,strMsg)
+  		else
+  			blnObjectError=True
+            strStatus = "FAIL"
+            strMsg = "Object Missing--Check the Screen Properly"
+            Call ReporterFunction(strLibraryFiletitle,"SetWebEditSAPFrameByTitle","1",strSteptitle,strMsg)
+		end if
+	else
+       		
+            strStatus = "FAIL"
+            strMsg = "Function Parameter Not Passed Properly. Check the -SetWebEditSAPFrameByTitle-- Function Call"
+            Call ReporterFunction(strLibraryFiletitle,"SetWebEditSAPFrameByTitle","1",strSteptitle,strMsg)
+	end if
+
+	If  blnObjectError  Then
+		Environment.Value("blnFatalError")=True
+	End If
+
+	If strStatus = "FAIL"  Then
+		SetWebEditSAPFrameByTitle = strMsg
+		blnMainFailFlag = True
+		ImagePath=CaptureScreenshot(strSteptitle,objWebEdit,False,False,True)
+	Else
+		SetWebEditSAPFrameByTitle = True
+	End If
+
+	If blnDefault_eSwiftReporting Then  
+		Call UpdateResultHtml(strSteptitle,val,strMsg,strStatus,"")
+	End If
+
+
+	Set objWebEdit=Nothing
+	
+	End If
+End function
+
+'******************************************************************************************************************
+
+Public Function SetWebEditFrameByTitle(creationTime,frameTitle,webeditTitle,webeditTexttype,webeditIndex,val)
+	If Not (Environment.Value("blnFatalError") or val = DS_SKIP) Then
+		If blnShowNotification Then BalloonTooltip.Show "TASE Automation","Executing Now : SetWebEditFrameByTitle"
+
+'		ALMvalue=Environment.Value("ALMFlag")
+'		If  ALMvalue=1 Then
+'			PopUpCreationtime=Cint(creationTime) + 1
+'		else
+			PopUpCreationtime=Cint(creationTime)
+'		End If
+
+		Dim objWebEdit
+		strSteptitle = "Set text box : "& webeditTitle
+		If webeditTitle<> ""  or webeditTexttype <> "" or webeditIndex <> "" Then
+		
+		Browser("CreationTime:="& PopUpCreationtime).Page("Index:="& PopUpCreationtime).Frame("title:=" & frameTitle).Highlight
+	
+			Set objWebEdit =Browser("CreationTime:="& PopUpCreationtime).Page("Index:="& PopUpCreationtime).Frame("title:=" & frameTitle).WebEdit("title:="&webeditTitle,"type:=" &webeditTexttype,"index:="&webeditIndex)
+			objWebEdit.FireEvent "ondblclick"
+ 			If  objWebEdit.Exist(gObjectTimeoutLimit)  then 
+ 			Set ObjWebEditObJ = Browser("CreationTime:="& PopUpCreationtime).Page("Index:="& PopUpCreationtime).Frame("title:=" & frameTitle).WebEdit("title:="&webeditTitle,"type:=" &webeditTexttype,"index:="&webeditIndex).Object
+ 				
+ 				ObjWebEditObJ.Focus
+				objWebEdit.Click
+				Wait 5
+				objWebEdit.set val
+				Wait(1)
+				objWebEdit.Click
+				
+				If blnCaptureFlag  or  blnCreateImageEachStep or blnCreateTrainingDoc Then
+					ImagePath=CaptureScreenshot(strSteptitle,objWebEdit,False,False,True)
+				End if
+             	strStatus = "DONE"
+	          	strMsg= "Web Edit value set successfully"
+	          	Call ReporterFunction(strLibraryFiletitle,"SetWebEditFrameByTitle","2",strSteptitle,strMsg)
+  		else
+  			blnObjectError=True
+            strStatus = "FAIL"
+            strMsg = "Object Missing--Check the Screen Properly"
+            Call ReporterFunction(strLibraryFiletitle,"SetWebEditFrameByTitle","1",strSteptitle,strMsg)
+		end if
+	else
+       		
+            strStatus = "FAIL"
+            strMsg = "Function Parameter Not Passed Properly. Check the -SetWebEditFrameByTitle-- Function Call"
+            Call ReporterFunction(strLibraryFiletitle,"SetWebEditFrameByTitle","1",strSteptitle,strMsg)
+	end if
+
+	If  blnObjectError  Then
+		Environment.Value("blnFatalError")=True
+	End If
+
+	If strStatus = "FAIL"  Then
+		SetWebEditFrameByTitle = strMsg
+		blnMainFailFlag = True
+		ImagePath=CaptureScreenshot(strSteptitle,objWebEdit,False,False,True)
+	Else
+		SetWebEditFrameByTitle = True
+	End If
+
+	If blnDefault_eSwiftReporting Then  
+		Call UpdateResultHtml(strSteptitle,val,strMsg,strStatus,"")
+	End If
+
+
+	Set objWebEdit=Nothing
+	
+	End If
+End function
+
+'******************************************************************************************************************
+Public Function SetWebEditSAPFrameLogicalName(creationTime,frameTitle,webeditLogicalName,webeditTexttype,webeditIndex,val)
+	If Not (Environment.Value("blnFatalError") or val = DS_SKIP) Then
+		If blnShowNotification Then BalloonTooltip.Show "TASE Automation","Executing Now : SetWebEditSAPFrameLogicalName"
+
+'		ALMvalue=Environment.Value("ALMFlag")
+'		If  ALMvalue=1 Then
+'			PopUpCreationtime=Cint(creationTime) + 1
+'		else
+			PopUpCreationtime=Cint(creationTime)
+'		End If
+
+		Dim objWebEdit
+		strStepName = "Set text box : "& webeditLogicalName
+		If webeditLogicalName<> ""  or webeditTexttype <> "" or webeditIndex <> "" Then
+		
+		Browser("CreationTime:="& PopUpCreationtime).Page("Index:="& PopUpCreationtime).SAPFrame("title:=" & frameTitle).Highlight
+		
+			Set objWebEdit =Browser("CreationTime:="& PopUpCreationtime).Page("Index:="& PopUpCreationtime).SAPFrame("title:=" & frameTitle).WebEdit("logical name:="&webeditName,"type:=" &webeditTexttype,"index:="&webeditIndex)
+'			objWebEdit.Click
+			objWebEdit.Fireevent "ondblclick"
+ 			If  objWebEdit.Exist(gObjectTimeoutLimit)  then 
+				Wait 5
+				objWebEdit.set val
+				Wait(1)
+				objWebEdit.Click
+				
+				If blnCaptureFlag  or  blnCreateImageEachStep or blnCreateTrainingDoc Then
+					ImagePath=CaptureScreenshot(strStepName,objWebEdit,False,False,True)
+				End if
+             	strStatus = "DONE"
+	          	strMsg= "Web Edit value set successfully"
+	          	Call ReporterFunction(strLibraryFileName,"SetWebEditSAPFrameLogicalName","2",strStepName,strMsg)
+  		else
+  			blnObjectError=True
+            strStatus = "FAIL"
+            strMsg = "Object Missing--Check the Screen Properly"
+            Call ReporterFunction(strLibraryFileName,"SetWebEditSAPFrameLogicalName","1",strStepName,strMsg)
+		end if
+	else
+       		
+            strStatus = "FAIL"
+            strMsg = "Function Parameter Not Passed Properly. Check the -SetWebEditSAPFrameLogicalName-- Function Call"
+            Call ReporterFunction(strLibraryFileName,"SetWebEditSAPFrameLogicalName","1",strStepName,strMsg)
+	end if
+
+	If  blnObjectError  Then
+		Environment.Value("blnFatalError")=True
+	End If
+
+	If strStatus = "FAIL"  Then
+		SetWebEditSAPFrameLogicalName = strMsg
+		blnMainFailFlag = True
+		ImagePath=CaptureScreenshot(strStepName,objWebEdit,False,False,True)
+	Else
+		SetWebEditSAPFrameLogicalName = True
+	End If
+
+	If blnDefault_eSwiftReporting Then  
+		Call UpdateResultHtml(strStepName,val,strMsg,strStatus,"")
+	End If
+
+
+	Set objWebEdit=Nothing
+	
+	End If
+End function
+
+'******************************************************************************************************************
+
+Public Function SetWebEditFrameLogicalName(creationTime,frameTitle,webeditLogicalName,webeditTexttype,webeditIndex,val)
+	If Not (Environment.Value("blnFatalError") or val = DS_SKIP) Then
+		If blnShowNotification Then BalloonTooltip.Show "TASE Automation","Executing Now : SetWebEditFrameLogicalName"
+
+'		ALMvalue=Environment.Value("ALMFlag")
+'		If  ALMvalue=1 Then
+'			PopUpCreationtime=Cint(creationTime) + 1
+'		else
+			PopUpCreationtime=Cint(creationTime)
+'		End If
+
+		Dim objWebEdit
+		strStepName = "Set text box : "& webeditLogicalName
+		If webeditLogicalName<> ""  or webeditTexttype <> "" or webeditIndex <> "" Then
+		
+		Browser("CreationTime:="& PopUpCreationtime).Page("Index:="& PopUpCreationtime).Frame("title:=" & frameTitle).Highlight
+		
+			Set objWebEdit =Browser("CreationTime:="& PopUpCreationtime).Page("Index:="& PopUpCreationtime).Frame("title:=" & frameTitle).WebEdit("logical name:="&webeditLogicalName,"type:=" &webeditTexttype,"index:="&webeditIndex)
+			objWebEdit.Click
+			objWebEdit.Fireevent "ondblclick"
+ 			If  objWebEdit.Exist(gObjectTimeoutLimit)  then 
+				Wait 5
+				objWebEdit.set val
+				Wait(1)
+				objWebEdit.Click
+				
+				If blnCaptureFlag  or  blnCreateImageEachStep or blnCreateTrainingDoc Then
+					ImagePath=CaptureScreenshot(strStepName,objWebEdit,False,False,True)
+				End if
+             	strStatus = "DONE"
+	          	strMsg= "Web Edit value set successfully"
+	          	Call ReporterFunction(strLibraryFileName,"SetWebEditFrameLogicalName","2",strStepName,strMsg)
+  		else
+  			blnObjectError=True
+            strStatus = "FAIL"
+            strMsg = "Object Missing--Check the Screen Properly"
+            Call ReporterFunction(strLibraryFileName,"SetWebEditFrameLogicalName","1",strStepName,strMsg)
+		end if
+	else
+       		
+            strStatus = "FAIL"
+            strMsg = "Function Parameter Not Passed Properly. Check the -SetWebEditFrameLogicalName-- Function Call"
+            Call ReporterFunction(strLibraryFileName,"SetWebEditFrameLogicalName","1",strStepName,strMsg)
+	end if
+
+	If  blnObjectError  Then
+		Environment.Value("blnFatalError")=True
+	End If
+
+	If strStatus = "FAIL"  Then
+		SetWebEditFrameLogicalName = strMsg
+		blnMainFailFlag = True
+		ImagePath=CaptureScreenshot(strStepName,objWebEdit,False,False,True)
+	Else
+		SetWebEditFrameLogicalName = True
+	End If
+
+	If blnDefault_eSwiftReporting Then  
+		Call UpdateResultHtml(strStepName,val,strMsg,strStatus,"")
+	End If
+
+
+	Set objWebEdit=Nothing
+	
+	End If
+End function
+
+Public Function SetWebEditFrame(creationTime,frameTitle,webeditName,webeditTexttype,webeditIndex,val)
+	If Not (Environment.Value("blnFatalError") or val = DS_SKIP) Then
+		If blnShowNotification Then BalloonTooltip.Show "TASE Automation","Executing Now : SetWebEditFrame"
+
+'		ALMvalue=Environment.Value("ALMFlag")
+'		If  ALMvalue=1 Then
+'			PopUpCreationtime=Cint(creationTime) + 1
+'		else
+			PopUpCreationtime=Cint(creationTime)
+'		End If
+
+		Dim objWebEdit
+		strStepName = "Set text box : "& webeditName
+		If webeditName<> ""  or webeditTexttype <> "" or webeditIndex <> "" Then
+		
+		Browser("CreationTime:="& PopUpCreationtime).Page("Index:="& PopUpCreationtime).Frame("title:=" & frameTitle).Highlight
+		
+			Set objWebEdit =Browser("CreationTime:="& PopUpCreationtime).Page("Index:="& PopUpCreationtime).Frame("title:=" & frameTitle).WebEdit("name:="&webeditName,"type:=" &webeditTexttype,"index:="&webeditIndex)
+'			objWebEdit.Click
+			objWebEdit.Fireevent "ondblclick"
+ 			If  objWebEdit.Exist(gObjectTimeoutLimit)  then 
+				Wait 5
+				objWebEdit.set val
+				Wait(1)
+				objWebEdit.Click
+				
+				If blnCaptureFlag  or  blnCreateImageEachStep or blnCreateTrainingDoc Then
+					ImagePath=CaptureScreenshot(strStepName,objWebEdit,False,False,True)
+				End if
+             	strStatus = "DONE"
+	          	strMsg= "Web Edit value set successfully"
+	          	Call ReporterFunction(strLibraryFileName,"SetWebEditFrame","2",strStepName,strMsg)
+  		else
+  			blnObjectError=True
+            strStatus = "FAIL"
+            strMsg = "Object Missing--Check the Screen Properly"
+            Call ReporterFunction(strLibraryFileName,"SetWebEditFrame","1",strStepName,strMsg)
+		end if
+	else
+       		
+            strStatus = "FAIL"
+            strMsg = "Function Parameter Not Passed Properly. Check the -SetWebEditFrame-- Function Call"
+            Call ReporterFunction(strLibraryFileName,"SetWebEditFrame","1",strStepName,strMsg)
+	end if
+
+	If  blnObjectError  Then
+		Environment.Value("blnFatalError")=True
+	End If
+
+	If strStatus = "FAIL"  Then
+		SetWebEditFrame = strMsg
+		blnMainFailFlag = True
+		ImagePath=CaptureScreenshot(strStepName,objWebEdit,False,False,True)
+	Else
+		SetWebEditFrame = True
+	End If
+
+	If blnDefault_eSwiftReporting Then  
+		Call UpdateResultHtml(strStepName,val,strMsg,strStatus,"")
+	End If
+
+
+	Set objWebEdit=Nothing
+	
+	End If
+End function
+
+Public Function ClickWinObject(creationTime,DialogregexpwndtitleVal,WinObjregexpwndtitle,NativeClassVal)
+
+If Not (Environment.Value("blnFatalError") or buttonName = DS_SKIP) Then
+	If blnShowNotification Then BalloonTooltip.Show "TASE Automation","Executing Now : ClickWinObject"
+	
+'	ALMvalue=Environment.Value("ALMFlag")
+'	If  ALMvalue=1 Then
+'		PopUpCreationtime=Cint(creationTime) + 1
+'	else
+		PopUpCreationtime=Cint(creationTime)
+'	End If
+	
+
+	Dim objWinButton
+	strStepName = "Click " & " '" & buttonName & "' " & " Button"
+	Set objWinButton=Browser("CreationTime:="& PopUpCreationtime).Dialog("regexpwndtitle:="& DialogregexpwndtitleVal).WinObject("regexpwndtitle:=" &WinObjregexpwndtitle,"nativeclass:=" &NativeClassVal)
+	
+	If DialogregexpwndtitleVal <> "" or WinObjregexpwndtitle <> "" Then
+		If  objWinButton.Exist(gObjectTimeoutLimit)  then 
+			wait(1)
+			objWinButton.Highlight
+			objWinButton.Click
+			If blnCaptureFlag  or  blnCreateImageEachStep or blnCreateTrainingDoc Then
+				ImagePath=CaptureScreenshot(strStepName,objWinButton,True,True,True)
+			End if
+			strStatus = "DONE"
+			strMsg= "Button :" &buttonName&" clicked successfully"
+			Call ReporterFunction(strLibraryFileName,"ClickWinObject","2",strStepName,strMsg)
+		else
+			blnObjectError=True
+			strStatus = "FAIL"    
+			strMsg = "Button: " & buttonName & " Not found"
+			Call ReporterFunction(strLibraryFileName,"ClickWinObject","1",strStepName,strMsg)
+		end if
+	else
+		
+		strStatus = "FAIL"
+		strMsg = "Function Parameter Not Passed Properly. Check the -ClickWinObject-- Function Call"
+		Call ReporterFunction(strLibraryFileName,"ClickWinObject","1",strStepName,strMsg)
+	end if
+	If  blnObjectError  Then
+		Environment.Value("blnFatalError")=True
+	End If
+	If strStatus = "FAIL"  Then
+		ClickWinObject = strMsg
+		blnMainFailFlag = True
+		ImagePath=CaptureScreenshot(strStepName,objWinButton,True,True,True)
+	Else
+		ClickWinObject = True
+	End If
+	If blnDefault_eSwiftReporting Then  
+		Call UpdateResultHtml(strStepName,buttonName,strMsg,strStatus,"")
+	End If
+	
+	Set objWinButton=Nothing
+End If
+End function 
+
+Public Function SetWinEdit(creationTime,regexpwndtitleVal,AttachedTextVal,NativeClassVal,val)
+	If Not (Environment.Value("blnFatalError") or val = DS_SKIP) Then
+		If blnShowNotification Then BalloonTooltip.Show "TASE Automation","Executing Now : SetWinEdit"
+
+			PopUpCreationtime=Cint(creationTime)
+		Dim objWinEdit
+		strStepName = "Set text box : "& webeditName
+		If regexpwndtitleVal<> ""  or AttachedTextVal <> ""  Then
+
+			Set objWinEdit =Browser("CreationTime:="& PopUpCreationtime).Dialog("regexpwndtitle:="& regexpwndtitleVal).WinEdit("attached text:="& AttachedTextVal,"nativeclass:=" &NativeClassVal)
+ 			If  objWinEdit.Exist(gObjectTimeoutLimit)  then 
+				objWinEdit.Click
+				objWinEdit.Set val
+				Wait(1)
+				objWinEdit.Click
+				
+				If blnCaptureFlag  or  blnCreateImageEachStep or blnCreateTrainingDoc Then
+					ImagePath=CaptureScreenshot(strStepName,objWinEdit,False,False,True)
+				End if
+             	strStatus = "DONE"
+	          	strMsg= "Web Edit value set successfully"
+	          	Call ReporterFunction(strLibraryFileName,"SetWinEdit","2",strStepName,strMsg)
+  		else
+  			blnObjectError=True
+            strStatus = "FAIL"
+            strMsg = "Object Missing--Check the Screen Properly"
+            Call ReporterFunction(strLibraryFileName,"SetWinEdit","1",strStepName,strMsg)
+		end if
+	else
+       		
+            strStatus = "FAIL"
+            strMsg = "Function Parameter Not Passed Properly. Check the -SetWinEdit-- Function Call"
+            Call ReporterFunction(strLibraryFileName,"SetWinEdit","1",strStepName,strMsg)
+	end if
+
+	If  blnObjectError  Then
+		Environment.Value("blnFatalError")=True
+	End If
+
+	If strStatus = "FAIL"  Then
+		SetWinEdit = strMsg
+		blnMainFailFlag = True
+		ImagePath=CaptureScreenshot(strStepName,objWinEdit,False,False,True)
+	Else
+		SetWinEdit = True
+	End If
+
+	If blnDefault_eSwiftReporting Then  
+		Call UpdateResultHtml(strStepName,val,strMsg,strStatus,"")
+	End If
+
+
+	Set objWinEdit=Nothing
+	
+	End If
+End function
+
+Public Function SetWebFileFrame(creationTime,frameTitle,webfileName,webFileTexttype,webFileIndex,val)
+	If Not (Environment.Value("blnFatalError") or val = DS_SKIP) Then
+		If blnShowNotification Then BalloonTooltip.Show "TASE Automation","Executing Now : SetWebFileFrame"
+
+'		ALMvalue=Environment.Value("ALMFlag")
+'		If  ALMvalue=1 Then
+'			PopUpCreationtime=Cint(creationTime) + 1
+'		else
+			PopUpCreationtime=Cint(creationTime)
+'		End If
+
+		Dim objWebFile
+		strStepName = "Set text box : "& webeditName
+		If webeditName<> ""  or webFileTexttype <> "" or webFileIndex <> "" Then
+
+			Set objWebFile =Browser("CreationTime:="& PopUpCreationtime).Page("Index:="& PopUpCreationtime).Frame("title:=" & frameTitle).WebFile("name:="&webfileName,"type:=" &webFileTexttype,"index:="&webFileIndex)
+ 			If  objWebFile.Exist(gObjectTimeoutLimit)  then 
+				objWebFile.Click
+				objWebFile.Set val
+				Wait(1)
+				objWebFile.Click
+				
+				If blnCaptureFlag  or  blnCreateImageEachStep or blnCreateTrainingDoc Then
+					ImagePath=CaptureScreenshot(strStepName,objWebFile,False,False,True)
+				End if
+             	strStatus = "DONE"
+	          	strMsg= "Web Edit value set successfully"
+	          	Call ReporterFunction(strLibraryFileName,"SetWebFileFrame","2",strStepName,strMsg)
+  		else
+  			blnObjectError=True
+            strStatus = "FAIL"
+            strMsg = "Object Missing--Check the Screen Properly"
+            Call ReporterFunction(strLibraryFileName,"SetWebFileFrame","1",strStepName,strMsg)
+		end if
+	else
+       		
+            strStatus = "FAIL"
+            strMsg = "Function Parameter Not Passed Properly. Check the -SetWebFileFrame-- Function Call"
+            Call ReporterFunction(strLibraryFileName,"SetWebFileFrame","1",strStepName,strMsg)
+	end if
+
+	If  blnObjectError  Then
+		Environment.Value("blnFatalError")=True
+	End If
+
+	If strStatus = "FAIL"  Then
+		SetWebFileFrame = strMsg
+		blnMainFailFlag = True
+		ImagePath=CaptureScreenshot(strStepName,objWebFile,False,False,True)
+	Else
+		SetWebFileFrame = True
+	End If
+
+	If blnDefault_eSwiftReporting Then  
+		Call UpdateResultHtml(strStepName,val,strMsg,strStatus,"")
+	End If
+
+
+	Set objWebFile=Nothing
+	
+	End If
+End function
+
+
+Public Function SetSAPEditWebTable(creationTime,tableName,WebTableClass,RowNumber,columnNum,val)
+	If Not (Environment.Value("blnFatalError") or val = DS_SKIP) Then
+		If blnShowNotification Then BalloonTooltip.Show "TASE Automation","Executing Now : SetSAPEditWebTable"
+
+		ALMvalue=Environment.Value("ALMFlag")
+		If  ALMvalue=1 Then
+			PopUpCreationtime=Cint(creationTime) + 1
+		else
+			PopUpCreationtime=Cint(creationTime)
+		End If
+
+		Dim objWebEdit
+		strStepName = " Set value " & val & "  in Web Table cell"
+		If WebTableClass<> ""  or columnNum <> "" or RowNumber<>"" Then
+			Set objWebEdit =Browser("CreationTime:="& PopUpCreationtime).Page("Index:="& PopUpCreationtime).WebTable("class:="&WebTableClass,"html tag:=TABLE","name:="&tableName,"index:=0")
+			If  objWebEdit.Exist then 
+				objWebEdit.ChildItem(RowNumber,columnNum,"SAPEdit","0").set val
+				If blnCaptureFlag  or  blnCreateImageEachStep or blnCreateTrainingDoc Then
+					ImagePath=CaptureScreenshot(strStepName,objWebEdit,False,False,True)
+				End if
+	 
+	            strStatus = "DONE"
+	            strMsg= "Value set in table successfully"
+	            Call ReporterFunction(strLibraryFileName,"SetSAPEditWebTable","2",strStepName,strMsg)
+  			else
+  				blnObjectError=True	
+              	strStatus = "FAIL"
+              	strMsg = "Object Missing--Check the Screen Properly"
+              	Call ReporterFunction(strLibraryFileName,"SetSAPEditWebTable","1",strStepName,strMsg)
+			end if
+		else
+			
+			strStatus = "FAIL"
+            strMsg = "Function Parameter Not Passed Properly. Check the -SetSAPEditWebTable-- Function Call"
+            Call ReporterFunction(strLibraryFileName,"SetSAPEditWebTable","1",strStepName,strMsg)
+		End if
+
+	If  blnObjectError  Then
+		Environment.Value("blnFatalError")=True
+	End If
+
+	If strStatus = "FAIL"  Then
+		SetSAPEditWebTable = strMsg
+		blnMainFailFlag = True
+		ImagePath=CaptureScreenshot(strStepName,objWebEdit,False,False,True)
+	Else
+		SetSAPEditWebTable = True
+	End If
+
+	If blnDefault_eSwiftReporting Then  
+		Call UpdateResultHtml(strStepName,val,strMsg,strStatus,"")
+	End If
+
+	Set objWebEdit=Nothing
+	
+	End If
+End function
+
+'**************************************************************************************************************************************************************
+Public Function SetSAPEditWebTableByRef(creationTime,WebTableClass,tableName,columnNum,refVal,val)
+	If Not (Environment.Value("blnFatalError") or val = DS_SKIP) Then
+		If blnShowNotification Then BalloonTooltip.Show "TASE Automation","Executing Now : SetSAPEditWebTableByRef"
+
+		ALMvalue=Environment.Value("ALMFlag")
+		If  ALMvalue=1 Then
+			PopUpCreationtime=Cint(creationTime) + 1
+		else
+			PopUpCreationtime=Cint(creationTime)
+		End If
+
+		Dim objWebEdit
+		strStepName = " Set value " &  val & " in Webtable cell "
+		If WebTableClass<> ""  or  columnNum <> ""  Then
+			Set objWebEdit =Browser("CreationTime:="& PopUpCreationtime).Page("Index:="& PopUpCreationtime).WebTable("Html tag:=TABLE","Class:="&WebTableClass,"name:="&tableName)
+			If  objWebEdit.Exist then 
+				RowNumber=objWebEdit.GetRowWithCellText(refVal)
+			  	objWebEdit.ChildItem(RowNumber,columnNum,"SAPEdit","0").set val
+			  	If blnCaptureFlag  or  blnCreateImageEachStep or blnCreateTrainingDoc Then
+					ImagePath=CaptureScreenshot(strStepName,objWebEdit,False,False,True)
+	           	End if
+	           
+	           	strStatus = "DONE"
+	           	strMsg= "Value set in table successfully"
+	           	Call ReporterFunction(strLibraryFileName,"SetSAPEditWebTableByRef","2",strStepName,strMsg)
+			else
+				blnObjectError=True
+				strStatus = "FAIL"
+				strMsg = "Object Missing--Check the Screen Properly"
+				Call ReporterFunction(strLibraryFileName,"SetSAPEditWebTableByRef","1",strStepName,strMsg)
+			end if
+		else
+				
+			
+           	strStatus = "FAIL"
+           	strMsg = "Function Parameter Not Passed Properly. Check the -SetSAPEditWebTableByRef-- Function Call"
+           	Call ReporterFunction(strLibraryFileName,"SetSAPEditWebTableByRef","1",strStepName,strMsg)
+		End if
+	
+	If  blnObjectError  Then
+		Environment.Value("blnFatalError")=True
+	End If
+	
+	If strStatus = "FAIL"  Then
+		SetSAPEditWebTableByRef = strMsg
+		blnMainFailFlag = True
+		ImagePath=CaptureScreenshot(strStepName,objWebEdit,False,False,True)
+	Else
+		SetSAPEditWebTableByRef = True
+	End If
+
+	If blnDefault_eSwiftReporting Then  
+		Call UpdateResultHtml(strStepName,val,strMsg,strStatus,"")
+	End If
+
+
+	Set objWebEdit=Nothing
+	
+	End If
+End function
+
+'******************************************************************************************************************
+
+Public Function SetSAPEditWebTableSAPPortal(creationTime,tableName,WebTableClass,RowNumber,columnNum,val)
+	If Not (Environment.Value("blnFatalError") or val = DS_SKIP) Then
+		If blnShowNotification Then BalloonTooltip.Show "TASE Automation","Executing Now : SetSAPEditWebTableSAPPortal"
+
+		ALMvalue=Environment.Value("ALMFlag")
+		If  ALMvalue=1 Then
+			PopUpCreationtime=Cint(creationTime) + 1
+		else
+			PopUpCreationtime=Cint(creationTime)
+		End If
+
+		Dim objWebEdit
+		strStepName = " Set value " & val & "  in Web Table cell"
+		If WebTableClass<> ""  or columnNum <> "" or RowNumber<>"" Then
+			Set objWebEdit =Browser("CreationTime:="& PopUpCreationtime).SAPPortal("Index:="& PopUpCreationtime).WebTable("class:="&WebTableClass,"html tag:=TABLE","name:="&tableName,"index:=0")
+	 		If  objWebEdit.Exist  then 
+				objWebEdit.ChildItem(RowNumber,columnNum,"SAPEdit","0").set val
+			 	If blnCaptureFlag  or  blnCreateImageEachStep or blnCreateTrainingDoc Then
+					ImagePath=CaptureScreenshot(strStepName,objWebEdit,False,False,True)
+	           	End if
+	           	
+	           	strStatus = "DONE"
+	           	strMsg= "Value set in table successfully"
+	           	Call ReporterFunction(strLibraryFileName,"SetSAPEditWebTableSAPPortal","2",strStepName,strMsg)
+			else
+				blnObjectError=True
+				strStatus = "FAIL"
+              	strMsg = "Object Missing--Check the Screen Properly"
+              	Call ReporterFunction(strLibraryFileName,"SetSAPEditWebTableSAPPortal","1",strStepName,strMsg)
+			end if
+	else
+		
+		strStatus = "FAIL"
+        strMsg = "Function Parameter Not Passed Properly. Check the -SetSAPEditWebTableSAPPortal-- Function Call"
+        Call ReporterFunction(strLibraryFileName,"SetSAPEditWebTableSAPPortal","1",strStepName,strMsg)
+	End if
+	
+	If  blnObjectError  Then
+		Environment.Value("blnFatalError")=True
+	End If
+
+	If strStatus = "FAIL"  Then
+		SetSAPEditWebTableSAPPortal = strMsg
+		blnMainFailFlag = True
+		ImagePath=CaptureScreenshot(strStepName,objWebEdit,False,False,True)
+	Else
+		SetSAPEditWebTableSAPPortal = True
+	End If
+
+	If blnDefault_eSwiftReporting Then  
+		Call UpdateResultHtml(strStepName,val,strMsg,strStatus,"")
+	End If
+
+	Set objWebEdit=Nothing
+	
+	End If
+End function
+'****************************************************************************************************************************************************
+Public Function SetSAPEditWebTableSAPFrame(creationTime,frameTitle,tableName,WebTableClass,RowNumber,columnNum,val)
+	If Not (Environment.Value("blnFatalError") or val = DS_SKIP) Then
+		If blnShowNotification Then BalloonTooltip.Show "TASE Automation","Executing Now : SetSAPEditWebTableSAPFrame"
+
+		ALMvalue=Environment.Value("ALMFlag")
+		If  ALMvalue=1 Then
+			PopUpCreationtime=Cint(creationTime) + 1
+		else
+			PopUpCreationtime=Cint(creationTime)
+		End If
+
+		Dim objWebEdit
+		strStepName = " Set value " & val & "  in Web Table cell"
+		If WebTableClass<> ""  or  columnNum <> "" or  RowNumber<>"" Then
+			Set objWebEdit = Browser("CreationTime:="& PopUpCreationtime).Page("Index:="& PopUpCreationtime).SAPFrame("title:=" &frameTitle).WebTable("class:="&WebTableClass,"html tag:=TABLE","name:="&tableName,"index:=0")
+			If  objWebEdit.Exist  then 
+				objWebEdit.ChildItem(RowNumber,columnNum,"SAPEdit","0").set val
+			 	If blnCaptureFlag  or  blnCreateImageEachStep or blnCreateTrainingDoc Then
+					ImagePath=CaptureScreenshot(strStepName,objWebEdit,False,False,True)
+	           	End if
+	           	strStatus = "DONE"
+	           	strMsg= "Value set in table successfully"
+	           	Call ReporterFunction(strLibraryFileName,"SetSAPEditWebTableSAPFrame","2",strStepName,strMsg)
+ 			else
+ 				blnObjectError=True
+              	strStatus = "FAIL"
+              	strMsg = "Object Missing--Check the Screen Properly"
+              	Call ReporterFunction(strLibraryFileName,"SetSAPEditWebTableSAPFrame","1",strStepName,strMsg)
+			end if
+		else
+            
+            strStatus = "FAIL"
+            strMsg = "Function Parameter Not Passed Properly. Check the -SetSAPEditWebTableSAPFrame-- Function Call"
+            Call ReporterFunction(strLibraryFileName,"SetSAPEditWebTableSAPFrame","1",strStepName,strMsg)
+		End if
+
+	If  blnObjectError  Then
+		Environment.Value("blnFatalError")=True
+	End If
+
+	If strStatus = "FAIL"  Then
+		SetSAPEditWebTableSAPFrame = strMsg
+		blnMainFailFlag = True
+		ImagePath=CaptureScreenshot(strStepName,objWebEdit,False,False,True)
+	Else
+		SetSAPEditWebTableSAPFrame = True
+	End If
+
+	If blnDefault_eSwiftReporting Then  
+		Call UpdateResultHtml(strStepName,val,strMsg,strStatus,"")
+	End If
+
+	Set objWebEdit=Nothing
+	
+	End If
+End function
+
+'**************************************************************************************************************************
+Public Function SetWebEditWebTable(creationTime,tableName,WebTableClass,RowNumber,columnNum,val)
+	If Not (Environment.Value("blnFatalError") or val = DS_SKIP) Then
+		If blnShowNotification Then BalloonTooltip.Show "TASE Automation","Executing Now : SetWebEditWebTable"
+
+'		ALMvalue=Environment.Value("ALMFlag")
+'		If  ALMvalue=1 Then
+'			PopUpCreationtime=Cint(creationTime) + 1
+'		else
+			PopUpCreationtime=Cint(creationTime)
+'		End If
+
+		Dim objWebEdit
+		strStepName= " Set value " & val & "  in Web Table cell"
+		If WebTableClass<> ""  or  columnNum <> "" or  RowNumber<>"" Then
+			Set objWebEdit =Browser("CreationTime:="& PopUpCreationtime).Page("Index:="& PopUpCreationtime).WebTable("class:="&WebTableClass,"html tag:=TABLE","name:="&tableName,"index:=0")
+	 		If  objWebEdit.Exist  then 
+		  		objWebEdit.ChildItem(RowNumber,columnNum,"WebEdit","0").set val
+		  		If blnCaptureFlag  or  blnCreateImageEachStep or blnCreateTrainingDoc Then
+					ImagePath=CaptureScreenshot(strStepName,objWebEdit,False,False,True)
+	           	End if
+	           	strStatus = "DONE"
+	           	strMsg= "Value set in table successfully"
+	           	Call ReporterFunction(strLibraryFileName,"SetWebEditWebTable","2",strStepName,strMsg)
+ 			else
+ 				blnObjectError=True
+              	strStatus = "FAIL"
+              	strMsg = "Object Missing--Check the Screen Properly"
+              	Call ReporterFunction(strLibraryFileName,"SetWebEditWebTable","1",strStepName,strMsg)
+			end if
+		else
+			
+            strStatus = "FAIL"
+            strMsg = "Function Parameter Not Passed Properly. Check the -SetWebEditWebTable-- Function Call"
+            Call ReporterFunction(strLibraryFileName,"SetWebEditWebTable","1",strStepName,strMsg)
+		End if
+
+	If  blnObjectError  Then
+		Environment.Value("blnFatalError")=True
+	End If
+
+	If strStatus = "FAIL"  Then
+		SetWebEditWebTable = strMsg
+		blnMainFailFlag = True
+		ImagePath=CaptureScreenshot(strStepName,objWebEdit,False,False,True)
+	Else
+		SetWebEditWebTable = True
+	End If
+
+	If blnDefault_eSwiftReporting Then  
+		Call UpdateResultHtml(strStepName,val,strMsg,strStatus,"")
+	End If
+
+	Set objWebEdit=Nothing
+	
+	End If
+End function
+
+'***************************************************************************************************************************************************
+
+Public Function SetWebEditWebTableSAPPortal(creationTime,tableName,WebTableClass,RowNumber,columnNum,val)
+	If Not (Environment.Value("blnFatalError") or val = DS_SKIP) Then
+		If blnShowNotification Then BalloonTooltip.Show "TASE Automation","Executing Now : SetWebEditWebTableSAPPortal"
+
+		ALMvalue=Environment.Value("ALMFlag")
+		If  ALMvalue=1 Then
+			PopUpCreationtime=Cint(creationTime) + 1
+		else
+			PopUpCreationtime=Cint(creationTime)
+		End If
+
+		Dim objWebEdit
+		strStepName = " Set value " & val & "  in Web Table cell"
+		If WebTableClass<> ""  or columnNum <> "" or  RowNumber<>"" Then
+			Set objWebEdit =Browser("CreationTime:="& PopUpCreationtime).SAPPortal("Index:="& PopUpCreationtime).WebTable("class:="&WebTableClass,"html tag:=TABLE","name:="&tableName,"index:=0")
+	 		If  objWebEdit.Exist  then 
+				objWebEdit.ChildItem(RowNumber,columnNum,"WebEdit","0").set val
+			  	If blnCaptureFlag  or  blnCreateImageEachStep or blnCreateTrainingDoc Then
+					ImagePath=CaptureScreenshot(strStepName,objWebEdit,False,False,True)
+				End if
+	           	strStatus = "DONE"
+	           	strMsg= "Value set in table successfully"
+	           	Call ReporterFunction(strLibraryFileName,"SetWebEditWebTableSAPPortal","2",strStepName,strMsg)
+ 			else
+ 				blnObjectError=True
+              	strStatus = "FAIL"
+              	strMsg = "Object Missing--Check the Screen Properly"
+              	Call ReporterFunction(strLibraryFileName,"SetWebEditWebTableSAPPortal","1",strStepName,strMsg)
+			end if
+		else
+			
+            strStatus = "FAIL"
+            strMsg = "Function Parameter Not Passed Properly. Check the -SetWebEditWebTableSAPPortal-- Function Call"
+            Call ReporterFunction(strLibraryFileName,"SetWebEditWebTableSAPPortal","1",strStepName,strMsg)
+		End if
+
+	If  blnObjectError  Then
+		Environment.Value("blnFatalError")=True
+	End If
+
+	If strStatus = "FAIL"  Then
+		SetWebEditWebTableSAPPortal = strMsg
+		blnMainFailFlag = True
+		ImagePath=CaptureScreenshot(strStepName,objWebEdit,False,False,True)
+	Else
+		SetWebEditWebTableSAPPortal = True
+	End If
+
+	If blnDefault_eSwiftReporting Then  
+		Call UpdateResultHtml(strStepName,val,strMsg,strStatus,"")
+	End If
+
+	Set objWebEdit=Nothing
+	
+	End If
+End function
+
+'**************************************************************************************************************************************************
+
+Public Function SetWebEditWebTableSAPFrame(creationTime,frameTitle,tableName,WebTableClass,RowNumber,columnNum,val)
+	If Not (Environment.Value("blnFatalError") or val = DS_SKIP) Then
+		If blnShowNotification Then BalloonTooltip.Show "TASE Automation","Executing Now : SetWebEditWebTableSAPFrame"
+
+		ALMvalue=Environment.Value("ALMFlag")
+		If  ALMvalue=1 Then
+			PopUpCreationtime=Cint(creationTime) + 1
+		else
+			PopUpCreationtime=Cint(creationTime)
+		End If
+
+		Dim objWebEdit
+		strStepName = " Set value " & val & "  in Web Table cell"
+		If WebTableClass<> ""  or columnNum <> "" or RowNumber<>"" Then
+			Set objWebEdit =Browser("CreationTime:="& PopUpCreationtime).Page("Index:="& PopUpCreationtime).SAPFrame("title:=" &frameTitle).WebTable("class:="&WebTableClass,"html tag:=TABLE","name:="&tableName,"index:=0")
+			If  objWebEdit.Exist  then 
+				objWebEdit.ChildItem(RowNumber,columnNum,"WebEdit","0").set val
+				If blnCaptureFlag  or  blnCreateImageEachStep or blnCreateTrainingDoc Then
+					ImagePath=CaptureScreenshot(strStepName,objWebEdit,False,False,True)
+	           	End if
+	
+	           	strStatus = "DONE"
+	           	strMsg= "Value set in table successfully"
+	           	Call ReporterFunction(strLibraryFileName,"SetWebEditWebTableSAPFrame","2",strStepName,strMsg)
+			else
+				blnObjectError=True
+				strStatus = "FAIL"
+				strMsg = "Object Missing--Check the Screen Properly"
+				Call ReporterFunction(strLibraryFileName,"SetWebEditWebTableSAPFrame","1",strStepName,strMsg)
+			end if
+		else
+			
+            strStatus = "FAIL"
+            strMsg = "Function Parameter Not Passed Properly. Check the -SetWebEditWebTableSAPFrame-- Function Call"
+            Call ReporterFunction(strLibraryFileName,"SetWebEditWebTableSAPFrame","1",strStepName,strMsg)
+		End if
+
+	If  blnObjectError  Then
+		Environment.Value("blnFatalError")=True
+	End If
+
+	If strStatus = "FAIL"  Then
+		SetWebEditWebTableSAPFrame = strMsg
+		blnMainFailFlag = True
+		ImagePath=CaptureScreenshot(strStepName,objWebEdit,False,False,True)
+	Else
+		SetWebEditWebTableSAPFrame = True
+	End If
+
+	If blnDefault_eSwiftReporting Then  
+		Call UpdateResultHtml(strStepName,val,strMsg,strStatus,"")
+	End If
+
+	Set objWebEdit=Nothing
+	
+	End If
+End function
+
+'***************************************************************************************************************************************************
+
+Public Function SetCellDataSAPTable(creationTime,tableClass,tableHtmlTag,tableName,tableIndex,rowNum,colNum,cellVal)
+	If Not (Environment.Value("blnFatalError") or cellVal = DS_SKIP) Then
+		If blnShowNotification Then BalloonTooltip.Show "TASE Automation","Executing Now : SetCellDataSAPTable"
+
+		ALMvalue=Environment.Value("ALMFlag")
+		If  ALMvalue=1 Then
+			PopUpCreationtime=Cint(creationTime) + 1
+		else
+			PopUpCreationtime=Cint(creationTime)
+		End If
+
+		Dim objTableCell
+		strStepName ="Set value: " & cellVal & "  in SAP Table"
+		If tableClass <> ""  or rowNum <> "" or colNum <>"" Then
+			Set objTableCell =Browser("CreationTime:=" &PopUpCreationtime).Page("Index:=" &PopUpCreationtime).SAPTable("class:="& tableClass,"html tag:="& tableHtmlTag,"name:=" & tableName,"Index:=" & tableIndex)
+			If  objTableCell.Exist(gObjectTimeoutLimit)  then 
+         		If rowNum<> "" and colNum<>"" Then
+					rowNum = Cint(rowNum)
+             		colNum = Cint(colNum)
+             		objTableCell.SetCellData rowNum,colNum,cellVal
+             		If blnCaptureFlag  or  blnCreateImageEachStep or blnCreateTrainingDoc Then
+						ImagePath=CaptureScreenshot(strStepName,objTableCell,False,False,True)
+					End if
+					strStatus = "DONE"
+					strMsg= "Value set in table successfully"
+					Call ReporterFunction(strLibraryFileName,"SetCellDataSAPTable","2",strStepName,strMsg)
+				else
+               		strStatus = "FAIL"
+               		strMsg = "Function Parameter Not Passed Properly. Check the -SetCellDataSAPTable-- Function Call"
+               		Call ReporterFunction(strLibraryFileName,"SetCellDataSAPTable","1",strStepName,strMsg)
+    			end if
+ 		else
+			blnObjectError=True
+            strStatus = "FAIL"
+            strMsg = "Table object not found"
+            Call ReporterFunction(strLibraryFileName,"SetCellDataSAPTable","1",strStepName,strMsg)
+ 		end if
+	End if
+
+	If  blnObjectError  Then
+		Environment.Value("blnFatalError")=True
+	End If
+
+	If strStatus = "FAIL"  Then
+		SetCellDataSAPTable = strMsg
+		blnMainFailFlag = True
+		ImagePath=CaptureScreenshot(strStepName,objTableCell,False,False,True)
+	Else
+		SetCellDataSAPTable = True
+	End If
+
+	If blnDefault_eSwiftReporting Then  
+		Call UpdateResultHtml(strStepName,cellVal,strMsg,strStatus,"")
+	End If
+
+	Set objTableCell=Nothing
+	
+	End If
+End function
+
+'**********************************************************************************************************************************************************
+
+Public Function SetCellDataSAPTableSAPPortal(creationTime,tableClass,tableHtmlTag,tableName,tableIndex,rowNum,colNum,cellVal)
+	If Not (Environment.Value("blnFatalError") or cellVal = DS_SKIP) Then
+		If blnShowNotification Then BalloonTooltip.Show "TASE Automation","Executing Now : SetCellDataSAPTableSAPPortal"
+		ALMvalue=Environment.Value("ALMFlag")
+		If  ALMvalue=1 Then
+			PopUpCreationtime=Cint(creationTime) + 1
+		else
+			PopUpCreationtime=Cint(creationTime)
+		End If
+
+		Dim objTableCell
+		strStepName ="Set value: " & cellVal & "  in SAP Table"
+		If tableClass <> ""  or rowNum <> "" or colNum <>"" Then
+			Set objTableCell =Browser("CreationTime:=" &PopUpCreationtime).SAPPortal("Index:=" &PopUpCreationtime).SAPTable("class:="& tableClass,"html tag:="& tableHtmlTag,"name:=" & tableName,"Index:=" & tableIndex)
+			If  objTableCell.Exist(gObjectTimeoutLimit)  then 
+         		If rowNum<> "" and colNum<>"" Then
+					rowNum = Cint(rowNum)
+             		colNum = Cint(colNum)
+             		objTableCell.SetCellData rowNum,colNum,cellVal
+             		If blnCaptureFlag  or  blnCreateImageEachStep or blnCreateTrainingDoc Then
+						ImagePath=CaptureScreenshot(strStepName,objTableCell,False,False,True)
+	        		End if
+	           		strStatus = "DONE"
+	           		strMsg= "Value set in table successfully"
+	           		Call ReporterFunction(strLibraryFileName,"SetCellDataSAPTableSAPPortal","2",strStepName,strMsg)
+				else
+               		strStatus = "FAIL"
+               		strMsg = "Function Parameter Not Passed Properly. Check the -SetCellDataSAPTableSAPPortal-- Function Call"
+               		Call ReporterFunction(strLibraryFileName,"SetCellDataSAPTableSAPPortal","1",strStepName,strMsg)
+    			end if
+			else
+				blnObjectError=True
+              	strStatus = "FAIL"
+              	strMsg = "Table object not found"
+              	Call ReporterFunction(strLibraryFileName,"SetCellDataSAPTableSAPPortal","1",strStepName,strMsg)
+			end if
+		End if
+
+	If  blnObjectError  Then
+		Environment.Value("blnFatalError")=True
+	End If
+
+	If strStatus = "FAIL"  Then
+		SetCellDataSAPTableSAPPortal = strMsg
+		blnMainFailFlag = True
+		ImagePath=CaptureScreenshot(strStepName,objTableCell,False,False,True)
+	Else
+		SetCellDataSAPTableSAPPortal = True
+	End If
+
+	If blnDefault_eSwiftReporting Then  
+		Call UpdateResultHtml(strStepName,cellVal,strMsg,strStatus,"")
+	End If
+
+	Set objTableCell=Nothing
+	
+	End If
+End function
+
+'*********************************************************************************************************************************************
+Public Function SetCellDataSAPTableSAPFrame(creationTime,frameTitle,tableClass,tableHtmlTag,tableName,tableIndex,rowNum,colNum,cellVal)
+If Not (Environment.Value("blnFatalError") or cellVal = DS_SKIP) Then
+		If blnShowNotification Then BalloonTooltip.Show "TASE Automation","Executing Now : SetCellDataSAPTableSAPFrame"
+		ALMvalue=Environment.Value("ALMFlag")
+		If  ALMvalue=1 Then
+			PopUpCreationtime=Cint(creationTime) + 1
+		else
+			PopUpCreationtime=Cint(creationTime)
+		End If
+
+		Dim objTableCell
+		stepName ="Set value: " & cellVal & "  in SAP Table"
+		If tableClass <> ""  or rowNum <> "" or colNum <>"" Then
+			Set objTableCell =Browser("CreationTime:=" &PopUpCreationtime).Page("Index:=" &PopUpCreationtime).SAPFrame("title:=" &frameTitle).SAPTable("class:="& tableClass,"html tag:="& tableHtmlTag,"name:=" & tableName,"Index:=" & tableIndex)
+			If  objTableCell.Exist(gObjectTimeoutLimit)  then 
+         		If rowNum<> "" and colNum<>"" Then
+					rowNum = Cint(rowNum)
+             		colNum = Cint(colNum)
+             		objTableCell.SetCellData rowNum,colNum,cellVal
+             		If blnCaptureFlag  or  blnCreateImageEachStep or blnCreateTrainingDoc Then
+						ImagePath=CaptureScreenshot(strStepName,objTableCell,False,False,True)
+	        		End if
+	  
+	           		strStatus = "DONE"
+	           		strMsg= "Value set in table successfully"
+	           		Call ReporterFunction(strLibraryFileName,"SetCellDataSAPTableSAPFrame","2",strStepName,strMsg)
+      			else
+           			
+               		strStatus = "FAIL"
+               		strMsg = "Function Parameter Not Passed Properly. Check the -SetCellDataSAPTableSAPFrame-- Function Call"
+               		Call ReporterFunction(strLibraryFileName,"SetCellDataSAPTableSAPFrame","1",strStepName,strMsg)
+    			end if
+			else
+				blnObjectError=True
+              	strStatus = "FAIL"
+              	strMsg = "Table object not found"
+              	Call ReporterFunction(strLibraryFileName,"SetCellDataSAPTableSAPFrame","1",strStepName,strMsg)
+			End if
+		End if
+
+	If  blnObjectError  Then
+		Environment.Value("blnFatalError")=True
+	End If
+
+	If strStatus = "FAIL"  Then
+		SetCellDataSAPTableSAPFrame = strMsg
+		blnMainFailFlag = True
+		ImagePath=CaptureScreenshot(strStepName,objTableCell,False,False,True)
+	Else
+		SetCellDataSAPTableSAPFrame = True
+	End If
+
+	If blnDefault_eSwiftReporting Then  
+		Call UpdateResultHtml(strStepName,cellVal,strMsg,strStatus,"")
+	End If
+
+	Set objTableCell=Nothing
+	
+	End If
+End function
+
+'******************************************************************************************************************
+
+
+Public Function SetCellDataSAPTableFrame(creationTime,frameTitle,tableClass,tableHtmlTag,tableName,tableIndex,rowNum,colNum,cellVal)
+If Not (Environment.Value("blnFatalError") or cellVal = DS_SKIP) Then
+		If blnShowNotification Then BalloonTooltip.Show "TASE Automation","Executing Now : SetCellDataSAPTableFrame"
+'		ALMvalue=Environment.Value("ALMFlag")
+'		If  ALMvalue=1 Then
+'			PopUpCreationtime=Cint(creationTime) + 1
+'		else
+			PopUpCreationtime=Cint(creationTime)
+'		End If
+
+		Dim objTableCell
+		stepName ="Set value: " & cellVal & "  in SAP Table"
+		If tableClass <> ""  or rowNum <> "" or colNum <>"" Then
+			Set objTableCell =Browser("CreationTime:=" &PopUpCreationtime).Page("Index:=" &PopUpCreationtime).Frame("title:=" &frameTitle).SAPTable("class:="& tableClass,"html tag:="& tableHtmlTag,"name:=" & tableName,"Index:=" & tableIndex)
+			If  objTableCell.Exist(gObjectTimeoutLimit)  then 
+         		If rowNum<> "" and colNum<>"" Then
+					rowNum = Cint(rowNum)
+             		colNum = Cint(colNum)
+             		objTableCell.SetCellData rowNum,colNum,cellVal
+             		objTableCell.submit
+             		If blnCaptureFlag  or  blnCreateImageEachStep or blnCreateTrainingDoc Then
+						ImagePath=CaptureScreenshot(strStepName,objTableCell,False,False,True)
+	        		End if
+	  
+	           		strStatus = "DONE"
+	           		strMsg= "Value set in table successfully"
+	           		Call ReporterFunction(strLibraryFileName,"SetCellDataSAPTableFrame","2",strStepName,strMsg)
+      			else
+           			
+               		strStatus = "FAIL"
+               		strMsg = "Function Parameter Not Passed Properly. Check the -SetCellDataSAPTableFrame-- Function Call"
+               		Call ReporterFunction(strLibraryFileName,"SetCellDataSAPTableFrame","1",strStepName,strMsg)
+    			end if
+			else
+				blnObjectError=True
+              	strStatus = "FAIL"
+              	strMsg = "Table object not found"
+              	Call ReporterFunction(strLibraryFileName,"SetCellDataSAPTableFrame","1",strStepName,strMsg)
+			End if
+		End if
+
+	If  blnObjectError  Then
+		Environment.Value("blnFatalError")=True
+	End If
+
+	If strStatus = "FAIL"  Then
+		SetCellDataSAPTableFrame = strMsg
+		blnMainFailFlag = True
+		ImagePath=CaptureScreenshot(strStepName,objTableCell,False,False,True)
+	Else
+		SetCellDataSAPTableFrame = True
+	End If
+
+	If blnDefault_eSwiftReporting Then  
+		Call UpdateResultHtml(strStepName,cellVal,strMsg,strStatus,"")
+	End If
+
+	Set objTableCell=Nothing
+	
+	End If
+End function
+
+'********************************************************************
+
+Public Function SetSAPEditWebTableSAPPortalSAPFrame(creationTime,frameTitle,tableName,WebTableClass,RowNumber,columnNum,val)
+If Not (Environment.Value("blnFatalError") or val = DS_SKIP) Then
+		If blnShowNotification Then BalloonTooltip.Show "TASE Automation","Executing Now : SetSAPEditWebTableSAPPortalSAPFrame"
+		ALMvalue=Environment.Value("ALMFlag")
+		If  ALMvalue=1 Then
+			PopUpCreationtime=Cint(creationTime) + 1
+		else
+			PopUpCreationtime=Cint(creationTime)
+		End If
+
+		Dim objWebTable
+		strStepName = " Set value " & val & "  in Web Table cell"
+		If WebTableClass<> ""  or  columnNum <> "" or  RowNumber<>"" Then
+			Set objWebTable =Browser("CreationTime:="& PopUpCreationtime).SAPPortal("Index:="& PopUpCreationtime).SAPFrame("title:=" &frameTitle).WebTable("class:="&WebTableClass,"html tag:=TABLE","name:="&tableName,"index:=0")
+			If  objWebTable.Exist  then 
+	  			objWebTable.ChildItem(RowNumber,columnNum,"SAPEdit","0").set val
+				If blnCaptureFlag  or  blnCreateImageEachStep or blnCreateTrainingDoc Then
+					ImagePath=CaptureScreenshot(strStepName,objWebTable,False,False,True)
+	        	End if
+	           	strStatus = "DONE"
+	           	strMsg= "Value set in table successfully"
+	           	Call ReporterFunction(strLibraryFileName,"SetSAPEditWebTableSAPPortalSAPFrame","2",strStepName,strMsg)
+			else
+				blnObjectError=True 
+              	strStatus = "FAIL"
+              	strMsg = "Object Missing"
+              	Call ReporterFunction(strLibraryFileName,"SetSAPEditWebTableSAPPortalSAPFrame","1",strStepName,strMsg)
+			end if
+ 		else
+			          			
+			
+            strStatus = "FAIL"
+            strMsg = "Function Parameter Not Passed Properly. Check the -SetSAPEditWebTableSAPPortalSAPFrame-- Function Call"
+            Call ReporterFunction(strLibraryFileName,"SetSAPEditWebTableSAPPortalSAPFrame","1",strStepName,strMsg)
+		End if					
+
+	If  blnObjectError  Then
+		Environment.Value("blnFatalError")=True
+	End If
+
+	If strStatus = "FAIL"  Then
+		SetSAPEditWebTableSAPPortalSAPFrame = strMsg
+		blnMainFailFlag = True
+		ImagePath=CaptureScreenshot(strStepName,objWebTable,False,False,True)
+	Else
+		SetSAPEditWebTableSAPPortalSAPFrame = True
+	End If
+
+	If blnDefault_eSwiftReporting Then  
+		Call UpdateResultHtml(strStepName,val,strMsg,strStatus,"")
+	End If
+
+	Set objWebTable = Nothing
+	
+	End If
+End function
+
+'**********************************************************************************************************************************************************
+
+Public Function SetWebEditSAPPortalSAPFrame(creationTime,frameTitle,webeditName,webeditTexttype,webeditIndex,val)
+If Not (Environment.Value("blnFatalError") or val = DS_SKIP) Then
+		If blnShowNotification Then BalloonTooltip.Show "TASE Automation","Executing Now : SetWebEditSAPPortalSAPFrame"
+'		ALMvalue=Environment.Value("ALMFlag")
+'		If  ALMvalue=1 Then
+'			PopUpCreationtime=Cint(creationTime) + 1
+'		else
+			PopUpCreationtime=Cint(creationTime)
+'		End If
+
+		Dim objWebEdit
+		strStepName = "Set text box : "& webeditName
+		If webeditName<> "" or webeditTexttype <> "" Then
+		
+			Set objWebEdit =Browser("CreationTime:="& PopUpCreationtime).SAPPortal("Index:="& PopUpCreationtime).SAPFrame("title:=" & frameTitle).WebEdit("name:="&webeditName,"type:=" &webeditTexttype,"index:="&webeditIndex)
+ 			If  objWebEdit.Exist(gObjectTimeoutLimit)  then 
+     			objWebEdit.Click
+   	 			objWebEdit.Set val
+	 			Wait(1)
+	 			objWebEdit.Click
+     			If blnCaptureFlag  or  blnCreateImageEachStep or blnCreateTrainingDoc Then
+						ImagePath=CaptureScreenshot(strStepName,objWebEdit,False,False,True)
+	        	End if
+	           	
+	           	strStatus = "DONE"
+	           	strMsg= "Text box Value set successfully"
+	           	Call ReporterFunction(strLibraryFileName,"SetWebEditSAPPortalSAPFrame","2",strStepName,strMsg)
+      		else
+      			blnObjectError=True
+              	strStatus = "FAIL"
+              	strMsg = "Object Missing"
+              	Call ReporterFunction(strLibraryFileName,"SetWebEditSAPPortalSAPFrame","1",strStepName,strMsg)
+   			end if
+ 		else
+			           			
+            strStatus = "FAIL"
+            strMsg = "Function Parameter Not Passed Properly. Check the -SetWebEditSAPPortalSAPFrame-- Function Call"
+            Call ReporterFunction(strLibraryFileName,"SetWebEditSAPPortalSAPFrame","1",strStepName,strMsg)
+               		
+	end if
+
+	If  blnObjectError  Then
+		Environment.Value("blnFatalError")=True
+	End If
+
+	If strStatus = "FAIL"  Then
+		SetWebEditSAPPortalSAPFrame = strMsg
+		blnMainFailFlag = True
+		ImagePath=CaptureScreenshot(strStepName,objWebEdit,False,False,True)
+	Else
+		SetWebEditSAPPortalSAPFrame = True
+	End If
+
+	If blnDefault_eSwiftReporting Then  
+		Call UpdateResultHtml(strStepName,val,strMsg,strStatus,"")
+	End If
+
+	Set objWebEdit = Nothing
+	
+	End If
+End function
+
+
+'*********************************************************************************************************************************************
+
+Public Function SetSAPEditSAPPortalSAPFrame(creationTime,frameTitle,SAPAttachedtext,SAPEditTexttype,SAPEditIndex,val)
+	If Not (Environment.Value("blnFatalError") or val = DS_SKIP) Then
+		If blnShowNotification Then BalloonTooltip.Show "TASE Automation","Executing Now : SetSAPEditSAPPortalSAPFrame"
+
+		ALMvalue=Environment.Value("ALMFlag")
+		If  ALMvalue=1 Then
+			PopUpCreationtime=Cint(creationTime) + 1
+		else
+			PopUpCreationtime=Cint(creationTime)
+		End If
+
+		Dim objSAPEdit
+		strStepName = "Set text box ::"& SAPAttachedtext
+
+		If SAPAttachedtext<> "" or SAPEditTexttype <> "" or SAPEditIndex <> "" Then
+
+			Set objSAPEdit =Browser("CreationTime:="& PopUpCreationtime).SAPPortal("Index:="& PopUpCreationtime).SAPFrame("title:="& frameTitle).SAPEdit("sap attached text:="& SAPAttachedtext,"type:="& SAPEditTexttype,"index:="& SAPEditIndex)
+ 			If  objSAPEdit.Exist(gObjectTimeoutLimit)  then 
+ 	 			objSAPEdit.Click
+   	 			objSAPEdit.Set val
+	 			Wait(1)
+	 			objSAPEdit.Click
+	   			If blnCaptureFlag  or  blnCreateImageEachStep or blnCreateTrainingDoc Then
+					ImagePath=CaptureScreenshot(strStepName,objSAPEdit,False,False,True)
+	  			End if
+	            strStatus = "DONE"
+	            strMsg= "Text value set successfully"
+	            Call ReporterFunction(strLibraryFileName,"SetSAPEditSAPPortalSAPFrame","2",strStepName,strMsg)
+  			else
+  				blnObjectError=True
+               	strStatus = "FAIL"
+               	strMsg =  "Object Missing--Check the Screen Properly"
+               	Call ReporterFunction(strLibraryFileName,"SetSAPEditSAPPortalSAPFrame","1",strStepName,strMsg)
+  			end if
+		else
+        		
+            	strStatus = "FAIL"	
+            	strMsg = "SAPEditSAPPortalSAPFrame: " & SAPAttachedtext & " Not found"
+            	Call ReporterFunction(strLibraryFileName,"SetSAPEditSAPPortalSAPFrame","1",strStepName,strMsg)
+		end if
+
+	If  blnObjectError  Then
+		Environment.Value("blnFatalError")=True
+	End If
+
+	If strStatus = "FAIL"  Then
+		SetSAPEditSAPPortalSAPFrame = strMsg
+		blnMainFailFlag = True
+		ImagePath=CaptureScreenshot(strStepName,objSAPEdit,False,False,True)
+	Else
+		SetSAPEditSAPPortalSAPFrame = True
+	End If
+
+	If blnDefault_eSwiftReporting Then  
+		Call UpdateResultHtml(strStepName,val,strMsg,strStatus,"")
+	End If
+
+	Set objSAPEdit=Nothing
+	
+	End If
+
+End Function
+
+
+'****************************************************************************************************************************************************
+Public Function SetSAPUIListFrame(creationTime,frameTitle,htmlTag,htmlId,name,index,itemText)
+
+
+If Not (Environment.Value("blnFatalError")) Then
+
+	If blnShowNotification Then BalloonTooltip.Show "TASE Automation","Executing Now : SetSAPUIListFrame"
+	
+ALMvalue=Environment.Value("ALMFlag")
+If  ALMvalue=1 Then
+	PopUpCreationtime=Cint(creationTime) + 1
+else
+	PopUpCreationtime=Cint(creationTime)
+End If
+strStepName = "Set item in:  "&itemText& " from SAPUIList"
+Set objSAPUIListFrame= Browser("CreationTime:="& PopUpCreationtime).Page("Index:="& PopUpCreationtime).Frame("title:="&frameTitle).SAPUIList("name:="&name,"html tag:="&htmltag,"html id:="&htmlId,"index:="&index)
+
+If name <> "" or itemText <> "" Then
+    If  objSAPUIListFrame.Exist(gObjectTimeoutLimit )  then 
+		objSAPUIListFrame.Select itemText
+		
+		If blnCaptureFlag  or  blnCreateImageEachStep or blnCreateTrainingDoc Then
+					ImagePath=CaptureScreenshot(strStepName,objSAPUIListFrame,False,False,True)
+	  			End if
+	  			
+	  		strMsg = "SAPUIList:" &name& " is set"
+            strStatus  = "DONE"
+            Call ReporterFunction("WebSetters","SetSAPUIListFrame","2",strStepName,strMsg)
+    else
+         strMsg = "SAPUIList: Not found"
+     	strStatus  = "FAIL"
+        Call ReporterFunction("WebSetters","SetSAPUIListFrame","1",strStepName,strMsg)
+     	blnObjectError=True
+	 	
+    end if
+else
+	strMsg = "Function Parameter Not Passed Properly. Check the --SetSAPUIListFrame-- Function Call"
+    strStatus  = "FAIL"
+    Call ReporterFunction("WebSetters","SetSAPUIListFrame","1",strStepName,strMsg)
+end if
+
+If  blnObjectError  Then
+		Environment.Value("blnFatalError")=True
+	End If
+	
+If strStatus = "FAIL"  Then
+		SetSAPUIListFrame = strMsg
+		blnMainFailFlag = True
+		ImagePath=CaptureScreenshot(strStepName,objSAPUIListFrame,FALSE,False,TRUE)
+	Else
+		SetSAPUIListFrame = True
+	End If
+	If blnDefault_eSwiftReporting Then  
+		Call UpdateResultHtml(strStepName,itemText,strMsg,strStatus,"")
+	End If	
+End If
+End Function
+'************************************************************************************************************************************************************************************************************************************************************************************
+
+Public Function SetSAPUIList(creationTime,windowText,htmltag,innerText,className,index,itemText,blnIsItPopup)
+
+If Not (Environment.Value("blnFatalError")) Then
+
+	If blnShowNotification Then BalloonTooltip.Show "TASE Automation","Executing Now : SetSAPUIList"
+	
+ALMvalue=Environment.Value("ALMFlag")
+If  ALMvalue=1 Then
+	PopUpCreationtime=Cint(creationTime) + 1
+else
+	PopUpCreationtime=Cint(creationTime)
+End If
+stepName = "Select Item :  "&itemText& " from SAPUIList"
+If blnIsItPopup Then
+	Set objSAPUIList =Browser("CreationTime:="& PopUpCreationtime).Window("text:="&windowText).Page("index:="& PopUpCreationtime).SAPUIList("class:="&className,"html tag:="&htmltag,"innertext:="&innerText,"index:="&index)
+else
+    Set objSAPUIList= Browser("CreationTime:="& PopUpCreationtime).Page("Index:="& PopUpCreationtime).SAPUIList("class:="&className,"html tag:="&htmltag,"innertext:="&innerText,"index:="&index)
+End If
+If className <> "" or itemText <> "" Then
+    If  objSAPUIList.Exist(gObjectTimeoutLimit )  then 
+		objSAPUIList.Select itemText
+		
+		If blnCaptureFlag  or  blnCreateImageEachStep or blnCreateTrainingDoc Then
+					ImagePath=CaptureScreenshot(strStepName,objSAPUIList,False,False,True)
+	  			End if
+	  		strMsg = "SAPUIList: " &name& " is set"	
+           strStatus  = "DONE"
+          Call ReporterFunction("WebSetters","SetSAPUIList","1",strStepName,strMsg)
+    else
+        strMsg = "SAPUIList: Not found"
+     	strStatus  = "FAIL"
+                   Call ReporterFunction("WebSetters","SetSAPUIList","1",strStepName,strMsg)
+     	blnObjectError=True
+	 
+    end if
+else
+	strMsg = "Function Parameter Not Passed Properly. Check the -SetSAPUIList-- Function Call"
+    strStatus  = "FAIL"
+    Call ReporterFunction("WebSetters","SetSAPUIList","1",strStepName,strMsg)
+end if
+
+If  blnObjectError  Then
+		Environment.Value("blnFatalError")=True
+	End If
+	
+If strStatus = "FAIL"  Then
+		SetSAPUIList = strMsg
+		blnMainFailFlag = True
+		ImagePath=CaptureScreenshot(strStepName,objSAPUIList,FALSE,False,TRUE)
+	Else
+		SetSAPUIList = True
+	End If
+	If blnDefault_eSwiftReporting Then  
+		Call UpdateResultHtml(strStepName,itemText,strMsg,strStatus,"")
+	End If	
+End If
+
+End Function
+'********************************************************************************************************************************************************************************************************
+Public Function SetSAPUITextEdit(creationTime,windowText,htmlTag,name,className,index,strValue,blnIsItPopup)
+
+    If Not (Environment.Value("blnFatalError") or strValue = DS_SKIP) Then
+
+	If blnShowNotification Then BalloonTooltip.Show "TASE Automation","Executing Now : SetSAPUITextEdit"
+	
+'ALMvalue=Environment.Value("ALMFlag")
+'If  ALMvalue=1 Then
+'	PopUpCreationtime=Cint(creationTime) + 1
+'else
+	PopUpCreationtime=Cint(creationTime)
+'End If
+
+strStepName = "Set SAPUITextEdit box "
+If className<> ""  Then
+	If blnIsItPopup Then
+		Set objSAPUITextEdit =Browser("CreationTime:="& PopUpCreationtime).Window("text:="&windowText).Page("Index:="& PopUpCreationtime).SAPUITextEdit("class:="&className,"html tag:="&htmlTag,"name:="&name,"index:="&index)
+	else
+    	Set objSAPUITextEdit =Browser("CreationTime:="& PopUpCreationtime).Page("Index:="& PopUpCreationtime).SAPUITextEdit("class:="&className,"html tag:="&htmlTag,"name:="&name,"index:="&index)
+	End If
+ 	If  objSAPUITextEdit.Exist(gObjectTimeoutLimit )  then 
+ 	     objSAPUITextEdit.HighLight
+	     objSAPUITextEdit.Click
+	   	 objSAPUITextEdit.Set strValue
+		 Wait(1)
+		 
+		 If blnCaptureFlag  or  blnCreateImageEachStep or blnCreateTrainingDoc Then
+					ImagePath=CaptureScreenshot(strStepName,objSAPUITextEdit,False,False,True)
+	  			End if
+	  	 strMsg = "SAPUITextEdit " &name& " is set"		
+	     strStatus  = "DONE"
+         Call ReporterFunction("WebSetters","SetSAPUITextEdit","2",strStepName,strMsg)
+  	else
+	     strMsg ="Object Missing"
+	     strStatus  = "FAIL"
+         Call ReporterFunction("WebSetters","SetSAPUITextEdit","1",strStepName,strMsg)
+	     blnObjectError=True
+		 
+  	end if
+else
+     strMsg = "Function Parameter Not Passed Properly. Check the --SetSAPUITextEdit -- Function Call"
+     strStatus  = "FAIL"
+     Call ReporterFunction("WebSetters","SetSAPUITextEdit","1",strStepName,strMsg)
+end if
+
+If  blnObjectError  Then
+		Environment.Value("blnFatalError")=True
+	End If
+	
+If strStatus = "FAIL"  Then
+		SetSAPUITextEdit = strMsg
+		blnMainFailFlag = True
+		ImagePath=CaptureScreenshot(strStepName,objSAPUITextEdit,FALSE,False,TRUE)
+	Else
+		SetSAPUITextEdit = True
+	End If
+	If blnDefault_eSwiftReporting Then  
+		Call UpdateResultHtml(strStepName,strValue,strMsg,strStatus,"")
+	End If	
+End If
+
+End Function
+'****************************************************************************************************************************************************************************
+
+Public Function SetSAPUITextEditFrame(creationTime,frameTitle,htmlTag,htmlId,className,index,strValue)
+
+If Not (Environment.Value("blnFatalError") or strValue = DS_SKIP) Then
+
+	If blnShowNotification Then BalloonTooltip.Show "TASE Automation","Executing Now : SetSAPUITextEditFrame"
+
+ALMvalue=Environment.Value("ALMFlag")
+If  ALMvalue=1 Then
+	PopUpCreationtime=Cint(creationTime) + 1
+else
+	PopUpCreationtime=Cint(creationTime)
+End If
+
+strStepName = "Set SAPUITextEdit box "
+If className<> ""  Then
+	
+	Set objSAPUITextEditFrame =Browser("CreationTime:="& PopUpCreationtime).Page("Index:="& PopUpCreationtime).Frame("title:="&frameTitle).SAPUITextEdit("class:="&className,"html tag:="&htmlTag,"html id:="&htmlId,"index:="&index)
+
+ 	If  objSAPUITextEditFrame.Exist(gObjectTimeoutLimit )  then 
+      	objSAPUITextEditFrame.Click
+   	 	objSAPUITextEditFrame.Set strValue
+	 	Wait(1)
+	 	
+	 	If blnCaptureFlag  or  blnCreateImageEachStep or blnCreateTrainingDoc Then
+					ImagePath=CaptureScreenshot(strStepName,objSAPUITextEditFrame,False,False,True)
+	  			End if
+	  			
+     	strMsg = "SAPUITextEdit " &strValue& " is set"	
+     	strStatus  = "DONE"
+        Call ReporterFunction("WebSetters","SetSAPUITextEditFrame","2",strStepName,strMsg)
+  	else
+     	strMsg ="Object Missing"
+     	strStatus  = "FAIL"
+                   Call ReporterFunction("WebSetters","SetSAPUITextEditFrame","1",strStepName,strMsg)
+     	blnObjectError=True
+	 	
+  	end if
+else
+     strMsg = "Function Parameter Not Passed Properly. Check the --SetSAPUITextEditFrame -- Function Call"
+     strStatus  = "FAIL"
+     Call ReporterFunction("WebSetters","SetSAPUITextEditFrame","1",strStepName,strMsg)
+end if
+
+If  blnObjectError  Then
+		Environment.Value("blnFatalError")=True
+	End If
+	
+If strStatus = "FAIL"  Then
+		SetSAPUITextEditFrame = strMsg
+		blnMainFailFlag = True
+		ImagePath=CaptureScreenshot(strStepName,objSAPUITextEditFrame,FALSE,False,TRUE)
+	Else
+		SetSAPUITextEditFrame = True
+	End If
+	If blnDefault_eSwiftReporting Then  
+		Call UpdateResultHtml(strStepName,strValue,strMsg,strStatus,"")
+	End If	
+End If
+
+End Function
+'*****************************************************************************************************************************************************************************
+
+Public Function SetCellDataSAPUITable(creationTime,windowText,htmlTag,htmlId,name,className,index,rowNumber,columnName,cellVal,blnIsItPopup)
+
+If Not (Environment.Value("blnFatalError") or cellVal= DS_SKIP) Then
+
+	If blnShowNotification Then BalloonTooltip.Show "TASE Automation","Executing Now : SetCellDataSAPUITable"
+
+ALMvalue=Environment.Value("ALMFlag")
+If  ALMvalue=1 Then
+	PopUpCreationtime=Cint(creationTime) + 1
+else
+	PopUpCreationtime=Cint(creationTime)
+End If
+strStepName ="Set value: " & cellVal & "  in SAPUI Table"
+If blnIsItPopup Then
+	Set objSAPUITable =Browser("CreationTime:=" &PopUpCreationtime).Window("text:="&windowText).Page("Index:=" &PopUpCreationtime).SAPUITable("class:="& className,"html tag:="& htmlTag,"html id:="&htmlId,"name:=" & name,"Index:=" & index)
+Else
+	Set objSAPUITable =Browser("CreationTime:=" &PopUpCreationtime).Page("Index:=" &PopUpCreationtime).SAPUITable("class:="& className,"html tag:="& htmlTag,"html id:="&htmlId,"name:=" & name,"Index:=" & index)
+End If
+   
+    If  objSAPUITable.Exist(gObjectTimeoutLimit )  then 
+         If rowNumber<> "" and columnName<>"" Then
+             rowNum = Cint(rowNumber)
+             'colNum = Cint(columnNum)
+             objSAPUITable.SetCellData rowNum,columnName,cellVal
+             
+             If blnCaptureFlag  or  blnCreateImageEachStep or blnCreateTrainingDoc Then
+					ImagePath=CaptureScreenshot(strStepName,objSAPUITable,False,False,True)
+	  			End if
+	  		 strMsg = 	"Table data is set successfully"
+             strStatus  = "DONE"
+              Call ReporterFunction("WebSetters","SetCellDataSAPUITable","2",strStepName,strMsg)
+      	else
+           strMsg = "Function Parameter Not Passed Properly. Check the --SetCellDataSAPUITable-- Function Call"
+           strStatus  = "FAIL"
+            Call ReporterFunction("WebSetters","SetCellDataSAPUITable","1",strStepName,strMsg)
+    	end if
+ 	else
+       strMsg ="Table object not found"
+       strStatus  = "FAIL"
+        Call ReporterFunction("WebSetters","SetCellDataSAPUITable","1",strStepName,strMsg)
+       blnObjectError = True
+ end if
+
+If  blnObjectError  Then
+		Environment.Value("blnFatalError")=True
+	End If
+	
+If strStatus = "FAIL"  Then
+		SetCellDataSAPUITable = strMsg
+		blnMainFailFlag = True
+		ImagePath=CaptureScreenshot(strStepName,objSAPUITable,FALSE,False,TRUE)
+	Else
+		SetCellDataSAPUITable = True
+	End If
+	If blnDefault_eSwiftReporting Then  
+		Call UpdateResultHtml(strStepName,cellVal,strMsg,strStatus,"")
+	End If	
+End If
+
+
+End Function
+'**************************************************************************************************************************************************************************************************************************************************************************************
+
+Public Function SetCellDataSAPUITableFrame(creationTime,frameTitle,htmlTag,htmlId,title,className,index,rowNumber,columnName,cellVal)
+
+If Not (Environment.Value("blnFatalError") or cellVal= DS_SKIP) Then
+
+	If blnShowNotification Then BalloonTooltip.Show "TASE Automation","Executing Now : SetCellDataSAPUITableFrame"
+
+ALMvalue=Environment.Value("ALMFlag")
+If  ALMvalue=1 Then
+	PopUpCreationtime=Cint(creationTime) + 1
+else
+	PopUpCreationtime=Cint(creationTime)
+End If
+strStepName ="Set value: " & cellVal & "  in SAPUI Table"
+Set objSAPUITableFrame =Browser("CreationTime:=" &PopUpCreationtime).Page("Index:=" &PopUpCreationtime).Frame("title:="&frameTitle).SAPUITable("class:="& className,"html tag:="& htmlTag,"html id:="&htmlId,"title:=" & title,"Index:=" & index)
+    
+    If  objSAPUITableFrame.Exist(gObjectTimeoutLimit )  then 
+         If rowNumber<> "" and columnName<>"" Then
+             rowNum = Cint(rowNumber)
+             'colNum = Cint(columnNum)
+             objSAPUITableFrame.SetCellData rowNum,columnName,cellVal
+             
+              If blnCaptureFlag  or  blnCreateImageEachStep or blnCreateTrainingDoc Then
+					ImagePath=CaptureScreenshot(strStepName,objSAPUITableFrame,False,False,True)
+	  			End if
+	  		strMsg = 	"Table data is set successfully"	
+             strStatus  = "DONE"
+              Call ReporterFunction("WebSetters","SetCellDataSAPUITableFrame","2",strStepName,strMsg)
+      	else
+           strMsg = "Function Parameter Not Passed Properly. Check the --SetCellDataSAPUITableFrame-- Function Call"
+           strStatus  = "FAIL"
+            Call ReporterFunction("WebSetters","SetCellDataSAPUITableFrame","1",strStepName,strMsg)
+           
+    	end if
+ 	else
+       strMsg ="Table object not found"
+       strStatus  = "FAIL"
+       blnObjectError = True
+ end if
+
+If  blnObjectError  Then
+		Environment.Value("blnFatalError")=True
+	End If
+	
+If strStatus = "FAIL"  Then
+		SetCellDataSAPUITableFrame = strMsg
+		blnMainFailFlag = True
+		ImagePath=CaptureScreenshot(strStepName,objSAPUITableFrame,FALSE,False,TRUE)
+	Else
+		SetCellDataSAPUITableFrame = True
+	End If
+	If blnDefault_eSwiftReporting Then  
+		Call UpdateResultHtml(strStepName,cellVal,strMsg,strStatus,"")
+	End If	
+End If
+
+
+
+End Function
+
+'*************************************************************************************************************************************************************************************************************************************************************************************
+
+Public Function SetCellDataSAPUITableByRefColumn(creationTime,windowText,htmlTag,htmlId,title,className,index,columnName,refColumnName,refCellVal,cellVal,blnIsItPopup)
+
+If Not (Environment.Value("blnFatalError") or cellVal= DS_SKIP) Then
+
+	If blnShowNotification Then BalloonTooltip.Show "TASE Automation","Executing Now : SetCellDataSAPUITableByRefColumn"
+
+ALMvalue=Environment.Value("ALMFlag")
+If  ALMvalue=1 Then
+	PopUpCreationtime=Cint(creationTime) + 1
+else
+	PopUpCreationtime=Cint(creationTime)
+End If
+strStepName ="Set value: " & cellVal & "  in SAPUI Table"
+If blnIsItPopup Then
+	Set objSAPUITable =Browser("CreationTime:=" &PopUpCreationtime).Window("text:="&windowText).Page("Index:=" &PopUpCreationtime).SAPUITable("class:="& className,"html tag:="& htmlTag,"html id:="&htmlId,"title:=" & title,"Index:=" & index)
+Else
+	Set objSAPUITable =Browser("CreationTime:=" &PopUpCreationtime).Page("Index:=" &PopUpCreationtime).SAPUITable("class:="& className,"html tag:="& htmlTag,"html id:="&htmlId,"title:=" & title,"Index:=" & index)
+End If
+   If  columnName<>""and refColumnName<>"" Then	
+    If  objSAPUITable.Exist(gObjectTimeoutLimit )  then 
+    	strRowNumber = objSAPUITable.FindRowByCellContent(refColumnName,refCellValue)
+         If strRowNumber<> "" and columnName<>"" Then
+             rowNum = Cint(strRowNumber)
+             'colNum = Cint(columnNum)
+             objSAPUITable.SetCellData rowNum,columnName,cellVal
+             
+             If blnCaptureFlag  or  blnCreateImageEachStep or blnCreateTrainingDoc Then
+					ImagePath=CaptureScreenshot(strStepName,objSAPUITable,False,False,True)
+	  			End if
+	  		strMsg = 	"Table data is set successfully"	
+             strStatus  = "DONE"
+              Call ReporterFunction("WebSetters","SetCellDataSAPUITableByRefColumn","2",strStepName,strMsg)
+      	else
+      		strMsg ="Table object not found"
+       		strStatus  = "FAIL"
+                                     Call ReporterFunction("WebSetters","SetCellDataSAPUITableByRefColumn","1",strStepName,strMsg)
+       		blnObjectError = True
+           
+    	end if
+ 	else
+ 		strMsg = "Function Parameter Not Passed Properly. Check the --SetCellDataSAPUITableByRefColumn-- Function Call"
+                                     strStatus  = "FAIL"
+                                     Call ReporterFunction("WebSetters","SetCellDataSAPUITableByRefColumn","1",strStepName,strMsg)
+       
+ end if
+ End if
+
+If  blnObjectError  Then
+		Environment.Value("blnFatalError")=True
+	End If
+	
+If strStatus = "FAIL"  Then
+		SetCellDataSAPUITableByRefColumn = strMsg
+		blnMainFailFlag = True
+		ImagePath=CaptureScreenshot(strStepName,objSAPUITable,FALSE,False,TRUE)
+	Else
+		SetCellDataSAPUITableByRefColumn = True
+	End If
+	If blnDefault_eSwiftReporting Then  
+		Call UpdateResultHtml(strStepName,cellVal & ";" & refCellVal,strMsg,strStatus,"")
+	End If	
+End If
+
+End Function
+'**************************************************************************************************************************************************************************************************************************************************************************
+
+Public Function SetCellDataSAPUITableFrameByRefColumn(creationTime,frameTitle,htmlTag,htmlId,title,className,index,columnName,refColumnName,refCellVal,cellVal)
+
+If Not (Environment.Value("blnFatalError") or cellVal= DS_SKIP) Then
+
+	If blnShowNotification Then BalloonTooltip.Show "TASE Automation","Executing Now : SetCellDataSAPUITableFrameByRefColumn"
+
+
+ALMvalue=Environment.Value("ALMFlag")
+If  ALMvalue=1 Then
+	PopUpCreationtime=Cint(creationTime) + 1
+else
+	PopUpCreationtime=Cint(creationTime)
+End If
+strStepName ="Set value: " & cellVal & "  in SAPUI Table"
+Set objSAPUITableFrame =Browser("CreationTime:=" &PopUpCreationtime).Page("Index:=" &PopUpCreationtime).Frame("title:="&frameTitle).SAPUITable("class:="& className,"html tag:="& htmlTag,"html id:="&htmlId,"title:=" & title,"Index:=" & index)
+
+   If columnName<>""and refColumnName<>"" Then	
+    If  objSAPUITableFrame.Exist(gObjectTimeoutLimit )  then 
+    	strRowNumber = objSAPUITableFrame.FindRowByCellContent(refColumnName,refCellVal)
+         If strRowNumber<> "" and columnName<>"" Then
+             rowNum = Cint(strRowNumber)
+             'colNum = Cint(columnNum)
+             objSAPUITableFrame.SetCellData rowNum,columnName,cellVal
+             
+             If blnCaptureFlag  or  blnCreateImageEachStep or blnCreateTrainingDoc Then
+					ImagePath=CaptureScreenshot(strStepName,objSAPUITableFrame,False,False,True)
+	  			End if
+	  		strMsg = 	"Table data is set successfully"	
+             strStatus  = "DONE"
+              Call ReporterFunction("WebSetters","SetCellDataSAPUITableByRefColumn","2",strStepName,strMsg)
+      	else
+      		strMsg ="Table object not found"
+       		strStatus  = "FAIL"
+       		blnObjectError = True
+           
+    	end if
+ 	else
+ 		strMsg = "Function Parameter Not Passed Properly. Check the -SetCellDataSAPUITableFrameByRefColumn-- Function Call"
+                                      strStatus  = "FAIL"
+                                       Call ReporterFunction("WebSetters","SetCellDataSAPUITableByRefColumn","1",strStepName,strMsg)
+       
+ end if
+ End if
+
+If  blnObjectError  Then
+		Environment.Value("blnFatalError")=True
+	End If
+	
+If strStatus = "FAIL"  Then
+		SetCellDataSAPUITableFrameByRefColumn = strMsg
+		blnMainFailFlag = True
+		ImagePath=CaptureScreenshot(strStepName,objSAPUITableFrame,FALSE,False,TRUE)
+	Else
+		SetCellDataSAPUITableFrameByRefColumn = True
+	End If
+	If blnDefault_eSwiftReporting Then  
+		Call UpdateResultHtml(strStepName,cellVal & ";" & refCellVal,strMsg,strStatus,"")
+	End If	
+End If
+
+End Function
+'*****************************************************************************************************************************************************************************************************************************************************************************************************
+Function SelectSAPUIList(creationTime,windowText,htmltag,className,textOrname,index,itemText,blnIsItPopup)
+
+If Not (Environment.Value("blnFatalError")) Then
+
+	If blnShowNotification Then BalloonTooltip.Show "TASE Automation","Executing Now : SelectSAPUIList"
+' SetCellDataSAPTable(creationTime, tableClass, tableHtmlTag, tableName, tableIndex, rowNum, colNum, cellVal)
+SetCellDataSAPTable
+	
+'ALMvalue=Environment.Value("ALMFlag")
+'If  ALMvalue=1 Then
+'	PopUpCreationtime=Cint(creationTime) + 1
+'Else
+'	PopUpCreationtime=Cint(creationTime)
+'End If    
+strStepName = " Select SAPUIList "&innertext
+
+If textOrname<>"" or htmlTag<>"" or itemText<>"" or blnIsItPopup<>"" Then
+  If blnIsItPopup Then
+	Set objSAPUIList =Browser("CreationTime:="& PopUpCreationtime).Window("text:="&windowText).Page("Index:=" & PopUpCreationtime).SAPList("name:="& textOrname,"class:="&className,"html tag:="& htmltag,"index:=" & index)
+  Else
+    Set objSAPUIList =Browser("CreationTime:="& PopUpCreationtime).Page("Index:=" & PopUpCreationtime).SAPList("name:="& textOrname,"class:="&className,"html tag:="& htmltag,"index:=" & index)
+  End If
+  On Error Resume Next
+	If objSAPUIList.Exist(gObjectTimeoutLimit)  Then
+	    objSAPUIList.Select itemText
+	    
+	     If blnCaptureFlag  or  blnCreateImageEachStep or blnCreateTrainingDoc Then
+					ImagePath=CaptureScreenshot(strStepName,objSAPUIList,False,False,True)
+	  			End if
+	  			
+	    strStatus  = "DONE"
+		strMsg = "SAPUIList:"& innertext &" selected"
+		Call ReporterFunction("WebSetters","SelectSAPUIList","2",strStepName,strMsg)
+   Else
+   		strMsg = "SAPUIList:"& innertext &" not found"
+		strStatus  = "FAIL"
+	     blnObjectError=True
+   		Call ReporterFunction("WebSetters","SelectSAPUIList","1",strStepName,strMsg)
+   End If
+Else
+	 strMsg = "Function Parameter Not Passed Properly. Check the -SelectSAPUIList-- Function Call"
+	 strStatus  = "FAIL"
+     Call ReporterFunction("WebSetters","SelectSAPUIList","1",strStepName,strMsg)	 
+End If	
+
+If  blnObjectError  Then
+		Environment.Value("blnFatalError")=True
+	End If
+
+	If strStatus = "FAIL"  Then
+		SelectSAPUIList = strMsg
+		blnMainFailFlag = True
+		ImagePath=CaptureScreenshot(strStepName,objSAPUIList,FALSE,False,TRUE)
+	Else
+		SelectSAPUIList = True
+	End If
+	If blnDefault_eSwiftReporting Then  
+		Call UpdateResultHtml(strStepName,itemText,strMsg,strStatus,"")
+	End If	
+
+End If
+
+End Function
+'************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************
+Function SelectSAPUIListFrame(creationTime,frameTitle,htmlTag,innertext,className,text,index,item)
+If Not (Environment.Value("blnFatalError")) Then
+
+	If blnShowNotification Then BalloonTooltip.Show "TASE Automation","Executing Now : SelectSAPUIListFrame"
+	
+
+
+ALMvalue=Environment.Value("ALMFlag")
+If  ALMvalue=1 Then
+	PopUpCreationtime=Cint(creationTime) + 1
+Else
+	PopUpCreationtime=Cint(creationTime)
+End If    
+strStepName = " Select SAPUIList "&innertext&" in the frame with title "&frameTitle
+
+If text<>"" or htmlTag<>"" or innertext<>"" or className<>"" or item<>"" or frameTitle<>"" Then
+    Set objSAPUIListFrame =Browser("CreationTime:="& PopUpCreationtime).Page("Index:=" & PopUpCreationtime).Frame("title:="&frameTitle).SAPList("name:="& text/name,"innertext:="&innertext,"class:="&className,"html tag:="& htmltag,"index:=" & index)
+  	On Error Resume Next
+  	If objSAPUIListFrame.Exist(gObjectTimeoutLimit)  Then
+	    objSAPUIListFrame.Select item
+	    
+	     If blnCaptureFlag  or  blnCreateImageEachStep or blnCreateTrainingDoc Then
+					ImagePath=CaptureScreenshot(strStepName,objSAPUIListFrame,False,False,True)
+	  			End if
+	  			
+	    strStatus  = "DONE"
+		strMsg = "SAPUIList:"& innertext &" selected"
+		Call ReporterFunction("WebSetters","SelectSAPUIListFrame","2",strStepName,strMsg)
+   Else
+   		strMsg = "SAPUIList:"& innertext &" not found"
+		strStatus  = "FAIL"
+		blnObjectError=True
+		Call ReporterFunction("WebSetters","SelectSAPUIListFrame","1",strStepName,strMsg)
+   End If
+Else
+	 strMsg = "Function Parameter Not Passed Properly. Check the --SelectSAPUIListFrame-- Function Call"
+	 strStatus  = "FAIL"
+	 Call ReporterFunction("WebSetters","SelectSAPUIListFrame","1",strStepName,strMsg)	 
+End If
+
+If  blnObjectError  Then
+		Environment.Value("blnFatalError")=True
+	End If
+	
+If strStatus = "FAIL"  Then
+		SelectSAPUIList = strMsg
+		blnMainFailFlag = True
+		ImagePath=CaptureScreenshot(strStepName,objSAPUIListFrame,FALSE,False,TRUE)
+	Else
+		SelectSAPUIList = True
+	End If
+	If blnDefault_eSwiftReporting Then  
+		Call UpdateResultHtml(strStepName,item,strMsg,strStatus,"")
+	End If	
+
+End If
+End Function
+'************************************************************************************************************************************************************************************************************************************************************************************************************************************
+Function SetSAPUICheckBox(creationTime,windowText,checkboxName,checkboxHtmlTag,checkboxIndex,className,state,blnIsItPopup)
+If Not (Environment.Value("blnFatalError")) Then
+
+	If blnShowNotification Then BalloonTooltip.Show "TASE Automation","Executing Now : SetSAPUICheckBox"
+
+'ALMvalue=Environment.Value("ALMFlag")
+'If  ALMvalue=1 Then
+	'PopUpCreationtime=Cint(creationTime) + 1
+'Else
+	PopUpCreationtime=Cint(creationTime)
+'End If    
+strStepName = "Set SAPUICheckBox "&checkboxName & ":" & state
+'state = InputValidation(state)
+If checkboxName<>"" or checkboxHtmlTag<>"" or state<>"" or className<>"" or blnIsItPopup<>"" Then
+  If blnIsItPopup Then
+	Set objSAPUICheckBox =Browser("CreationTime:="& PopUpCreationtime).Window("text:="&windowText).Page("Index:=" & PopUpCreationtime).SAPUICheckBox("class:="&className,"htmlTag:="&checkboxHtmlTag,"name:="&checkboxName,"index:="&checkboxIndex)
+   Else
+    Set objSAPUICheckBox =Browser("CreationTime:="& PopUpCreationtime).Page("Index:=" & PopUpCreationtime).SAPUICheckBox("class:="&className,"htmlTag:="&checkboxHtmlTag,"name:="&checkboxName,"index:="&checkboxIndex)
+   End If
+  	On Error Resume Next
+    If objSAPUICheckBox.Exist(gObjectTimeoutLimit)  Then
+     If objSAPUICheckBox.GetROProperty("disabled")=0 Then
+                      If  objSAPUICheckBox.GetROProperty("checked")=0 and state="ON" Then
+							objSAPUICheckBox.set "ON"
+							
+							If blnCaptureFlag  or  blnCreateImageEachStep or blnCreateTrainingDoc Then
+									ImagePath=CaptureScreenshot(strStepName,objSAPUICheckBox,False,False,True)
+	  			            End if
+							strStatus="DONE"
+							strMsg = "SAPUICheckBox:"& checkboxName &" Set"
+							Call ReporterFunction("WebSetters","SetSAPUICheckBox","2",strStepName,strMsg)
+                      ElseIf objSAPUICheckBox.GetROProperty("checked")=1 and state="ON" Then
+							strStatus="DONE"
+							
+							If blnCaptureFlag  or  blnCreateImageEachStep or blnCreateTrainingDoc Then
+									ImagePath=CaptureScreenshot(strStepName,objSAPUICheckBox,False,False,True)
+	  			            End if
+	  			            
+							strMsg = "SAPUICheckBox:"& checkboxName &" Set"
+							Call ReporterFunction("WebSetters","SetSAPUICheckBox","2",strStepName,strMsg)
+                      ElseIf  objSAPUICheckBox.GetROProperty("checked")=1 and state="OFF" Then
+							 objSAPUICheckBox.set "OFF"
+							 
+							 If blnCaptureFlag  or  blnCreateImageEachStep or blnCreateTrainingDoc Then
+									ImagePath=CaptureScreenshot(strStepName,objSAPUICheckBox,False,False,True)
+	  			            End if
+	  			            
+							 strStatus="DONE"
+							 strMsg = "SAPUICheckBox:"& checkboxName &" Set"
+							 Call ReporterFunction("WebSetters","SetSAPUICheckBox","2",strStepName,strMsg)
+					  Else
+							 If blnCaptureFlag  or  blnCreateImageEachStep or blnCreateTrainingDoc Then
+									ImagePath=CaptureScreenshot(strStepName,objSAPUICheckBox,False,False,True)
+	  			            End if
+							 strStatus="DONE"
+							 strMsg = "SAPUICheckBox:"& checkboxName &" Set"
+							 Call ReporterFunction("WebSetters","SetSAPUICheckBox","2",strStepName,strMsg)
+                      End If     
+      Else 
+			  strStatus="FAIL"
+              strMsg ="Check Box is disabled ."
+              Call ReporterFunction("WebSetters","SetSAPUICheckBox","2",strStepName,strMsg)        			
+      End If
+    Else 
+         strStatus="FAIL"
+         strMsg = " The Check Box Object is not Found, Please verify the Screen"
+         blnObjectError=True
+         Call ReporterFunction("WebSetters","SetSAPUICheckBox","1",strStepName,strMsg)         
+   End If
+ Else 
+       strStatus="FAIL"
+       strMsg = " The Parameter Not Passed Properly. Please verify the Screen"
+       Call ReporterFunction("WebSetters","SetSAPUICheckBox","1",strStepName,strMsg)
+ End If 
+ 
+ If  blnObjectError  Then
+		Environment.Value("blnFatalError")=True
+	End If
+ 
+ If strStatus = "FAIL"  Then
+		SelectSAPUIList = strMsg
+		blnMainFailFlag = True
+		ImagePath=CaptureScreenshot(strStepName,objSAPUICheckBox,FALSE,False,TRUE)
+	Else
+		SelectSAPUIList = True
+	End If
+	If blnDefault_eSwiftReporting Then  
+		Call UpdateResultHtml(strStepName,state,strMsg,strStatus,"")
+	End If	
+End If
+End Function
+'**************************************************************************************************************************************************************************************************************************************************************************************
+Function SetSAPUICheckBoxFrame(creationTime,frameTitle,checkboxName,checkboxHtmlTag,checkboxIndex,className,state)
+
+If Not (Environment.Value("blnFatalError")) Then
+
+	If blnShowNotification Then BalloonTooltip.Show "TASE Automation","Executing Now : SetSAPUICheckBoxFrame"
+
+ALMvalue=Environment.Value("ALMFlag")
+If  ALMvalue=1 Then
+	PopUpCreationtime=Cint(creationTime) + 1
+Else
+	PopUpCreationtime=Cint(creationTime)
+End If    
+strStepName = "Set SAPUICheckBox "&checkboxName&" in the frame with title "&frameTitle & ":" & state
+'state = InputValidation(state)
+If checkboxName<>"" and checkboxHtmlTag<>"" and state<>"" and className<>"" and blnIsItPopup<>"" Then
+    Set objSAPUICheckBoxFrame=Browser("CreationTime:="& PopUpCreationtime ).Page("Index:="& PopUpCreationtime).Frame("title:="&frameTitle).SAPUICheckBox("class:="&className,"html tag:="&checkboxHtmlTag,"name:="&checkboxName,"index:="&checkboxIndex)
+    On Error Resume Next
+    If objSAPUICheckBoxFrame.Exist(gObjectTimeoutLimit)  Then
+     If objSAPUICheckBoxFrame.GetROProperty("disabled")=0 Then
+                      If  objSAPUICheckBoxFrame.GetROProperty("checked")=0 and state="ON" Then
+							objSAPUICheckBoxFrame.set "ON"
+							
+							If blnCaptureFlag  or  blnCreateImageEachStep or blnCreateTrainingDoc Then
+									ImagePath=CaptureScreenshot(strStepName,objSAPUICheckBoxFrame,False,False,True)
+	  			            End if
+	  			            
+							strStatus="DONE"
+							strMsg = "SAPUICheckBox:"& checkboxName &" Set"
+							Call ReporterFunction("WebSetters","SetSAPUICheckBoxFrame","2",strStepName,strMsg)
+                      ElseIf objSAPUICheckBoxFrame.GetROProperty("checked")=1 and state="ON" Then
+                      
+                            If blnCaptureFlag  or  blnCreateImageEachStep or blnCreateTrainingDoc Then
+									ImagePath=CaptureScreenshot(strStepName,objSAPUICheckBoxFrame,False,False,True)
+	  			            End if
+                      
+							strStatus="DONE"
+							strMsg = "SAPUICheckBox:"& checkboxName &" Set"&state
+							Call ReporterFunction("WebSetters","SetSAPUICheckBoxFrame","2",strStepName,strMsg)
+                      ElseIf  objSAPUICheckBoxFrame.GetROProperty("checked")=1 and state="OFF" Then
+							 objSAPUICheckBoxFrame.set "OFF"
+							 strStatus="DONE"
+							 
+							 If blnCaptureFlag  or  blnCreateImageEachStep or blnCreateTrainingDoc Then
+									ImagePath=CaptureScreenshot(strStepName,objSAPUICheckBoxFrame,False,False,True)
+	  			            End if
+	  			            
+							 strMsg = "SAPUICheckBox:"& checkboxName &" Set"
+							 Call ReporterFunction("WebSetters","SetSAPUICheckBoxFrame","2",strStepName,strMsg)
+					  Else
+					         If blnCaptureFlag  or  blnCreateImageEachStep or blnCreateTrainingDoc Then
+									ImagePath=CaptureScreenshot(strStepName,objSAPUICheckBoxFrame,False,False,True)
+	  			            End if
+							 strStatus="DONE"
+							 strMsg = "SAPUICheckBox:"& checkboxName &" Set"
+							 Call ReporterFunction("WebSetters","SetSAPUICheckBoxFrame","2",strStepName,strMsg)
+                      End If     
+      Else 
+			  strStatus="FAIL"
+              strMsg ="Check Box is disabled ."
+              Call ReporterFunction("2",strStepName,strMsg)        			
+      End If
+    Else 
+         strStatus="FAIL"
+         strMsg = " The Check Box Object is not Found, Please verify the Screen"
+         blnObjectError=True
+         Call ReporterFunction("WebSetters","SetSAPUICheckBoxFrame","1",strStepName,strMsg)         
+   End If
+ Else 
+       strStatus="FAIL"
+       strMsg = " The Parameter Not Passed Properly. Please verify the Screen"
+       Call ReporterFunction("WebSetters","SetSAPUICheckBoxFrame","1",strStepName,strMsg)
+ End If
+ 
+ If  blnObjectError  Then
+		Environment.Value("blnFatalError")=True
+	End If
+	
+If strStatus = "FAIL"  Then
+		SelectSAPUIList = strMsg
+		blnMainFailFlag = True
+		ImagePath=CaptureScreenshot(strStepName,objSAPUICheckBoxFrame,FALSE,False,TRUE)
+	Else
+		SelectSAPUIList = True
+	End If
+	If blnDefault_eSwiftReporting Then  
+		Call UpdateResultHtml(strStepName,state,strMsg,strStatus,"")
+	End If	 
+End If
+End Function
+'***************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************
+
+Function SetDateSAPUICalendar(creationTime,windowText,htmltag,innertext,className,index,val,blnIsItPopup)
+If Not (Environment.Value("blnFatalError")) Then
+
+	If blnShowNotification Then BalloonTooltip.Show "TASE Automation","Executing Now : SetDateSAPUICalendar"
+	
+ALMvalue=Environment.Value("ALMFlag")
+If  ALMvalue=1 Then
+	PopUpCreationtime=Cint(creationTime) + 1
+Else
+	PopUpCreationtime=Cint(creationTime)
+End If    
+strStepName = "Set Date: " & val & " in calendar"
+If innertext <> "" or val <> "" or className <> "" Then
+   If blnIsItPopup Then
+	Set objDateSAPUICalendar =Browser("CreationTime:="& PopUpCreationtime).Window("text:="&windowText).Page("Index:=" & PopUpCreationtime).SAPUICalendar("class:="&className,"html tag:="&htmltag,"index:="&index)
+   Else
+    Set objDateSAPUICalendar =Browser("CreationTime:="& PopUpCreationtime).Page("Index:="& PopUpCreationtime).SAPUICalendar("class:="&className,"html tag:="&htmltag,"index:="&index)
+   End If
+   On Error Resume Next
+   If  objDateSAPUICalendar.Exist(gObjectTimeoutLimit)   then 
+   	 objDateSAPUICalendar.SetDate val
+	  wait(8)
+	  objDateSAPUICalendar.Click
+	  
+	  If blnCaptureFlag  or  blnCreateImageEachStep or blnCreateTrainingDoc Then
+			ImagePath=CaptureScreenshot(strStepName,objDateSAPUICalendar,False,False,True)
+	  End if
+	  			            
+      strStatus  = "DONE"
+      strMsg ="Calendar "&innertext&" is set to "&val
+      Call ReporterFunction("WebSetters","SetDateSAPUICalendar","2",strStepName,strMsg)
+   Else
+     strMsg ="Calendar Object Missing"
+     strStatus  = "FAIL"
+     blnObjectError=True
+	 Call ReporterFunction("WebSetters","SetDateSAPUICalendar","1",strStepName,strMsg)
+   End If
+Else
+    strMsg = "Function Parameter Not Passed Properly. Check the --SetDateSAPUICalendar -- Function Call"
+    strStatus  = "FAIL"
+    Call ReporterFunction("WebSetters","SetDateSAPUICalendar","1",strStepName,strMsg)
+End If
+
+If  blnObjectError  Then
+		Environment.Value("blnFatalError")=True
+	End If
+
+If strStatus = "FAIL"  Then
+		SelectSAPUIList = strMsg
+		blnMainFailFlag = True
+		ImagePath=CaptureScreenshot(strStepName,objDateSAPUICalendar,FALSE,False,TRUE)
+	Else
+		SelectSAPUIList = True
+	End If
+	If blnDefault_eSwiftReporting Then  
+		Call UpdateResultHtml(strStepName,val,strMsg,strStatus,"")
+	End If
+
+End If
+End Function
+'*****************************************************************************************************************************************************************************************************************************************************************************************************'***************************************************************************************************************************************************************************************************
+
+Function SetDateSAPUICalendarFrame(creationTime,frameTitle,htmlTag,innertext,className,index,val)
+
+If Not (Environment.Value("blnFatalError")) Then
+
+	If blnShowNotification Then BalloonTooltip.Show "TASE Automation","Executing Now : SetDateSAPUICalendarFrame"
+	
+ALMvalue=Environment.Value("ALMFlag")
+If  ALMvalue=1 Then
+	PopUpCreationtime=Cint(creationTime) + 1
+Else
+	PopUpCreationtime=Cint(creationTime)
+End If    
+strStepName = "Set Date: " & val & " in SAPUICalendar"
+If innertext <> "" or val <> "" or className <> "" Then
+   Set objDateSAPUICalendarFrame =Browser("CreationTime:="& PopUpCreationtime).Page("Index:="& PopUpCreationtime).Frame("title:="&frameTitle).SAPUICalendar("class:="&className,"html tag:="&htmltag,"index:="&index) 
+   On Error Resume Next
+   If  objDateSAPUICalendarFrame.Exist(gObjectTimeoutLimit)   then 
+     'val = InputValidation(val)
+   	 objDateSAPUICalendarFrame.SetDate val
+	  wait(8)
+	  objDateSAPUICalendarFrame.Click
+	  
+	  If blnCaptureFlag  or  blnCreateImageEachStep or blnCreateTrainingDoc Then
+			ImagePath=CaptureScreenshot(strStepName,objDateSAPUICalendarFrame,False,False,True)
+	  End if
+	  
+      strStatus  = "DONE"
+      strMsg ="Calendar "&innertext&" is set to "&val
+      Call ReporterFunction("WebSetters","SetDateSAPUICalendarFrame","2",strStepName,strMsg)
+   Else
+     strMsg ="Calendar Object Missing"
+     strStatus  = "FAIL"
+     blnObjectError=True
+	 Call ReporterFunction("WebSetters","SetDateSAPUICalendarFrame","1",strStepName,strMsg)
+   End If
+Else
+    strMsg = "Function Parameter Not Passed Properly. Check the --SetDateSAPUICalendarFrame -- Function Call"
+    strStatus  = "FAIL"
+    Call ReporterFunction("WebSetters","SetDateSAPUICalendarFrame","1",strStepName,strMsg)
+End If
+
+If  blnObjectError  Then
+		Environment.Value("blnFatalError")=True
+	End If
+	
+If strStatus = "FAIL"  Then
+		SelectSAPUIList = strMsg
+		blnMainFailFlag = True
+		ImagePath=CaptureScreenshot(strStepName,objDateSAPUICalendarFrame,FALSE,False,TRUE)
+	Else
+		SelectSAPUIList = True
+	End If
+	If blnDefault_eSwiftReporting Then  
+		Call UpdateResultHtml(strStepName,val,strMsg,strStatus,"")
+	End If
+
+End If
+End Function
+'***************************************************************************************************************************************************************************************************************************************************************************
+Public Function SetWebElementSAPList(creationTime,windowText,htmltag,innerText,className,ElementclassName,index,itemText,blnIsItPopup)
+
+If Not (Environment.Value("blnFatalError")) Then
+
+	If blnShowNotification Then BalloonTooltip.Show "TASE Automation","Executing Now : SetWebElementSAPList"
+	
+'ALMvalue=Environment.Value("ALMFlag")
+'If  ALMvalue=1 Then
+'	PopUpCreationtime=Cint(creationTime) + 1
+'else
+	PopUpCreationtime=Cint(creationTime)
+'End If
+stepName = "Select Item :  "&itemText& " from SAPUIList"
+If blnIsItPopup Then
+	Set objSAPList =Browser("CreationTime:="& PopUpCreationtime).Window("text:="&windowText).Page("index:="& PopUpCreationtime).SAPList("class:="&className,"html tag:="&htmltag,"innertext:="&innerText,"index:="&index)
+else
+    Set objSAPList= Browser("CreationTime:="& PopUpCreationtime).Page("Index:="& PopUpCreationtime).SAPList("class:="&className,"html tag:="&htmltag,"innertext:="&innerText,"index:="&index)
+End If
+If className <> "" or itemText <> "" Then
+    If  objSAPList.Exist(gObjectTimeoutLimit )  then 
+		objSAPList.Click
+		wait 5
+		Browser("CreationTime:="&PopUpCreationtime).Page("Index:="& PopUpCreationtime).WebElement("class:="&ElementclassName,"innertext:="&itemText).Click
+		Wait 5
+		If blnCaptureFlag  or  blnCreateImageEachStep or blnCreateTrainingDoc Then
+					ImagePath=CaptureScreenshot(strStepName,objSAPUIList,False,False,True)
+	  			End if
+	  		strMsg = "SAPUIList: " &name& " is set"	
+           strStatus  = "DONE"
+          Call ReporterFunction("WebSetters","SetSAPList","1",strStepName,strMsg)
+    else
+        strMsg = "SAPUIList: Not found"
+     	strStatus  = "FAIL"
+                   Call ReporterFunction("WebSetters","SetSAPList","1",strStepName,strMsg)
+     	blnObjectError=True
+	 
+    end if
+else
+	strMsg = "Function Parameter Not Passed Properly. Check the -SetSAPList-- Function Call"
+    strStatus  = "FAIL"
+    Call ReporterFunction("WebSetters","SetSAPList","1",strStepName,strMsg)
+end if
+
+If  blnObjectError  Then
+		Environment.Value("blnFatalError")=True
+	End If
+	
+If strStatus = "FAIL"  Then
+		SetWebElementSAPList = strMsg
+		blnMainFailFlag = True
+		ImagePath=CaptureScreenshot(strStepName,objSAPUIList,FALSE,False,TRUE)
+	Else
+		SetWebElementSAPList = True
+	End If
+	If blnDefault_eSwiftReporting Then  
+		Call UpdateResultHtml(strStepName,itemText,strMsg,strStatus,"")
+	End If	
+End If
+
+End Function
+'********************************************************************************************************************************************************************************************************
+
+
+Public Function SetWebElementFrameSAPList(creationTime,windowText,htmltag,innerText,FrameTitle,className,ElementclassName,index,itemText,blnIsItPopup)
+
+If Not (Environment.Value("blnFatalError")) Then
+
+	If blnShowNotification Then BalloonTooltip.Show "TASE Automation","Executing Now : SetWebElementFrameSAPList"
+	
+'ALMvalue=Environment.Value("ALMFlag")
+'If  ALMvalue=1 Then
+'	PopUpCreationtime=Cint(creationTime) + 1
+'else
+	PopUpCreationtime=Cint(creationTime)
+'End If
+stepName = "Select Item :  "&itemText& " from SAPUIList"
+If blnIsItPopup Then
+	Set objSAPList =Browser("CreationTime:="& PopUpCreationtime).Window("text:="&windowText).Page("index:="& PopUpCreationtime).SAPList("class:="&className,"html tag:="&htmltag,"innertext:="&innerText,"index:="&index)
+else
+    Set objSAPList= Browser("CreationTime:="&PopUpCreationtime).Page("Index:="& PopUpCreationtime).Frame("title:=" & FrameTitle).WebElement("class:="&ElementclassName,"innertext:="&itemText)
+End If
+If className <> "" or itemText <> "" Then
+    If  objSAPList.Exist(gObjectTimeoutLimit )  then 
+		objSAPList.Click
+		wait 5
+'		Browser("CreationTime:="&PopUpCreationtime).Page("Index:="& PopUpCreationtime).Frame("title:=" & FrameTitle).WebElement("class:="&ElementclassName,"innertext:="&itemText).Click
+		Wait 5
+		If blnCaptureFlag  or  blnCreateImageEachStep or blnCreateTrainingDoc Then
+					ImagePath=CaptureScreenshot(strStepName,objSAPUIList,False,False,True)
+	  			End if
+	  		strMsg = "WebElement: " &name& " is set"	
+           strStatus  = "DONE"
+          Call ReporterFunction("WebSetters","SetSAPList","1",strStepName,strMsg)
+    else
+        strMsg = "SAPUIList: Not found"
+     	strStatus  = "FAIL"
+                   Call ReporterFunction("WebSetters","SetSAPList","1",strStepName,strMsg)
+     	blnObjectError=True
+	 
+    end if
+else
+	strMsg = "Function Parameter Not Passed Properly. Check the -SetSAPList-- Function Call"
+    strStatus  = "FAIL"
+    Call ReporterFunction("WebSetters","SetSAPList","1",strStepName,strMsg)
+end if
+
+If  blnObjectError  Then
+		Environment.Value("blnFatalError")=True
+	End If
+	
+If strStatus = "FAIL"  Then
+		SetWebElementFrameSAPList = strMsg
+		blnMainFailFlag = True
+		ImagePath=CaptureScreenshot(strStepName,objSAPUIList,FALSE,False,TRUE)
+	Else
+		SetWebElementFrameSAPList = True
+	End If
+	If blnDefault_eSwiftReporting Then  
+		Call UpdateResultHtml(strStepName,itemText,strMsg,strStatus,"")
+	End If	
+End If
+
+End Function
+
+
+
+
+Public Function ClickFrameSAPButton(creationTime,FrameTitle,buttonName,buttonhtmlTag,buttonIndex)
+
+If Not (Environment.Value("blnFatalError") or buttonName = DS_SKIP) Then
+	If blnShowNotification Then BalloonTooltip.Show "TASE Automation","Executing Now : ClickFrameSAPButton"
+	
+'	ALMvalue=Environment.Value("ALMFlag")
+'	If  ALMvalue=1 Then
+'		PopUpCreationtime=Cint(creationTime) + 1
+'	else
+		PopUpCreationtime=Cint(creationTime)
+'	End If
+	
+
+	Dim objButton
+	strStepName = "Click " & " '" & buttonName & "' " & " Button"
+	Set objButton=Browser("CreationTime:="& PopUpCreationtime).Page("Index:="& PopUpCreationtime).Frame("title:="& FrameTitle).SAPButton("name:="& buttonName,"html tag:="& buttonhtmlTag,"index:="& buttonIndex)  
+	
+	If buttonName <>  "" or buttonhtmlTag <> "" or buttonIndex <> "" Then
+		If  objButton.Exist(gObjectTimeoutLimit)  then 
+			wait(1)
+			objButton.Highlight
+			objButton.Click
+			If blnCaptureFlag  or  blnCreateImageEachStep or blnCreateTrainingDoc Then
+				ImagePath=CaptureScreenshot(strStepName,objButton,True,True,True)
+			End if
+			strStatus = "DONE"
+			strMsg= "Button :" &buttonName&" clicked successfully"
+			Call ReporterFunction(strLibraryFileName,"ClickFrameSAPButton","2",strStepName,strMsg)
+		else
+			blnObjectError=True
+			strStatus = "FAIL"    
+			strMsg = "Button: " & buttonName & " Not found"
+			Call ReporterFunction(strLibraryFileName,"ClickFrameSAPButton","1",strStepName,strMsg)
+		end if
+	else
+		
+		strStatus = "FAIL"
+		strMsg = "Function Parameter Not Passed Properly. Check the -ClickFrameSAPButton-- Function Call"
+		Call ReporterFunction(strLibraryFileName,"ClickFrameSAPButton","1",strStepName,strMsg)
+	end if
+	If  blnObjectError  Then
+		Environment.Value("blnFatalError")=True
+	End If
+	If strStatus = "FAIL"  Then
+		ClickFrameSAPButton = strMsg
+		blnMainFailFlag = True
+		ImagePath=CaptureScreenshot(strStepName,objButton,True,True,True)
+	Else
+		ClickFrameSAPButton = True
+	End If
+	If blnDefault_eSwiftReporting Then  
+		Call UpdateResultHtml(strStepName,buttonName,strMsg,strStatus,"")
+	End If
+	
+	Set objButton=Nothing
+End If
+End function 
+
+
+Public Function SelectCellFrameSAPTable(creationTime,FrameTitle,tableHtmlTag,tableName,tableIndex,rowNum,colNum)
+If Not (Environment.Value("blnFatalError") or colNum= DS_SKIP) Then
+	If blnShowNotification Then BalloonTooltip.Show "TASE Automation","Executing Now : SelectCellFrameSAPTable"
+'ALMvalue=getEnvironmentVariable("ALMFlag")
+'If  ALMvalue=1 Then
+	'PopUpCreationtime=Cint(creationTime) + 1
+'else
+	PopUpCreationtime=Cint(creationTime)
+'End If
+strStepName ="Select cell in SAP Table"
+Dim objFrameSAPTable
+Set objFrameSAPTable =Browser("CreationTime:=" &PopUpCreationtime).Page("Index:=" &PopUpCreationtime).Frame("title:="& FrameTitle).SAPTAble("html tag:="& tableHtmlTag,"name:=" & tableName,"Index:=" & tableIndex)
+    If  objFrameSAPTable.Exist(gObjectTimeoutLimit)  then 
+         If rowNum<> "" and colNum<>"" Then
+             rowNum = Cint(rowNum)
+             colNum = Cint(colNum)
+             objFrameSAPTable.SelectCell rowNum,colNum
+             
+             If blnCaptureFlag  or  blnCreateImageEachStep or blnCreateTrainingDoc Then
+				ImagePath=CaptureScreenshot(strStepName,objFrameSAPTable,False,False,True)
+			 End if
+			 
+			 strStatus = "DONE"
+			 strMsg = "Cell selected successfully"
+			 Call ReporterFunction(strLibraryFileName,"SelectCellFrameSAPTable","2",strStepName,strMsg)
+             
+        else
+			strStatus = "FAIL"
+			strMsg = "Function Parameter Not Passed Properly. Check the -SelectCellFrameSAPTable-- Function Call"
+			Call ReporterFunction(strLibraryFileName,"SetTextBox","1",strStepName,strMsg)
+	    end if
+   else
+ 	    blnObjectError=True
+		strStatus = "FAIL"
+		strMsg = "Table object not found"
+		Call ReporterFunction(strLibraryFileName,"SelectCellFrameSAPTable","1",strStepName,strMsg)
+ end if
+If  blnObjectError  Then
+		Environment.Value("blnFatalError")=True
+End If
+
+If strStatus = "FAIL"  Then
+		SelectCellFrameSAPTable = strMsg
+		blnMainFailFlag = True
+		ImagePath=CaptureScreenshot(strStepName,objFrameSAPTable,False,False,True)
+Else
+		SelectCellFrameSAPTable = True
+End If
+If blnDefault_eSwiftReporting Then  
+		Call UpdateResultHtml(strStepName,colNum,strMsg,strStatus,"")
+End If
+	' //////////Word Document ///////////
+		'	If blnCreateTrainingDoc Then
+		'		   Check=CheckStatus_Doc(strStatus)
+		'		   If Check=1 Then
+		'				  Call storeCoordinates(objFrameSAPTable)
+		'				  Call StoreSteps(strStepName)
+		'		   End If
+		'	End If
+	 ' //////////Word Document ///////////
+	 Set objFrameSAPTable=Nothing
+	End if
+End Function
+
+
+Public Function SetWebElementFrameSAPList(creationTime,windowText,htmltag,htmlid,FrameTitle,className,itemText,blnIsItPopup)
+
+If Not (Environment.Value("blnFatalError")) Then
+
+	If blnShowNotification Then BalloonTooltip.Show "TASE Automation","Executing Now : SetWebElementFrameSAPList"
+	
+'ALMvalue=Environment.Value("ALMFlag")
+'If  ALMvalue=1 Then
+'	PopUpCreationtime=Cint(creationTime) + 1
+'else
+	PopUpCreationtime=Cint(creationTime)
+'End If
+strStepName = "Select Item :  "&itemText& " from SAPUIList"
+If blnIsItPopup Then
+	Set objSAPList =Browser("CreationTime:="& PopUpCreationtime).Window("text:="&windowText).Page("index:="& PopUpCreationtime).SAPList("class:="&className,"html tag:="&htmltag,"html id:="& htmlid,"index:="&index)
+else
+    Set objSAPList= Browser("CreationTime:="&PopUpCreationtime).Page("Index:="& PopUpCreationtime).Frame("title:=" & FrameTitle).SAPList("class:="&className,"html tag:="&htmltag,"html id:="& htmlid,"index:="&index)
+End If
+If className <> "" or itemText <> "" Then
+    If  objSAPList.Exist(gObjectTimeoutLimit )  then 
+		objSAPList.Select itemText
+		wait 5
+		
+		Wait 5
+		If blnCaptureFlag  or  blnCreateImageEachStep or blnCreateTrainingDoc Then
+					ImagePath=CaptureScreenshot(strStepName,objSAPUIList,False,False,True)
+	  			End if
+	  		strMsg = "SAPUIList: " &itemText& " is set"	
+           strStatus  = "DONE"
+          Call ReporterFunction("WebSetters","SetWebElementFrameSAPList","2",strStepName,strMsg)
+    else
+        strMsg = "SAPUIList: Not found"
+     	strStatus  = "FAIL"
+                   Call ReporterFunction("WebSetters","SetWebElementFrameSAPList","1",strStepName,strMsg)
+     	blnObjectError=True
+	 
+    end if
+else
+	strMsg = "Function Parameter Not Passed Properly. Check the -SetSAPList-- Function Call"
+    strStatus  = "FAIL"
+    Call ReporterFunction("WebSetters","SetWebElementFrameSAPList","1",strStepName,strMsg)
+end if
+
+If  blnObjectError  Then
+		Environment.Value("blnFatalError")=True
+	End If
+	
+If strStatus = "FAIL"  Then
+		SetWebElementFrameSAPList = strMsg
+		blnMainFailFlag = True
+		ImagePath=CaptureScreenshot(strStepName,objSAPUIList,FALSE,False,TRUE)
+	Else
+		SetWebElementFrameSAPList = True
+	End If
+	If blnDefault_eSwiftReporting Then  
+		Call UpdateResultHtml(strStepName,itemText,strMsg,strStatus,"")
+	End If	
+End If
+
+End Function
+
+
+
+Public Function SetWebElementSAPFrameSAPList(creationTime,windowText,htmltag,htmlid,FrameTitle,className,itemText,blnIsItPopup)
+
+If Not (Environment.Value("blnFatalError")) Then
+
+	If blnShowNotification Then BalloonTooltip.Show "TASE Automation","Executing Now : SetWebElementSAPFrameSAPList"
+	
+'ALMvalue=Environment.Value("ALMFlag")
+'If  ALMvalue=1 Then
+'	PopUpCreationtime=Cint(creationTime) + 1
+'else
+	PopUpCreationtime=Cint(creationTime)
+'End If
+strStepName = "Select Item :  "&itemText& " from SAPUIList"
+If blnIsItPopup Then
+	Set objSAPList =Browser("CreationTime:="& PopUpCreationtime).Window("text:="&windowText).Page("index:="& PopUpCreationtime).SAPList("class:="&className,"html tag:="&htmltag,"html id:="& htmlid,"index:="&index)
+else
+    Set objSAPList= Browser("CreationTime:="&PopUpCreationtime).Page("Index:="& PopUpCreationtime).SAPFrame("title:=" & FrameTitle).SAPList("class:="&className,"html tag:="&htmltag,"html id:="& htmlid,"index:="&index)
+End If
+If className <> "" or itemText <> "" Then
+    If  objSAPList.Exist(gObjectTimeoutLimit )  then 
+		objSAPList.Select itemText
+		wait 5
+		
+		Wait 5
+		If blnCaptureFlag  or  blnCreateImageEachStep or blnCreateTrainingDoc Then
+					ImagePath=CaptureScreenshot(strStepName,objSAPUIList,False,False,True)
+	  			End if
+	  		strMsg = "SAPUIList: " &itemText& " is set"	
+           strStatus  = "DONE"
+          Call ReporterFunction("WebSetters","SetWebElementSAPFrameSAPList","2",strStepName,strMsg)
+    else
+        strMsg = "SAPUIList: Not found"
+     	strStatus  = "FAIL"
+                   Call ReporterFunction("WebSetters","SetWebElementSAPFrameSAPList","1",strStepName,strMsg)
+     	blnObjectError=True
+	 
+    end if
+else
+	strMsg = "Function Parameter Not Passed Properly. Check the -SetSAPList-- Function Call"
+    strStatus  = "FAIL"
+    Call ReporterFunction("WebSetters","SetWebElementSAPFrameSAPList","1",strStepName,strMsg)
+end if
+
+If  blnObjectError  Then
+		Environment.Value("blnFatalError")=True
+	End If
+	
+If strStatus = "FAIL"  Then
+		SetWebElementSAPFrameSAPList = strMsg
+		blnMainFailFlag = True
+		ImagePath=CaptureScreenshot(strStepName,objSAPUIList,FALSE,False,TRUE)
+	Else
+		SetWebElementSAPFrameSAPList = True
+	End If
+	If blnDefault_eSwiftReporting Then  
+		Call UpdateResultHtml(strStepName,itemText,strMsg,strStatus,"")
+	End If	
+End If
+
+End Function
+
+
+Public Function SetArgosWebEdit(creationTime,windowText,webeditHtmlId,webeditTexttype,webeditIndex,val,blnIsItPopup)
+	If Not (Environment.Value("blnFatalError") or val = DS_SKIP) Then
+		If blnShowNotification Then BalloonTooltip.Show "TASE Automation","Executing Now : SetArgosWebEdit"
+
+'		ALMvalue=Environment.Value("ALMFlag")
+'		If  ALMvalue=1 Then
+'			PopUpCreationtime=Cint(creationTime) + 1
+'		else
+			PopUpCreationtime=Cint(creationTime)
+'		End If
+
+		Dim objWebEdit
+		strStepName = "Set text box : "& webeditHtmlId
+		If webeditHtmlId<> ""  or webeditTexttype <> "" or webeditIndex <> "" Then
+
+			If blnIsItPopup Then
+				Set objWebEdit = Browser("CreationTime:="& PopUpCreationtime).Window("text:="&windowText).Page("Index:="& PopUpCreationtime).WebEdit("html id:="&webeditHtmlId,"type:=" &webeditTexttype,"index:="&webeditIndex)
+			else
+    				Set objWebEdit = Browser("CreationTime:="& PopUpCreationtime).Page("Index:="& PopUpCreationtime).WebEdit("html id:="&webeditHtmlId,"type:=" &webeditTexttype,"index:="&webeditIndex)
+			End If
+			If  objWebEdit.Exist(gObjectTimeoutLimit)  then 
+'     			objWebEdit.Click
+   	 			objWebEdit.Set val
+	 			Wait(1)
+      			If blnCaptureFlag  or  blnCreateImageEachStep or blnCreateTrainingDoc Then
+					ImagePath=CaptureScreenshot(strStepName,objWebEdit,False,False,True)
+	  			End if
+				
+	            strStatus = "DONE"
+	            strMsg= "WebEdit value set successfully"
+	            Call ReporterFunction(strLibraryFileName,"SetArgosWebEdit","2",strStepName,strMsg)
+  			else
+  				blnObjectError=True
+               	strStatus = "FAIL"
+               	strMsg = "Object Missing--Check the Screen Properly"
+               	Call ReporterFunction(strLibraryFileName,"SetArgosWebEdit","1",strStepName,strMsg)
+  			end if
+		else
+               	strStatus = "FAIL"
+               	strMsg = "Function Parameter Not Passed Properly. Check the -SetArgosWebEdit-- Function Call"
+               	Call ReporterFunction(strLibraryFileName,"SetArgosWebEdit","1",strStepName,strMsg)
+		end if
+
+	If  blnObjectError  Then
+		Environment.Value("blnFatalError")=True
+	End If
+
+	If strStatus = "FAIL"  Then
+		SetArgosWebEdit = strMsg
+		blnMainFailFlag = True
+		ImagePath=CaptureScreenshot(strStepName,objWebEdit,False,False,True)
+	Else
+		SetArgosWebEdit = True
+	End If
+
+	If blnDefault_eSwiftReporting Then  
+		Call UpdateResultHtml(strStepName,val,strMsg,strStatus,"")
+	End If
+
+	Set objWebEdit=Nothing
+	
+	End If
+End function
+
+
+Public Function SetWebFile(creationTime,frameTitle,WebFileName,WebFileHtmlTag,webfileIndex,InputFilePath)
+If Not (Environment.Value("blnFatalError") or listValue= DS_SKIP) Then   
+	If blnShowNotification Then BalloonTooltip.Show "TASE Automation","Executing Now : SetWebFile"
+strStepName = "Select Item "& listValue
+'ALMvalue=getEnvironmentVariable("ALMFlag")
+'If  ALMvalue=1 Then
+	'PopUpCreationtime=Cint(creationTime) + 1
+'else
+	PopUpCreationtime=Cint(creationTime)
+'End If
+Dim objSAPWebFile
+Set objSAPWebFile =Browser("CreationTime:="& PopUpCreationtime).Page("Index:=" & PopUpCreationtime).SAPFrame("title:=" & frameTitle).WebFile("name:="& WebFileName,"html tag:="& WebFileHtmlTag,"index:="&webfileIndex)
+    If  objSAPWebFile.Exist  then 
+          If InputFilePath <> "" or WebFileName <> "" Then
+             objSAPWebFile.Set InputFilePath
+			  strStatus = "DONE"
+			  strMsg = "Value selected successfully from list"
+			  Call ReporterFunction(strLibraryFileName,"SetWebFile","2",strStepName,strMsg)
+			  
+              If blnCaptureFlag  or  blnCreateImageEachStep or blnCreateTrainingDoc Then
+				ImagePath=CaptureScreenshot(strStepName,objSAPWebFile,False,False,True)
+			End if
+      else
+      
+			strStatus = "FAIL"
+			strMsg = "Function Parameter Not Passed Properly. Check the -SetWebFile-- Function Call"
+			Call ReporterFunction(strLibraryFileName,"SetWebFile","1",strStepName,strMsg)
+    end if
+  else
+   	    blnObjectError=True
+		strStatus = "FAIL"
+		strMsg = "WebFile: " & WebFileName & " Not found"
+		Call ReporterFunction(strLibraryFileName,"SetWebFile","1",strStepName,strMsg)
+     end if
+If  blnObjectError  Then
+		Environment.Value("blnFatalError")=True
+End If
+
+If strStatus = "FAIL"  Then
+		SetWebFile = strMsg
+		blnMainFailFlag = True
+		ImagePath=CaptureScreenshot(strStepName,objSAPWebFile,False,False,True)
+Else
+		SetWebFile = True
+End If
+If blnDefault_eSwiftReporting Then  
+		Call UpdateResultHtml(strStepName,listValue,strMsg,strStatus,"")
+End If
+	' //////////Word Document ///////////
+			'If blnCreateTrainingDoc Then
+			'	   Check=CheckStatus_Doc(strStatus)
+			'	   If Check=1 Then
+			'			  Call storeCoordinates(objSAPWebFile)
+			'			  Call StoreSteps(strStepName)
+			'	   End If
+			'End If
+	 ' //////////Word Document ///////////
+Set objSAPWebFile=nothing
+End If
+End Function
+
+
+Public Function GetValueWebEditByLogicalName(creationTime,Webclass,htmltag,WebEditLogicalName,WebEditIndex,ExcelColumnName)
+If Not (Environment.Value("blnFatalError") or ExcelColumnName = DS_SKIP) Then
+   If blnShowNotification Then BalloonTooltip.Show "TASE Automation","Executing Now : GetValueWebEditByLogicalName"
+strStepName = "Get value from the WebEdit"
+ALMvalue=getEnvironmentVariable("ALMFlag")
+If  ALMvalue=1 Then
+	PopUpCreationtime=Cint(creationTime) + 1
+else
+	PopUpCreationtime=Cint(creationTime)
+End If
+Dim objWebedit
+If Webclass<> ""  and WebEditLogicalName <> "" and htmltag<>"" Then
+'	columnNumber=Cint(columnNumber)
+'	rowNumber=Cint(rowNumber)
+On error resume next
+Set objWebedit =Browser("CreationTime:="& PopUpCreationtime).Page("Index:="& PopUpCreationtime).WebEdit("html tag:="&htmltag,"class:="&Webclass,"logical name:=.*"&WebEditLogicalName&".*","index:="&WebEditIndex)
+ If  objWebedit.Exist  then 
+	 objWebedit.Highlight
+   	 val=objWebedit.GetROProperty("value")
+	 
+      If blnCaptureFlag  or  blnCreateImageEachStep or blnCreateTrainingDoc Then
+                   ImagePath=CaptureScreenshot(strStepName,objWebedit,False,False,False)
+      End if
+     
+      strStatus = "DONE"
+      strMsg="value captured : "& val
+      Call ReporterFunction(strLibraryFileName,"GetValueWebEditByLogicalName","2",strStepName,strMsg)
+ else
+			  blnObjectError=True
+              strStatus = "FAIL"    
+              strMsg ="Object Missing"
+              Call ReporterFunction(strLibraryFileName,"GetValueWebEditByLogicalName","1",strStepName,strMsg)
+ end if
+else
+			 
+              strStatus = "FAIL"
+              strMsg = "Function Parameter Not Passed Properly. Check the --GetValueWebEditByLogicalName -- Function Call"
+              Call ReporterFunction(strLibraryFileName,"GetValueWebEditByLogicalName","1",strStepName,strMsg)
+ end if
+If  blnObjectError  Then
+       Environment.Value("blnFatalError")=True
+End If
+
+If strStatus = "FAIL"  Then
+       GetValueWebEditByLogicalName = strMsg
+       blnMainFailFlag = True
+       ImagePath=CaptureScreenshot(strStepName,objWebedit,False,False,False)
+Else
+       GetValueWebEditByLogicalName = True
+End If
+If blnWriteDataToOutputSheet Then
+	   strStepName = "Retrieve '"&val&"' value in table '"&gstrOutputSheetName&"' sheet under column "&excelColumnName
+	   Call WriteRunTimeDataToExcel (excelColumnName,val)
+   ELSE
+	   strStepName = "Retrieve '"&val&"' value in WebEdit"
+	 End If
+If blnDefault_eSwiftReporting Then  
+       Call UpdateResultHtml(strStepName,ExcelColumnName,strMsg,strStatus,"")
+End If
+
+   Set objWebedit=Nothing
+   End If
+End Function
+'*********************************************************************************************************************
+Public Function SetWebNumber(creationTime,windowText,WebNoName,WebNoType,WebNoIndex,val,blnIsItPopup)
+	If Not (Environment.Value("blnFatalError") or val = DS_SKIP) Then
+		If blnShowNotification Then BalloonTooltip.Show "TASE Automation","Executing Now : SetWebNumber"
+                  PopUpCreationtime=Cint(creationTime)
+		Dim objWebNo,objWebBrowser
+		strStepName = "Set text box : "& webeditName
+		If WebNoName <> ""  or WebNoType <> ""  Then
+                   If blnIsItPopup Then
+			  Set objWebBrowser = Browser("CreationTime:="& PopUpCreationtime).Window("text:="&windowText).Page("Index:="& PopUpCreationtime)
+			else
+    			   Set objWebBrowser = Browser("CreationTime:="& PopUpCreationtime).Page("Index:="& PopUpCreationtime)
+			End If
+			Set objWebNo =objWebBrowser.WebNumber("name:="&WebNoName,"type:=" &WebNoType,"index:="&WebNoIndex)
+ 			If  objWebNo.Exist(gObjectTimeoutLimit)  then 
+				objWebNo.Click
+				objWebNo.Set val
+				Wait(1)
+				If blnCaptureFlag  or  blnCreateImageEachStep or blnCreateTrainingDoc Then
+					ImagePath=CaptureScreenshot(strStepName,objWebNo,False,False,True)
+				End if
+             	        strStatus = "DONE"
+	          	strMsg= "Web Number value set successfully"
+	          	Call ReporterFunction(strLibraryFileName,"SetWebNumber","2",strStepName,strMsg)
+  		else
+  			blnObjectError=True
+            strStatus = "FAIL"
+            strMsg = "Object Missing--Check the Screen Properly"
+            Call ReporterFunction(strLibraryFileName,"SetWebNumber","1",strStepName,strMsg)
+		end if
+	else
+       		
+            strStatus = "FAIL"
+            strMsg = "Function Parameter Not Passed Properly. Check the -SetWinEdit-- Function Call"
+            Call ReporterFunction(strLibraryFileName,"SetWebNumber","1",strStepName,strMsg)
+	end if
+
+	If  blnObjectError  Then
+		Environment.Value("blnFatalError")=True
+	End If
+
+	If strStatus = "FAIL"  Then
+		SetWebNumber = strMsg
+		blnMainFailFlag = True
+		ImagePath=CaptureScreenshot(strStepName,objWinEdit,False,False,True)
+	Else
+		SetWebNumber = True
+	End If
+
+	If blnDefault_eSwiftReporting Then  
+		Call UpdateResultHtml(strStepName,val,strMsg,strStatus,"")
+	End If
+	Set SetWebNumber=Nothing
+	
+	End If
+End function
+
+'**************************************************************************************************************************************************************
+Public Function SetWebEditByPlaceHolder(creationTime,windowText,webeditPlaceHolder,webeditTexttype,webeditIndex,val,blnIsItPopup)
+	If Not (Environment.Value("blnFatalError") or val = DS_SKIP) Then
+		If blnShowNotification Then BalloonTooltip.Show "TASE Automation","Executing Now : SetWebEditByPlaceHolder"
+
+			PopUpCreationtime=Cint(creationTime)
+		Dim objWebEdit
+		strStepName = " Set "  & "'" & val & "'" & " in Textbox : " & "'"& webeditPlaceHolder & "'"  
+		If webeditPlaceHolder<> ""  or webeditTexttype <> "" or webeditIndex <> "" Then
+
+			If blnIsItPopup Then
+				Set objWebEdit = Browser("CreationTime:="& PopUpCreationtime).Window("text:="&windowText).Page("Index:="& PopUpCreationtime).WebEdit("placeholder:="&webeditPlaceHolder,"type:=" &webeditTexttype,"index:="&webeditIndex)
+			else
+    				Set objWebEdit = Browser("CreationTime:="& PopUpCreationtime).Page("Index:="& PopUpCreationtime).WebEdit("placeholder:="&webeditPlaceHolder,"type:=" &webeditTexttype,"index:="&webeditIndex)
+			End If
+			If  objWebEdit.Exist(gObjectTimeoutLimit)  then 
+     			     If InSTR(1,UCASE(webeditTexttype),"PASSWORD",VBTextCompare) >=1 Then
+     			         objWebEdit.Highlight
+   	 		         objWebEdit.SetSecure val
+   	 		     Else 
+   	 		         objWebEdit.Click
+   	 		         objWebEdit.Set val
+   	 		     End If    
+   
+	 			Wait(1)
+      			blnCaptureFlag =True
+      			If blnCaptureFlag  or  blnCreateImageEachStep or blnCreateTrainingDoc Then
+					ImagePath=CaptureScreenshot(strStepName,objWebEdit,False,False,True)
+	  			End if
+				
+	            strStatus = "DONE"
+	            strMsg= "WebEdit value set successfully"
+	            Call ReporterFunction(strLibraryFileName,"SetWebEditByPlaceHolder","2",strStepName,strMsg)
+  			else
+  				blnObjectError=True
+               	strStatus = "FAIL"
+               	strMsg = "Object Missing--Check the Screen Properly"
+               	Call ReporterFunction(strLibraryFileName,"SetWebEditByPlaceHolder","1",strStepName,strMsg)
+  			end if
+		else
+               	strStatus = "FAIL"
+               	strMsg = "Function Parameter Not Passed Properly. Check the -SetWebEdit-- Function Call"
+               	Call ReporterFunction(strLibraryFileName,"SetWebEditByPlaceHolder","1",strStepName,strMsg)
+		end if
+
+	If  blnObjectError  Then
+		Environment.Value("blnFatalError")=True
+	End If
+
+	If strStatus = "FAIL"  Then
+		SetWebEditByPlaceHolder = strMsg
+		blnMainFailFlag = True
+		ImagePath=CaptureScreenshot(strStepName,objWebEdit,False,False,True)
+	Else
+		SetWebEditByPlaceHolder = True
+	End If
+
+	If blnDefault_eSwiftReporting Then  
+		Call UpdateResultHtml(strStepName,val,strMsg,strStatus,"")
+	End If
+
+	Set objWebEdit=Nothing
+	
+	End If
+End function
+'**************************************************************************************************************************************************************
+Public Function SetWebEditByTag(creationTime,windowText,webeditTexttype,webeditName,webeditTag,webeditIndex,val,blnIsItPopup)
+	If Not (Environment.Value("blnFatalError") or val = DS_SKIP) Then
+		If blnShowNotification Then BalloonTooltip.Show "TASE Automation","Executing Now : SetWebEditByTag"
+
+			PopUpCreationtime=Cint(creationTime)
+		Dim objWebEdit
+		strStepName = " Set "  & "'" & val & "'" & " in Textbox : " & "'"& webeditName & "'"  
+		If webeditName<> ""  or webeditTexttype <> "" or webeditIndex <> "" Then
+			If blnIsItPopup Then
+				Set objWebEdit = Browser("CreationTime:="& PopUpCreationtime).Window("text:="&windowText).Page("Index:="& PopUpCreationtime).WebEdit("type:=" &webeditTexttype,"name:="&webeditName,"html tag:="&webeditTag,"index:="&webeditIndex)
+			else
+    				Set objWebEdit = Browser("CreationTime:="& PopUpCreationtime).Page("Index:="& PopUpCreationtime).WebEdit("type:=" &webeditTexttype,"name:="&webeditName,"html tag:="&webeditTag,"index:="&webeditIndex)
+			End If
+			If  objWebEdit.Exist(gObjectTimeoutLimit)  then 
+     			     If InSTR(1,UCASE(webeditTexttype),"PASSWORD",VBTextCompare) >=1 Then
+     			         objWebEdit.Highlight
+   	 		         objWebEdit.SetSecure val
+   	 		     Else 
+   	 		         objWebEdit.Click
+   	 		         objWebEdit.Set val
+   	 		     End If    
+   
+	 			Wait(1)
+      			If blnCaptureFlag  or  blnCreateImageEachStep or blnCreateTrainingDoc Then
+					ImagePath=CaptureScreenshot(strStepName,objWebEdit,False,False,True)
+	  			End if
+				
+	            strStatus = "DONE"
+	            strMsg= "WebEdit value set successfully"
+	            Call ReporterFunction(strLibraryFileName,"SetWebEditByTag","2",strStepName,strMsg)
+  			else
+  				blnObjectError=True
+               	strStatus = "FAIL"
+               	strMsg = "Object Missing--Check the Screen Properly"
+               	Call ReporterFunction(strLibraryFileName,"SetWebEditByTag","1",strStepName,strMsg)
+  			end if
+		else
+               	strStatus = "FAIL"
+               	strMsg = "Function Parameter Not Passed Properly. Check the -SetWebEditByTag-- Function Call"
+               	Call ReporterFunction(strLibraryFileName,"SetWebEditByTag","1",strStepName,strMsg)
+		end if
+
+	If  blnObjectError  Then
+		Environment.Value("blnFatalError")=True
+	End If
+
+	If strStatus = "FAIL"  Then
+		SetWebEditByTag = strMsg
+		blnMainFailFlag = True
+		ImagePath=CaptureScreenshot(strStepName,objWebEdit,False,False,True)
+	Else
+		SetWebEditByTag = True
+	End If
+	If blnDefault_eSwiftReporting Then  
+		Call UpdateResultHtml(strStepName,val,strMsg,strStatus,"")
+	End If
+	Set objWebEdit=Nothing
+	End If
+End function
+
+'*****************************************Author : Amit*******************************************************************************************
+Public Function SetWebEditByAccName(creationTime,windowText,webeditAccName,webeditTexttype,webeditIndex,val,blnIsItPopup)
+	If Not (Environment.Value("blnFatalError") or val = DS_SKIP) Then
+		If blnShowNotification Then BalloonTooltip.Show "TASE Automation","Executing Now : SetWebEditByAccName"
+
+			PopUpCreationtime=Cint(creationTime)
+		Dim objWebEdit
+		strStepName = " Set "  & "'" & val & "'" & " in Textbox : " & "'"& webeditAccName & "'"  
+		If webeditAccName<> ""  or webeditTexttype <> "" or webeditIndex <> "" Then
+
+			If blnIsItPopup Then
+				Set objWebEdit = Browser("CreationTime:="& PopUpCreationtime).Window("text:="&windowText).Page("Index:="& PopUpCreationtime).WebEdit("acc_name:="&webeditAccName,"type:=" &webeditTexttype,"index:="&webeditIndex)
+			else
+    				Set objWebEdit = Browser("CreationTime:="& PopUpCreationtime).Page("Index:="& PopUpCreationtime).WebEdit("acc_name:="&webeditAccName,"type:=" &webeditTexttype,"index:="&webeditIndex)
+			End If
+			If  objWebEdit.Exist(gObjectTimeoutLimit)  then 
+     			     If InSTR(1,UCASE(webeditTexttype),"PASSWORD",VBTextCompare) >=1 Then
+     			         objWebEdit.Highlight
+   	 		         objWebEdit.SetSecure val
+   	 		     Else 
+   	 		         objWebEdit.Click
+   	 		         objWebEdit.Set val
+   	 		         objWebEdit.Submit
+   	 		         Call SendKey("{ENTER}")
+   	 		     End If    
+   
+	 			Wait(1)
+      			blnCaptureFlag =True
+      			If blnCaptureFlag  or  blnCreateImageEachStep or blnCreateTrainingDoc Then
+					ImagePath=CaptureScreenshot(strStepName,objWebEdit,False,False,True)
+	  			End if
+				
+	            strStatus = "DONE"
+	            strMsg= "WebEdit value set successfully"
+	            Call ReporterFunction(strLibraryFileName,"SetWebEditByAccName","2",strStepName,strMsg)
+  			else
+  				blnObjectError=True
+               	strStatus = "FAIL"
+               	strMsg = "Object Missing--Check the Screen Properly"
+               	Call ReporterFunction(strLibraryFileName,"SetWebEditByAccName","1",strStepName,strMsg)
+  			end if
+		else
+               	strStatus = "FAIL"
+               	strMsg = "Function Parameter Not Passed Properly. Check the -SetWebEditByAccName-- Function Call"
+               	Call ReporterFunction(strLibraryFileName,"SetWebEditByAccName","1",strStepName,strMsg)
+		end if
+
+	If  blnObjectError  Then
+		Environment.Value("blnFatalError")=True
+	End If
+
+	If strStatus = "FAIL"  Then
+		SetWebEditByAccName = strMsg
+		blnMainFailFlag = True
+		ImagePath=CaptureScreenshot(strStepName,objWebEdit,False,False,True)
+	Else
+		SetWebEditByAccName = True
+	End If
+
+	If blnDefault_eSwiftReporting Then  
+		Call UpdateResultHtml(strStepName,val,strMsg,strStatus,"")
+	End If
+
+	Set objWebEdit=Nothing
+	
+	End If
+End function
+
+
+Public Function SetWebEditSAPFrameAttachedText(creationTime,frameTitle,webeditAttachedText,webeditTexttype,webeditIndex,val)
+	If Not (Environment.Value("blnFatalError") or val = DS_SKIP) Then
+		If blnShowNotification Then BalloonTooltip.Show "TASE Automation","Executing Now : SetWebEditSAPFrameAttachedText"
+
+'		ALMvalue=Environment.Value("ALMFlag")
+'		If  ALMvalue=1 Then
+'			PopUpCreationtime=Cint(creationTime) + 1
+'		else
+			PopUpCreationtime=Cint(creationTime)
+'		End If
+
+		Dim objWebEdit
+		strStepName = "Set text box : "& webeditAttachedText
+		If webeditAttachedText<> ""  or webeditTexttype <> "" or webeditIndex <> "" Then
+		
+		Browser("CreationTime:="& PopUpCreationtime).Page("Index:="& PopUpCreationtime).SAPFrame("title:=" & frameTitle).Highlight
+		
+			Set objWebEdit =Browser("CreationTime:="& PopUpCreationtime).Page("Index:="& PopUpCreationtime).SAPFrame("title:=" & frameTitle).WebEdit("sap attached text:="&webeditAttachedText,"type:=" &webeditTexttype,"index:="&webeditIndex)
+'			objWebEdit.Click
+			objWebEdit.Fireevent "ondblclick"
+ 			If  objWebEdit.Exist(gObjectTimeoutLimit)  then 
+				Wait 5
+				objWebEdit.set val
+				Wait(1)
+				objWebEdit.Click
+				
+				If blnCaptureFlag  or  blnCreateImageEachStep or blnCreateTrainingDoc Then
+					ImagePath=CaptureScreenshot(strStepName,objWebEdit,False,False,True)
+				End if
+             	strStatus = "DONE"
+	          	strMsg= "Web Edit value set successfully"
+	          	Call ReporterFunction(strLibraryFileName,"SetWebEditSAPFrameAttachedText","2",strStepName,strMsg)
+  		else
+  			blnObjectError=True
+            strStatus = "FAIL"
+            strMsg = "Object Missing--Check the Screen Properly"
+            Call ReporterFunction(strLibraryFileName,"SetWebEditSAPFrameAttachedText","1",strStepName,strMsg)
+		end if
+	else
+       		
+            strStatus = "FAIL"
+            strMsg = "Function Parameter Not Passed Properly. Check the -SetWebEditSAPFrameAttachedText-- Function Call"
+            Call ReporterFunction(strLibraryFileName,"SetWebEditSAPFrameAttachedText","1",strStepName,strMsg)
+	end if
+
+	If  blnObjectError  Then
+		Environment.Value("blnFatalError")=True
+	End If
+
+	If strStatus = "FAIL"  Then
+		SetWebEditSAPFrameAttachedText = strMsg
+		blnMainFailFlag = True
+		ImagePath=CaptureScreenshot(strStepName,objWebEdit,False,False,True)
+	Else
+		SetWebEditSAPFrameAttachedText = True
+	End If
+
+	If blnDefault_eSwiftReporting Then  
+		Call UpdateResultHtml(strStepName,val,strMsg,strStatus,"")
+	End If
+
+
+	Set objWebEdit=Nothing
+	
+	End If
+End function
+
+
+
+Public Function SetWebEditBabbleWay(creationTime,windowText,webeditName,val,blnIsItPopup)
+	If Not (Environment.Value("blnFatalError") or val = DS_SKIP) Then
+		If blnShowNotification Then BalloonTooltip.Show "TASE Automation","Executing Now : SetWebEditBabbleWay"
+
+			PopUpCreationtime=Cint(creationTime)
+		Dim objWebEdit
+		strStepName = " Set "  & "'" & val & "'" & " in Textbox : " & "'"& webeditName & "'"  
+		If webeditName<> "" Then
+			If blnIsItPopup Then
+				Set objWebEdit = Browser("CreationTime:="& PopUpCreationtime).Window("text:="&windowText).Page("Index:="& PopUpCreationtime).WebEdit("name:="&webeditName)
+			else
+    				Set objWebEdit = Browser("CreationTime:="& PopUpCreationtime).Page("Index:="& PopUpCreationtime).WebEdit("name:="&webeditName)
+			End If
+			If  objWebEdit.Exist(60)  then 
+     			     If InSTR(1,UCASE(webeditName),"PASSWORD",VBTextCompare) >=1 Then
+     			     		  objWebEdit.Click
+       	 		         objWebEdit.SetSecure val
+   	 		     Else 
+   	 		         objWebEdit.Click
+   	 		         objWebEdit.Set val
+   	 		     End If    
+   
+	 			Wait(1)
+      			If blnCaptureFlag  or  blnCreateImageEachStep or blnCreateTrainingDoc Then
+					ImagePath=CaptureScreenshot(strStepName,objWebEdit,False,False,True)
+	  			End if
+				
+	            strStatus = "DONE"
+	            strMsg= "WebEdit value set successfully"
+	            Call ReporterFunction(strLibraryFileName,"SetWebEditBabbleWay","2",strStepName,strMsg)
+  			else
+  				blnObjectError=True
+               	strStatus = "FAIL"
+               	strMsg = "Object Missing--Check the Screen Properly"
+               	Call ReporterFunction(strLibraryFileName,"SetWebEditBabbleWay","1",strStepName,strMsg)
+  			end if
+		else
+               	strStatus = "FAIL"
+               	strMsg = "Function Parameter Not Passed Properly. Check the -SetWebEditBabbleWay-- Function Call"
+               	Call ReporterFunction(strLibraryFileName,"SetWebEditBabbleWay","1",strStepName,strMsg)
+		end if
+
+	If  blnObjectError  Then
+		Environment.Value("blnFatalError")=True
+	End If
+
+	If strStatus = "FAIL"  Then
+		SetWebEditBabbleWay = strMsg
+		blnMainFailFlag = True
+		ImagePath=CaptureScreenshot(strStepName,objWebEdit,False,False,True)
+	Else
+		SetWebEditBabbleWay = True
+	End If
+	If blnDefault_eSwiftReporting Then  
+		Call UpdateResultHtml(strStepName,val,strMsg,strStatus,"")
+	End If
+	Set objWebEdit=Nothing
+	End If
+End Function

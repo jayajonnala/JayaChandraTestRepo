@@ -1,0 +1,1 @@
+﻿var __testDataSource={items:[{dataFilePath:'Default.xlsx',dataFileFormat:'excel',dataFileFolder:'C:\\Users\\JJONN\\Documents\\UFT One\\Test_O2C_04_01_034-Claim process to MI stores - RW04 Dry Goods - Popesti_Modify_Txt\\Res2',namePairs:[]}]};

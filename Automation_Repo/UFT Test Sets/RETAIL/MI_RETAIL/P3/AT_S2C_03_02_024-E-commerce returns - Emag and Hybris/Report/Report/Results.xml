@@ -1,0 +1,960 @@
+﻿<?xml version="1.0"?>
+<!DOCTYPE Report
+[
+<!ELEMENT Report (General ,(Doc|BPT)) >
+<!ATTLIST Report ver CDATA #REQUIRED tmZone CDATA #REQUIRED>
+
+<!ELEMENT General ( DocLocation ) >
+<!ATTLIST General productName CDATA #REQUIRED productVer CDATA #REQUIRED os CDATA #REQUIRED host CDATA #REQUIRED qcserver CDATA #IMPLIED qcproject CDATA #IMPLIED SolManSolutionId CDATA #IMPLIED SolManProjectId CDATA #IMPLIED SolManTestPlanId CDATA #IMPLIED SolManTestPackageId CDATA #IMPLIED SolManUserInfoData CDATA #IMPLIED  >
+
+<!ELEMENT BPT (DName,Res,DVer?,TSet?,TInst?,NodeArgs,AdditionalInfo*,Doc*) >
+<!ATTLIST BPT rID ID #REQUIRED >
+
+<!ELEMENT Doc (DName,ConfName?,Res,DVer?,TSet?,TInst?,RunType?,DT?,AdditionalInfo*,Step*,DIter*,Step*,Action*,Doc*,Summary?,TestMaintenanceSummary*,NodeArgs?) >
+<!ATTLIST Doc rID ID #REQUIRED type (Test|BC|BPTWrapperTest|Flow|Group|Action) "Test" productName CDATA #REQUIRED BCIter CDATA #IMPLIED >
+
+<!ELEMENT RunType ( #PCDATA )>
+<!ATTLIST RunType fmStep (False|True) "False" batch (False|True) "False" upDesc (False|True) "False" upChk (False|True) "False" upAS (False|True) "False">
+
+<!ELEMENT DName ( #PCDATA ) >
+
+<!ELEMENT ConfName ( #PCDATA ) >
+
+<!ELEMENT Res ( #PCDATA ) >
+
+<!ELEMENT AdditionalInfo (AdditionalDataName,AdditionalDataValue ) >
+
+<!ELEMENT AdditionalDataName ( #PCDATA ) >
+
+<!ELEMENT AdditionalDataValue ( #PCDATA ) >
+
+<!ELEMENT DVer ( #PCDATA ) >
+
+<!ELEMENT TSet ( #PCDATA ) >
+
+<!ELEMENT TInst ( #PCDATA ) >
+
+<!ELEMENT DIter (Step*,Action+,Summary?,NodeArgs)>
+<!ATTLIST DIter rID ID #REQUIRED iterID CDATA #REQUIRED>
+
+<!ELEMENT DocLocation ( #PCDATA )>
+
+<!ELEMENT Action (AName,AIter*,(Step|HtmlStep|Action)*, Summary,ActionMaintenanceSummary*, NodeArgs ) >
+<!ATTLIST Action rID ID #REQUIRED>
+
+<!ELEMENT AIter ((Step|HtmlStep|Action)*,DataMapping?, Summary?,NodeArgs) >
+<!ATTLIST AIter rID ID #REQUIRED iterID CDATA #REQUIRED isCountable (False|True) "False" >
+
+<!ELEMENT AName ( #PCDATA ) >
+
+<!ELEMENT TestMaintenanceSummary (ActionMaintenanceSummary*) >
+<!ATTLIST TestMaintenanceSummary ObjectsAdded CDATA #REQUIRED ObjectsUpdated CDATA #REQUIRED StepsUpdated CDATA #REQUIRED StepsComments CDATA #REQUIRED><!ELEMENT ActionMaintenanceSummary (ObjectChange* ) >
+<!ATTLIST ActionMaintenanceSummary Action CDATA #REQUIRED Objects CDATA #REQUIRED Updated CDATA #REQUIRED LinesTotal CDATA #REQUIRED Added CDATA #REQUIRED LinesUpdated CDATA #REQUIRED>
+
+<!ELEMENT ObjectChange  (Hierarchy, PropertyChangeList* ) >
+<!ATTLIST ObjectChange Operation CDATA #IMPLIED OriginalRepository CDATA #IMPLIED>
+
+<!ELEMENT PropertyChangeList (PropertyDef*) >
+
+<!ELEMENT PropertyDef (OriginalValue, NewValue) >
+<!ATTLIST PropertyDef PropName CDATA #REQUIRED OriginRegularExpression (True|False) "False" NewRegularExpression (True|False) "False" AddedProperty (True|False) "False" >
+
+<!ELEMENT OriginalValue ( #PCDATA )>
+
+<!ELEMENT NewValue ( #PCDATA )>
+
+<!ELEMENT Hierarchy  (ObjectName, Hierarchy*) >
+<!ATTLIST Hierarchy MicClass CDATA #REQUIRED>
+
+<!ELEMENT ObjectName  ( #PCDATA ) >
+
+<!ELEMENT Step (Obj,Details,Time,TimeTick* ,(Step|HtmlStep|Doc)*, DataMapping?, NodeArgs) >
+<!ATTLIST Step rID ID #REQUIRED retval CDATA #IMPLIED>
+
+<!ELEMENT HtmlStep (HTML,TimeTick*,(Step|HtmlStep|Doc)*,NodeArgs) >
+<!ATTLIST HtmlStep rID ID #REQUIRED >
+
+<!ELEMENT Obj ( #PCDATA ) >
+<!ATTLIST Obj plainTxt (False|True) "True">
+
+<!ELEMENT Details ( #PCDATA ) >
+<!ATTLIST Details plainTxt (False|True) "True">
+
+<!ELEMENT Time ( #PCDATA ) >
+
+<!ELEMENT HTML ( #PCDATA ) >
+
+<!ELEMENT Disp ( #PCDATA ) >
+
+<!ELEMENT TimeTick ( #PCDATA ) >
+
+<!ELEMENT DataMapping ( DataMappedItem* )>
+<!ELEMENT DataMappedItem EMPTY >
+<!ATTLIST DataMappedItem dsName CDATA #REQUIRED >
+<!ATTLIST DataMappedItem rowId CDATA #REQUIRED >
+
+<!ELEMENT NodeArgs (Disp,TopPane?,BtmPane?,ExtendedInfo? )>
+<!ATTLIST NodeArgs eType CDATA #REQUIRED icon CDATA #REQUIRED nRep CDATA #REQUIRED UserNote CDATA #IMPLIED filter (False|True) "True">
+<!ATTLIST NodeArgs status (Passed|Failed|Done|Warning|Information) "Done">
+<!ATTLIST NodeArgs iconSel CDATA #IMPLIED nType CDATA #IMPLIED MovieMarker CDATA "">
+<!ATTLIST NodeArgs Source CDATA #IMPLIED SourceLine CDATA #IMPLIED StepFlowItemKey CDATA #IMPLIED >
+
+<!ELEMENT TopPane (Path)>
+
+<!ELEMENT BtmPane ( (Path|WR)?,ASHilite?)>
+<!ATTLIST BtmPane vType CDATA "HTML">
+
+<!ELEMENT Path ( #PCDATA ) >
+
+<!ELEMENT ASHilite ( #PCDATA ) >
+
+<!ELEMENT WR ( #PCDATA ) >
+
+<!ELEMENT ExtendedInfo ( StepData ) >
+
+<!ATTLIST ExtendedInfo StepType CDATA #REQUIRED>
+<!ELEMENT DT (NodeArgs) >
+<!ATTLIST DT rID ID #REQUIRED>
+
+<!ELEMENT Summary (Param*)>
+<!ATTLIST Summary sTime CDATA #IMPLIED eTime CDATA #IMPLIED passed CDATA #IMPLIED failed CDATA #IMPLIED warnings CDATA #IMPLIED retval CDATA #IMPLIED stopped (False|True) "False" >
+
+<!ELEMENT Param (ParamName,ParamVal)+ >
+<!ATTLIST Param paramInOut (In|Out) "In">
+
+<!ELEMENT ParamName ( #PCDATA ) >
+
+<!ELEMENT ParamVal ( #PCDATA ) >
+
+]
+>
+<Report ver="2.0" tmZone="India Standard Time">
+<General productName="Micro Focus UFT One" productVer="2022" os="Windows 10" host="VM90-BE-25848" qcserver="http://hpalm-web.eu.delhaize.com/qcbin" qcproject="AHOLD_DELHAIZE.AHOLD_DELHAIZE"><DocLocation><![CDATA[S:\14_Jira_Migration\Automation_Repo\UFT Test Sets\RETAIL\MI_RETAIL\P3\AT_S2C_03_02_024-E-commerce returns - Emag and Hybris]]></DocLocation></General>
+<Doc rID="T1"   productName= "Micro Focus UFT One"  >
+<DName><![CDATA[AT_S2C_03_02_024-E-commerce returns - Emag and Hybris]]></DName>
+<Res><![CDATA[Report]]></Res>
+<DT rID="T2">
+<NodeArgs eType="Table" icon="12" nRep="4" filter="False" >
+<Disp><![CDATA[Run-Time Data Table]]></Disp>
+<BtmPane vType="Table" >
+<Path><![CDATA[Default.xlsx]]></Path>
+</BtmPane>
+</NodeArgs>
+</DT>
+<Action rID="T3">
+<AName><![CDATA[TC0_RunTimeResultFolder]]></AName>
+<Step rID="T4">
+<Obj ><![CDATA[Runtime ID is Generated]]></Obj>
+<Details ><![CDATA[ The value of RunTimeID is: "AT_S2_TC0_R_08052025_121733"]]></Details>
+<Time><![CDATA[08/05/2025 - 12:17:33]]></Time>
+<TimeTick>1746686853</TimeTick>
+<NodeArgs eType="User" icon="14" nRep="7" >
+<Disp><![CDATA[Runtime ID is Generated]]></Disp>
+</NodeArgs>
+</Step>
+<Action rID="T5">
+<AName><![CDATA[AT [[1]RunTimeResultFolderCreation_TASE]]]></AName>
+<Step rID="T6">
+<Obj ><![CDATA[[TASE Function Name:=createFolderDateandTimeandUpdateinTextFile  ]  :  [ Step := createFolderDateandTime]]></Obj>
+<Details ><![CDATA[Folder successfully created with the following location: S:\TASEResult\MI\RETAIL\AT_S2C_03_02_024\AT_S2C_03_02_024_08052025_121734 ] ]]></Details>
+<Time><![CDATA[08/05/2025 - 12:17:34]]></Time>
+<TimeTick>1746686854</TimeTick>
+<NodeArgs eType="User" icon="14" nRep="9" >
+<Disp><![CDATA[[TASE Function Name:=createFolderDateandTimeandUpdateinTextFile  ]  :  [ Step := createFolderDateandTime]]></Disp>
+</NodeArgs>
+</Step>
+<Step rID="T7">
+<Obj ><![CDATA[[TASE Function Name:=Create&WriteTOFile  ]  :  [ Step := S:\TASEResult\MI\RETAIL\AT_S2C_03_02_024\GlobalRunTimeResultFolderPath\ResultFolderPath.txt]]></Obj>
+<Details ><![CDATA[Value Used :-
+Input Text:S:\TASEResult\MI\RETAIL\AT_S2C_03_02_024\AT_S2C_03_02_024_08052025_121734 ] ]]></Details>
+<Time><![CDATA[08/05/2025 - 12:17:34]]></Time>
+<TimeTick>1746686854</TimeTick>
+<NodeArgs eType="User" icon="14" nRep="10" >
+<Disp><![CDATA[[TASE Function Name:=Create&WriteTOFile  ]  :  [ Step := S:\TASEResult\MI\RETAIL\AT_S2C_03_02_024\GlobalRunTimeResultFolderPath\ResultFolderPath.txt]]></Disp>
+</NodeArgs>
+</Step>
+<Summary sTime="08/05/2025 - 12:17:34" eTime="08/05/2025 - 12:17:34" passed="0" failed="0" warnings="0" ><Param paramInOut = "In"><ParamName><![CDATA[gstrresultFolderPath]]></ParamName><ParamVal><![CDATA[S:\TASEResult\MI\RETAIL\AT_S2C_03_02_024]]></ParamVal>
+</Param>
+<Param paramInOut = "In"><ParamName><![CDATA[datatable_row]]></ParamName><ParamVal><![CDATA[2]]></ParamVal>
+</Param>
+<Param paramInOut = "In"><ParamName><![CDATA[RunTimeResultFolder]]></ParamName><ParamVal><![CDATA[S:\TASEResult\MI\RETAIL\AT_S2C_03_02_024\GlobalRunTimeResultFolderPath\ResultFolderPath.txt]]></ParamVal>
+</Param>
+<Param paramInOut = "In"><ParamName><![CDATA[gstrtestsetname]]></ParamName><ParamVal><![CDATA[AT_S2C_03_02_024]]></ParamVal>
+</Param>
+</Summary>
+<NodeArgs eType="StartAction" icon="15" nRep="8" >
+<Disp><![CDATA[AT [[1]RunTimeResultFolderCreation_TASE] Summary]]></Disp>
+</NodeArgs>
+</Action>
+<Summary sTime="08/05/2025 - 12:17:32" eTime="08/05/2025 - 12:17:37" passed="0" failed="0" warnings="0" ><Param paramInOut = "In"><ParamName><![CDATA[RT_gstrresultFolderPath]]></ParamName><ParamVal><![CDATA[S:\TASEResult\MI\RETAIL\AT_S2C_03_02_024]]></ParamVal>
+</Param>
+<Param paramInOut = "In"><ParamName><![CDATA[RT_datatable_row]]></ParamName><ParamVal><![CDATA[2]]></ParamVal>
+</Param>
+<Param paramInOut = "In"><ParamName><![CDATA[RT_RunTimeResultFolder]]></ParamName><ParamVal><![CDATA[S:\TASEResult\MI\RETAIL\AT_S2C_03_02_024\GlobalRunTimeResultFolderPath\ResultFolderPath.txt]]></ParamVal>
+</Param>
+<Param paramInOut = "In"><ParamName><![CDATA[RT_gstrtestsetname]]></ParamName><ParamVal><![CDATA[AT_S2C_03_02_024]]></ParamVal>
+</Param>
+<Param paramInOut = "In"><ParamName><![CDATA[gstrresultFolderPath]]></ParamName><ParamVal><![CDATA[S:\TASEResult\MI\RETAIL\AT_S2C_03_02_024]]></ParamVal>
+</Param>
+<Param paramInOut = "In"><ParamName><![CDATA[RunTimeResultFolder]]></ParamName><ParamVal><![CDATA[S:\TASEResult\MI\RETAIL\AT_S2C_03_02_024\GlobalRunTimeResultFolderPath\ResultFolderPath.txt]]></ParamVal>
+</Param>
+<Param paramInOut = "In"><ParamName><![CDATA[RT_Path]]></ParamName><ParamVal><![CDATA[Automation_Repo\UFT Test Cases\Mega Image\Utilities\[1]RunTimeResultFolderCreation_TASE]]></ParamVal>
+</Param>
+</Summary>
+<NodeArgs eType="StartAction" icon="13" nRep="6" >
+<Disp><![CDATA[TC0_RunTimeResultFolder Summary]]></Disp>
+</NodeArgs>
+</Action>
+<Action rID="T8">
+<AName><![CDATA[TC1_Test_S2C_03_02_024_Upload]]></AName>
+<Step rID="T9">
+<Obj ><![CDATA[Runtime ID is Generated]]></Obj>
+<Details ><![CDATA[ The value of RunTimeID is: "AT_S2_TC1_T_08052025_121737"]]></Details>
+<Time><![CDATA[08/05/2025 - 12:17:37]]></Time>
+<TimeTick>1746686857</TimeTick>
+<NodeArgs eType="User" icon="14" nRep="14" >
+<Disp><![CDATA[Runtime ID is Generated]]></Disp>
+</NodeArgs>
+</Step>
+<Action rID="T10">
+<AName><![CDATA[AT [[1]Test_S2C_03_02_024-E-commerce returns_Create&Upload File_MII103_TASE]]]></AName>
+<Step rID="T11">
+<Obj ><![CDATA[[TASE Function Name:=Create&WriteTOFile  ]  :  [ Step := S:\TASEResult\MI\RETAIL\AT_S2C_03_02_024\GlobalRunTimeResultFolderPath\ResultFolderPath.txt]]></Obj>
+<Details ><![CDATA[Value Used :-
+Input Text:S:\TASEResult\MI\RETAIL\AT_S2C_03_02_024\AT_S2C_03_02_024_08052025_121734 ] ]]></Details>
+<Time><![CDATA[08/05/2025 - 12:17:39]]></Time>
+<TimeTick>1746686859</TimeTick>
+<NodeArgs eType="User" icon="14" nRep="16" >
+<Disp><![CDATA[[TASE Function Name:=Create&WriteTOFile  ]  :  [ Step := S:\TASEResult\MI\RETAIL\AT_S2C_03_02_024\GlobalRunTimeResultFolderPath\ResultFolderPath.txt]]></Disp>
+</NodeArgs>
+</Step>
+<Step rID="T12">
+<Obj ><![CDATA[[TASE Function Name:=Create&WriteTOFile  ]  :  [ Step := DSSR0350.80620]]></Obj>
+<Details ><![CDATA[Value Used :-
+Input Text:H035080310 ] ]]></Details>
+<Time><![CDATA[08/05/2025 - 12:19:19]]></Time>
+<TimeTick>1746686959</TimeTick>
+<NodeArgs eType="User" icon="14" nRep="17" >
+<Disp><![CDATA[[TASE Function Name:=Create&WriteTOFile  ]  :  [ Step := DSSR0350.80620]]></Disp>
+</NodeArgs>
+</Step>
+<Step rID="T13">
+<Obj ><![CDATA[[TASE Function Name:=AppendTOFile  ]  :  [ Step := DSSR0350.80620]]></Obj>
+<Details ><![CDATA[Value Used :-
+Input Text:D0000104035020250508PVS 0350792310     90133               000        000000125000000000039520000000000455200000000000039600202+ ] ]]></Details>
+<Time><![CDATA[08/05/2025 - 12:19:20]]></Time>
+<TimeTick>1746686960</TimeTick>
+<NodeArgs eType="User" icon="14" nRep="18" >
+<Disp><![CDATA[[TASE Function Name:=AppendTOFile  ]  :  [ Step := DSSR0350.80620]]></Disp>
+</NodeArgs>
+</Step>
+<Step rID="T14">
+<Obj ><![CDATA[[TASE Function Name:=AppendTOFile  ]  :  [ Step := DSSR0350.80620]]></Obj>
+<Details ><![CDATA[Value Used :-
+Input Text:D0000204035020250508PVS 0350792310     47192               000        000000325000000000004887600000000052876000000000003310202+ ] ]]></Details>
+<Time><![CDATA[08/05/2025 - 12:19:20]]></Time>
+<TimeTick>1746686960</TimeTick>
+<NodeArgs eType="User" icon="14" nRep="19" >
+<Disp><![CDATA[[TASE Function Name:=AppendTOFile  ]  :  [ Step := DSSR0350.80620]]></Disp>
+</NodeArgs>
+</Step>
+<Step rID="T15">
+<Obj ><![CDATA[[TASE Function Name:=AppendTOFile  ]  :  [ Step := DSSR0350.80620]]></Obj>
+<Details ><![CDATA[Value Used :-
+Input Text:T00004 ] ]]></Details>
+<Time><![CDATA[08/05/2025 - 12:19:21]]></Time>
+<TimeTick>1746686961</TimeTick>
+<NodeArgs eType="User" icon="14" nRep="20" >
+<Disp><![CDATA[[TASE Function Name:=AppendTOFile  ]  :  [ Step := DSSR0350.80620]]></Disp>
+</NodeArgs>
+</Step>
+<Step rID="T16">
+<Obj ><![CDATA[[TASE Function Name:=WinScpTransferFile  ]  :  [ Step := TransferFile through WinScp]]></Obj>
+<Details ><![CDATA[Transfer Initiated, command used: /command "open sftp://jjonn:<password> @EU34QGE1-VIR:22" "option confirm off" "put -permissions=777 -resume S:\TestAssets\MI_Retail\S2C\S2C_03_02_024\DSSR0350.80620 /operations/download/MII103/" "exit" ] ]]></Details>
+<Time><![CDATA[08/05/2025 - 12:20:00]]></Time>
+<TimeTick>1746687000</TimeTick>
+<NodeArgs eType="User" icon="14" nRep="25" >
+<Disp><![CDATA[[TASE Function Name:=WinScpTransferFile  ]  :  [ Step := TransferFile through WinScp]]></Disp>
+</NodeArgs>
+</Step>
+<Step rID="T17">
+<Obj ><![CDATA[Test :  [ Test_S2C_03_02_024-E-commerce returns_Create&Upload File_MII103] Completed.]]></Obj>
+<Details ><![CDATA[Passed]]></Details>
+<Time><![CDATA[08/05/2025 - 12:20:01]]></Time>
+<TimeTick>1746687001</TimeTick>
+<NodeArgs eType="User" icon="14" nRep="26" status="Passed" >
+<Disp><![CDATA[Test :  [ Test_S2C_03_02_024-E-commerce returns_Create&Upload File_MII103] Completed.]]></Disp>
+</NodeArgs>
+</Step>
+<Summary sTime="08/05/2025 - 12:17:38" eTime="08/05/2025 - 12:20:09" passed="1" failed="0" warnings="0" ><Param paramInOut = "In"><ParamName><![CDATA[gstrInputExcelFilePathAndName]]></ParamName><ParamVal><![CDATA[S:\TASETestData\P3\MI\RETAIL\TASE_DT_S2C_03_02_024-E-commerce returns_Create&Upload File_MII103.xls]]></ParamVal>
+</Param>
+<Param paramInOut = "In"><ParamName><![CDATA[datatable_row]]></ParamName><ParamVal><![CDATA[2]]></ParamVal>
+</Param>
+<Param paramInOut = "In"><ParamName><![CDATA[gstrresultFolderPath]]></ParamName><ParamVal><![CDATA[S:\TASEResult\MI\RETAIL\AT_S2C_03_02_024]]></ParamVal>
+</Param>
+<Param paramInOut = "In"><ParamName><![CDATA[RunTimeResultFolder]]></ParamName><ParamVal><![CDATA[S:\TASEResult\MI\RETAIL\AT_S2C_03_02_024\GlobalRunTimeResultFolderPath\ResultFolderPath.txt]]></ParamVal>
+</Param>
+<Param paramInOut = "In"><ParamName><![CDATA[datatable_row1]]></ParamName><ParamVal><![CDATA[3]]></ParamVal>
+</Param>
+<Param paramInOut = "In"><ParamName><![CDATA[row3]]></ParamName><ParamVal><![CDATA[4]]></ParamVal>
+</Param>
+<Param paramInOut = "In"><ParamName><![CDATA[row4]]></ParamName><ParamVal><![CDATA[5]]></ParamVal>
+</Param>
+</Summary>
+<NodeArgs eType="StartAction" icon="15" nRep="15" status="Passed" >
+<Disp><![CDATA[AT [[1]Test_S2C_03_02_024-E-commerce returns_Create&Upload File_MII103_TASE] Summary]]></Disp>
+</NodeArgs>
+</Action>
+<Summary sTime="08/05/2025 - 12:17:37" eTime="08/05/2025 - 12:20:12" passed="0" failed="0" warnings="0" ><Param paramInOut = "In"><ParamName><![CDATA[TC1_Path]]></ParamName><ParamVal><![CDATA[Automation_Repo\UFT Test Cases\Mega Image\P3\RETAIL\[1]Test_S2C_03_02_024-E-commerce returns_Create&Upload File_MII103_TASE]]></ParamVal>
+</Param>
+<Param paramInOut = "In"><ParamName><![CDATA[TC1_ExcelinputFile]]></ParamName><ParamVal><![CDATA[S:\TASETestData\P3\MI\RETAIL\TASE_DT_S2C_03_02_024-E-commerce returns_Create&Upload File_MII103.xls]]></ParamVal>
+</Param>
+<Param paramInOut = "In"><ParamName><![CDATA[TC1_DataRowNumber1]]></ParamName><ParamVal><![CDATA[2]]></ParamVal>
+</Param>
+<Param paramInOut = "In"><ParamName><![CDATA[gstrresultFolderPath]]></ParamName><ParamVal><![CDATA[S:\TASEResult\MI\RETAIL\AT_S2C_03_02_024]]></ParamVal>
+</Param>
+<Param paramInOut = "In"><ParamName><![CDATA[RunTimeResultFolder]]></ParamName><ParamVal><![CDATA[S:\TASEResult\MI\RETAIL\AT_S2C_03_02_024\GlobalRunTimeResultFolderPath\ResultFolderPath.txt]]></ParamVal>
+</Param>
+<Param paramInOut = "In"><ParamName><![CDATA[TC1_DataRowNumber2]]></ParamName><ParamVal><![CDATA[3]]></ParamVal>
+</Param>
+<Param paramInOut = "In"><ParamName><![CDATA[TC1_DataRowNumber3]]></ParamName><ParamVal><![CDATA[4]]></ParamVal>
+</Param>
+<Param paramInOut = "In"><ParamName><![CDATA[TC1_DataRowNumber4]]></ParamName><ParamVal><![CDATA[5]]></ParamVal>
+</Param>
+</Summary>
+<NodeArgs eType="StartAction" icon="13" nRep="13" status="Passed" >
+<Disp><![CDATA[TC1_Test_S2C_03_02_024_Upload Summary]]></Disp>
+</NodeArgs>
+</Action>
+<Action rID="T18">
+<AName><![CDATA[TC2_DataTransfer_1]]></AName>
+<Step rID="T19">
+<Obj ><![CDATA[Runtime ID is Generated]]></Obj>
+<Details ><![CDATA[ The value of RunTimeID is: "AT_S2_TC2_D_08052025_122012"]]></Details>
+<Time><![CDATA[08/05/2025 - 12:20:12]]></Time>
+<TimeTick>1746687012</TimeTick>
+<NodeArgs eType="User" icon="14" nRep="30" >
+<Disp><![CDATA[Runtime ID is Generated]]></Disp>
+</NodeArgs>
+</Step>
+<Action rID="T20">
+<AName><![CDATA[AT [[1]DataTransfer_OneValue_Optimised_TASE]]]></AName>
+<Step rID="T21">
+<Obj ><![CDATA[[TASE Function Name:=Create&WriteTOFile  ]  :  [ Step := S:\TASEResult\MI\RETAIL\AT_S2C_03_02_024\GlobalRunTimeResultFolderPath\ResultFolderPath.txt]]></Obj>
+<Details ><![CDATA[Value Used :-
+Input Text:S:\TASEResult\MI\RETAIL\AT_S2C_03_02_024\AT_S2C_03_02_024_08052025_121734 ] ]]></Details>
+<Time><![CDATA[08/05/2025 - 12:20:13]]></Time>
+<TimeTick>1746687013</TimeTick>
+<NodeArgs eType="User" icon="14" nRep="32" >
+<Disp><![CDATA[[TASE Function Name:=Create&WriteTOFile  ]  :  [ Step := S:\TASEResult\MI\RETAIL\AT_S2C_03_02_024\GlobalRunTimeResultFolderPath\ResultFolderPath.txt]]></Disp>
+</NodeArgs>
+</Step>
+<Step rID="T22">
+<Obj ><![CDATA[[TASE Function Name:=TransferData  ]  :  [ Step := ]]></Obj>
+<Details ><![CDATA[Value Used :-
+SourceField:DT_REFERENCE
+TargetColumn: DT_POSDWMON0_0302_TRANSACTION_NUMBER ] ]]></Details>
+<Time><![CDATA[08/05/2025 - 12:21:26]]></Time>
+<TimeTick>1746687086</TimeTick>
+<NodeArgs eType="User" icon="14" nRep="33" >
+<Disp><![CDATA[[TASE Function Name:=TransferData  ]  :  [ Step := ]]></Disp>
+</NodeArgs>
+</Step>
+<Step rID="T23">
+<Obj ><![CDATA[Test :  [ Data Transfer] Completed.]]></Obj>
+<Details ><![CDATA[Passed]]></Details>
+<Time><![CDATA[08/05/2025 - 12:21:27]]></Time>
+<TimeTick>1746687087</TimeTick>
+<NodeArgs eType="User" icon="14" nRep="34" status="Passed" >
+<Disp><![CDATA[Test :  [ Data Transfer] Completed.]]></Disp>
+</NodeArgs>
+</Step>
+<Summary sTime="08/05/2025 - 12:20:13" eTime="08/05/2025 - 12:21:36" passed="1" failed="0" warnings="0" ><Param paramInOut = "In"><ParamName><![CDATA[gstrInputExcelFilePathAndName]]></ParamName><ParamVal><![CDATA[S:\TASETestData\P3\MI\RETAIL\TASE_DT_S2C_03_02_024-E-commerce returns_Create&Upload File_MII103.xls]]></ParamVal>
+</Param>
+<Param paramInOut = "In"><ParamName><![CDATA[datatable_row]]></ParamName><ParamVal><![CDATA[3]]></ParamVal>
+</Param>
+<Param paramInOut = "In"><ParamName><![CDATA[sourceField]]></ParamName><ParamVal><![CDATA[DT_REFERENCE]]></ParamVal>
+</Param>
+<Param paramInOut = "In"><ParamName><![CDATA[gstrTargetExcelFilePathAndName]]></ParamName><ParamVal><![CDATA[S:\TASETestData\P3\MI\RETAIL\TASE_DT_S2C_03_02_024-E-commerce returns_P3_C1E_MON0.xls]]></ParamVal>
+</Param>
+<Param paramInOut = "In"><ParamName><![CDATA[targetField]]></ParamName><ParamVal><![CDATA[DT_POSDWMON0_0302_TRANSACTION_NUMBER]]></ParamVal>
+</Param>
+<Param paramInOut = "In"><ParamName><![CDATA[targetexcelrow]]></ParamName><ParamVal><![CDATA[2]]></ParamVal>
+</Param>
+<Param paramInOut = "In"><ParamName><![CDATA[gstrresultFolderPath]]></ParamName><ParamVal><![CDATA[S:\TASEResult\MI\RETAIL\AT_S2C_03_02_024]]></ParamVal>
+</Param>
+<Param paramInOut = "In"><ParamName><![CDATA[RunTimeResultFolder]]></ParamName><ParamVal><![CDATA[S:\TASEResult\MI\RETAIL\AT_S2C_03_02_024\GlobalRunTimeResultFolderPath\ResultFolderPath.txt]]></ParamVal>
+</Param>
+</Summary>
+<NodeArgs eType="StartAction" icon="15" nRep="31" status="Passed" >
+<Disp><![CDATA[AT [[1]DataTransfer_OneValue_Optimised_TASE] Summary]]></Disp>
+</NodeArgs>
+</Action>
+<Action rID="T24">
+<AName><![CDATA[AT [[1]DataTransfer_OneValue_Optimised_TASE]]]></AName>
+<Step rID="T25">
+<Obj ><![CDATA[[TASE Function Name:=Create&WriteTOFile  ]  :  [ Step := S:\TASEResult\MI\RETAIL\AT_S2C_03_02_024\GlobalRunTimeResultFolderPath\ResultFolderPath.txt]]></Obj>
+<Details ><![CDATA[Value Used :-
+Input Text:S:\TASEResult\MI\RETAIL\AT_S2C_03_02_024\AT_S2C_03_02_024_08052025_121734 ] ]]></Details>
+<Time><![CDATA[08/05/2025 - 12:21:39]]></Time>
+<TimeTick>1746687099</TimeTick>
+<NodeArgs eType="User" icon="14" nRep="37" >
+<Disp><![CDATA[[TASE Function Name:=Create&WriteTOFile  ]  :  [ Step := S:\TASEResult\MI\RETAIL\AT_S2C_03_02_024\GlobalRunTimeResultFolderPath\ResultFolderPath.txt]]></Disp>
+</NodeArgs>
+</Step>
+<Step rID="T26">
+<Obj ><![CDATA[[TASE Function Name:=TransferData  ]  :  [ Step := ]]></Obj>
+<Details ><![CDATA[Value Used :-
+SourceField:PVS0350792310
+TargetColumn: DT_MB51_1000_REFERENCE ] ]]></Details>
+<Time><![CDATA[08/05/2025 - 12:22:55]]></Time>
+<TimeTick>1746687175</TimeTick>
+<NodeArgs eType="User" icon="14" nRep="38" >
+<Disp><![CDATA[[TASE Function Name:=TransferData  ]  :  [ Step := ]]></Disp>
+</NodeArgs>
+</Step>
+<Step rID="T27">
+<Obj ><![CDATA[Test :  [ Data Transfer] Completed.]]></Obj>
+<Details ><![CDATA[Passed]]></Details>
+<Time><![CDATA[08/05/2025 - 12:22:56]]></Time>
+<TimeTick>1746687176</TimeTick>
+<NodeArgs eType="User" icon="14" nRep="39" status="Passed" >
+<Disp><![CDATA[Test :  [ Data Transfer] Completed.]]></Disp>
+</NodeArgs>
+</Step>
+<Summary sTime="08/05/2025 - 12:21:39" eTime="08/05/2025 - 12:23:05" passed="1" failed="0" warnings="0" ><Param paramInOut = "In"><ParamName><![CDATA[gstrInputExcelFilePathAndName]]></ParamName><ParamVal><![CDATA[S:\TASETestData\P3\MI\RETAIL\TASE_DT_S2C_03_02_024-E-commerce returns_Create&Upload File_MII103.xls]]></ParamVal>
+</Param>
+<Param paramInOut = "In"><ParamName><![CDATA[datatable_row]]></ParamName><ParamVal><![CDATA[3]]></ParamVal>
+</Param>
+<Param paramInOut = "In"><ParamName><![CDATA[sourceField]]></ParamName><ParamVal><![CDATA[DT_REFERENCE]]></ParamVal>
+</Param>
+<Param paramInOut = "In"><ParamName><![CDATA[gstrTargetExcelFilePathAndName]]></ParamName><ParamVal><![CDATA[S:\TASETestData\P3\MI\RETAIL\TASE_DT_S2C_03_02_024-E-commerce returns_P4_R1E_MB51.xls]]></ParamVal>
+</Param>
+<Param paramInOut = "In"><ParamName><![CDATA[targetField]]></ParamName><ParamVal><![CDATA[DT_MB51_1000_REFERENCE]]></ParamVal>
+</Param>
+<Param paramInOut = "In"><ParamName><![CDATA[targetexcelrow]]></ParamName><ParamVal><![CDATA[2]]></ParamVal>
+</Param>
+<Param paramInOut = "In"><ParamName><![CDATA[gstrresultFolderPath]]></ParamName><ParamVal><![CDATA[S:\TASEResult\MI\RETAIL\AT_S2C_03_02_024]]></ParamVal>
+</Param>
+<Param paramInOut = "In"><ParamName><![CDATA[RunTimeResultFolder]]></ParamName><ParamVal><![CDATA[S:\TASEResult\MI\RETAIL\AT_S2C_03_02_024\GlobalRunTimeResultFolderPath\ResultFolderPath.txt]]></ParamVal>
+</Param>
+</Summary>
+<NodeArgs eType="StartAction" icon="15" nRep="36" status="Passed" >
+<Disp><![CDATA[AT [[1]DataTransfer_OneValue_Optimised_TASE] Summary]]></Disp>
+</NodeArgs>
+</Action>
+<Summary sTime="08/05/2025 - 12:20:12" eTime="08/05/2025 - 12:23:07" passed="0" failed="0" warnings="0" ><Param paramInOut = "In"><ParamName><![CDATA[DT1_1_gstrInputExcelFilePathAndName]]></ParamName><ParamVal><![CDATA[S:\TASETestData\P3\MI\RETAIL\TASE_DT_S2C_03_02_024-E-commerce returns_Create&Upload File_MII103.xls]]></ParamVal>
+</Param>
+<Param paramInOut = "In"><ParamName><![CDATA[DT1_1_datatable_row]]></ParamName><ParamVal><![CDATA[3]]></ParamVal>
+</Param>
+<Param paramInOut = "In"><ParamName><![CDATA[DT1_1_sourceField]]></ParamName><ParamVal><![CDATA[DT_REFERENCE]]></ParamVal>
+</Param>
+<Param paramInOut = "In"><ParamName><![CDATA[DT1_1_gstrTargetExcelFilePathAndName]]></ParamName><ParamVal><![CDATA[S:\TASETestData\P3\MI\RETAIL\TASE_DT_S2C_03_02_024-E-commerce returns_P3_C1E_MON0.xls]]></ParamVal>
+</Param>
+<Param paramInOut = "In"><ParamName><![CDATA[DT1_1_targetField]]></ParamName><ParamVal><![CDATA[DT_POSDWMON0_0302_TRANSACTION_NUMBER]]></ParamVal>
+</Param>
+<Param paramInOut = "In"><ParamName><![CDATA[DT1_1_targetexcelrow]]></ParamName><ParamVal><![CDATA[2]]></ParamVal>
+</Param>
+<Param paramInOut = "In"><ParamName><![CDATA[DT_Path]]></ParamName><ParamVal><![CDATA[Automation_Repo\UFT Test Cases\Mega Image\Utilities\[1]DataTransfer_OneValue_Optimised_TASE]]></ParamVal>
+</Param>
+<Param paramInOut = "In"><ParamName><![CDATA[gstrresultFolderPath]]></ParamName><ParamVal><![CDATA[S:\TASEResult\MI\RETAIL\AT_S2C_03_02_024]]></ParamVal>
+</Param>
+<Param paramInOut = "In"><ParamName><![CDATA[RunTimeResultFolder]]></ParamName><ParamVal><![CDATA[S:\TASEResult\MI\RETAIL\AT_S2C_03_02_024\GlobalRunTimeResultFolderPath\ResultFolderPath.txt]]></ParamVal>
+</Param>
+<Param paramInOut = "In"><ParamName><![CDATA[DT1_2_gstrInputExcelFilePathAndName]]></ParamName><ParamVal><![CDATA[S:\TASETestData\P3\MI\RETAIL\TASE_DT_S2C_03_02_024-E-commerce returns_Create&Upload File_MII103.xls]]></ParamVal>
+</Param>
+<Param paramInOut = "In"><ParamName><![CDATA[DT1_2_datatable_row]]></ParamName><ParamVal><![CDATA[3]]></ParamVal>
+</Param>
+<Param paramInOut = "In"><ParamName><![CDATA[DT1_2_sourceField]]></ParamName><ParamVal><![CDATA[DT_REFERENCE]]></ParamVal>
+</Param>
+<Param paramInOut = "In"><ParamName><![CDATA[DT1_2_gstrTargetExcelFilePathAndName]]></ParamName><ParamVal><![CDATA[S:\TASETestData\P3\MI\RETAIL\TASE_DT_S2C_03_02_024-E-commerce returns_P4_R1E_MB51.xls]]></ParamVal>
+</Param>
+<Param paramInOut = "In"><ParamName><![CDATA[DT1_2_targetField]]></ParamName><ParamVal><![CDATA[DT_MB51_1000_REFERENCE]]></ParamVal>
+</Param>
+<Param paramInOut = "In"><ParamName><![CDATA[DT1_2_targetexcelrow]]></ParamName><ParamVal><![CDATA[2]]></ParamVal>
+</Param>
+</Summary>
+<NodeArgs eType="StartAction" icon="13" nRep="29" status="Passed" >
+<Disp><![CDATA[TC2_DataTransfer_1 Summary]]></Disp>
+</NodeArgs>
+</Action>
+<Action rID="T28">
+<AName><![CDATA[TC3_Test_S2C_03_02_024_P3]]></AName>
+<Step rID="T29">
+<Obj ><![CDATA[Runtime ID is Generated]]></Obj>
+<Details ><![CDATA[ The value of RunTimeID is: "AT_S2_TC3_T_08052025_122308"]]></Details>
+<Time><![CDATA[08/05/2025 - 12:23:08]]></Time>
+<TimeTick>1746687188</TimeTick>
+<NodeArgs eType="User" icon="14" nRep="43" >
+<Disp><![CDATA[Runtime ID is Generated]]></Disp>
+</NodeArgs>
+</Step>
+<Action rID="T30">
+<AName><![CDATA[AT [[1]Test_S2C_03_02_024-E-commerce returns_P3_C1E_MON0_TASE]]]></AName>
+<Step rID="T31">
+<Obj ><![CDATA[[TASE Function Name:=Create&WriteTOFile  ]  :  [ Step := S:\TASEResult\MI\RETAIL\AT_S2C_03_02_024\GlobalRunTimeResultFolderPath\ResultFolderPath.txt]]></Obj>
+<Details ><![CDATA[Value Used :-
+Input Text:S:\TASEResult\MI\RETAIL\AT_S2C_03_02_024\AT_S2C_03_02_024_08052025_121734 ] ]]></Details>
+<Time><![CDATA[08/05/2025 - 12:23:09]]></Time>
+<TimeTick>1746687189</TimeTick>
+<NodeArgs eType="User" icon="14" nRep="45" >
+<Disp><![CDATA[[TASE Function Name:=Create&WriteTOFile  ]  :  [ Step := S:\TASEResult\MI\RETAIL\AT_S2C_03_02_024\GlobalRunTimeResultFolderPath\ResultFolderPath.txt]]></Disp>
+</NodeArgs>
+</Step>
+<Step rID="T32">
+<Obj ><![CDATA[[TASE Function Name:=Login  ]  :  [ Step := Enter User Name : AUTOAB and Password : ********]]></Obj>
+<Details ><![CDATA[Values Used:
+ Username:AUTOAB
+ Password: djDLHz!280jSQV ] ]]></Details>
+<Time><![CDATA[08/05/2025 - 12:24:42]]></Time>
+<TimeTick>1746687282</TimeTick>
+<NodeArgs eType="User" icon="14" nRep="53" >
+<Disp><![CDATA[[TASE Function Name:=Login  ]  :  [ Step := Enter User Name : AUTOAB and Password : ********]]></Disp>
+</NodeArgs>
+</Step>
+<Step rID="T33">
+<Obj ><![CDATA[[TASE Function Name:=PressEnter  ]  :  [ Step :=  Press Enter Key]]></Obj>
+<Details ><![CDATA[Enter Key Pressed  ] ]]></Details>
+<Time><![CDATA[08/05/2025 - 12:25:10]]></Time>
+<TimeTick>1746687310</TimeTick>
+<NodeArgs eType="User" icon="14" nRep="60" >
+<Disp><![CDATA[[TASE Function Name:=PressEnter  ]  :  [ Step :=  Press Enter Key]]></Disp>
+</NodeArgs>
+</Step>
+<Step rID="T34">
+<Obj ><![CDATA[[TASE Function Name:=SetTcode  ]  :  [ Step := Set Transaction Code]]></Obj>
+<Details ><![CDATA[Transaction Code : /POSDW/MON0 - W-POS: POS Workbench -> POS WB: Selection and Overview has been entered in the t-code textbox ] ]]></Details>
+<Time><![CDATA[08/05/2025 - 12:25:12]]></Time>
+<TimeTick>1746687312</TimeTick>
+<NodeArgs eType="User" icon="14" nRep="64" >
+<Disp><![CDATA[[TASE Function Name:=SetTcode  ]  :  [ Step := Set Transaction Code]]></Disp>
+</NodeArgs>
+</Step>
+<Step rID="T35">
+<Obj ><![CDATA[[TASE Function Name:=PressEnter  ]  :  [ Step :=  Press Enter Key]]></Obj>
+<Details ><![CDATA[Enter Key Pressed  ] ]]></Details>
+<Time><![CDATA[08/05/2025 - 12:25:37]]></Time>
+<TimeTick>1746687337</TimeTick>
+<NodeArgs eType="User" icon="14" nRep="71" >
+<Disp><![CDATA[[TASE Function Name:=PressEnter  ]  :  [ Step :=  Press Enter Key]]></Disp>
+</NodeArgs>
+</Step>
+<Step rID="T36">
+<Obj ><![CDATA[[TASE Function Name:=TakeScreenshot  ]  :  [ Step :=  Take Screenshot]]></Obj>
+<Details ><![CDATA[Screenshot was captured.  ] ]]></Details>
+<Time><![CDATA[08/05/2025 - 12:25:38]]></Time>
+<TimeTick>1746687338</TimeTick>
+<NodeArgs eType="User" icon="14" nRep="73" >
+<Disp><![CDATA[[TASE Function Name:=TakeScreenshot  ]  :  [ Step :=  Take Screenshot]]></Disp>
+</NodeArgs>
+</Step>
+<Step rID="T37">
+<Obj ><![CDATA[[TASE Function Name:=SetTextBox  ]  :  [ Step :=  Set 'R340' in Textbox : 'Store']]></Obj>
+<Details ><![CDATA[Value Used :-
+AttachedText:Store
+Text BoxName: SO_STORE-LOW
+ValueField:R340 ] ]]></Details>
+<Time><![CDATA[08/05/2025 - 12:25:39]]></Time>
+<TimeTick>1746687339</TimeTick>
+<NodeArgs eType="User" icon="14" nRep="78" >
+<Disp><![CDATA[[TASE Function Name:=SetTextBox  ]  :  [ Step :=  Set 'R340' in Textbox : 'Store']]></Disp>
+</NodeArgs>
+</Step>
+<Step rID="T38">
+<Obj ><![CDATA[[TASE Function Name:=FocusTextBox  ]  :  [ Step := Text Box field]]></Obj>
+<Details ><![CDATA[Textbox Focused successfully ] ]]></Details>
+<Time><![CDATA[08/05/2025 - 12:25:39]]></Time>
+<TimeTick>1746687339</TimeTick>
+<NodeArgs eType="User" icon="14" nRep="83" >
+<Disp><![CDATA[[TASE Function Name:=FocusTextBox  ]  :  [ Step := Text Box field]]></Disp>
+</NodeArgs>
+</Step>
+<Step rID="T39">
+<Obj ><![CDATA[[TASE Function Name:=SelectRowGuiGrid  ]  :  [ Step := SelectRowGuiGrid]]></Obj>
+<Details ><![CDATA[Row Selected:-
+ Row No : 1 ] ]]></Details>
+<Time><![CDATA[08/05/2025 - 12:26:06]]></Time>
+<TimeTick>1746687366</TimeTick>
+<NodeArgs eType="User" icon="14" nRep="92" >
+<Disp><![CDATA[[TASE Function Name:=SelectRowGuiGrid  ]  :  [ Step := SelectRowGuiGrid]]></Disp>
+</NodeArgs>
+</Step>
+<Step rID="T40">
+<Obj ><![CDATA[[TASE Function Name:=ClickButton  ]  :  [ Step := Click 'Copy   (Enter)' Button]]></Obj>
+<Details ><![CDATA[Button with :-
+tooltipOrButtonName:Copy   (Enter) has been clicked  successfully ] ]]></Details>
+<Time><![CDATA[08/05/2025 - 12:26:32]]></Time>
+<TimeTick>1746687392</TimeTick>
+<NodeArgs eType="User" icon="14" nRep="99" >
+<Disp><![CDATA[[TASE Function Name:=ClickButton  ]  :  [ Step := Click 'Copy   (Enter)' Button]]></Disp>
+</NodeArgs>
+</Step>
+<Step rID="T41">
+<Obj ><![CDATA[[TASE Function Name:=SetTextBox  ]  :  [ Step :=  Set '08.05.2025' in Textbox : 'Posting Date']]></Obj>
+<Details ><![CDATA[Value Used :-
+AttachedText:Posting Date
+Text BoxName: SO_DATE-LOW
+ValueField:08.05.2025 ] ]]></Details>
+<Time><![CDATA[08/05/2025 - 12:26:33]]></Time>
+<TimeTick>1746687393</TimeTick>
+<NodeArgs eType="User" icon="14" nRep="104" >
+<Disp><![CDATA[[TASE Function Name:=SetTextBox  ]  :  [ Step :=  Set '08.05.2025' in Textbox : 'Posting Date']]></Disp>
+</NodeArgs>
+</Step>
+<Step rID="T42">
+<Obj ><![CDATA[[TASE Function Name:=PressEnter  ]  :  [ Step :=  Press Enter Key]]></Obj>
+<Details ><![CDATA[Enter Key Pressed  ] ]]></Details>
+<Time><![CDATA[08/05/2025 - 12:27:02]]></Time>
+<TimeTick>1746687422</TimeTick>
+<NodeArgs eType="User" icon="14" nRep="111" >
+<Disp><![CDATA[[TASE Function Name:=PressEnter  ]  :  [ Step :=  Press Enter Key]]></Disp>
+</NodeArgs>
+</Step>
+<Step rID="T43">
+<Obj ><![CDATA[[TASE Function Name:=TakeScreenshot  ]  :  [ Step :=  Take Screenshot]]></Obj>
+<Details ><![CDATA[Screenshot was captured.  ] ]]></Details>
+<Time><![CDATA[08/05/2025 - 12:27:03]]></Time>
+<TimeTick>1746687423</TimeTick>
+<NodeArgs eType="User" icon="14" nRep="113" >
+<Disp><![CDATA[[TASE Function Name:=TakeScreenshot  ]  :  [ Step :=  Take Screenshot]]></Disp>
+</NodeArgs>
+</Step>
+<Step rID="T44">
+<Obj ><![CDATA[[TASE Function Name:=SelectTab  ]  :  [ Step := Tab Field]]></Obj>
+<Details ><![CDATA[Tab Selected :-
+ Tab Name : Header ] ]]></Details>
+<Time><![CDATA[08/05/2025 - 12:27:04]]></Time>
+<TimeTick>1746687424</TimeTick>
+<NodeArgs eType="User" icon="14" nRep="118" >
+<Disp><![CDATA[[TASE Function Name:=SelectTab  ]  :  [ Step := Tab Field]]></Disp>
+</NodeArgs>
+</Step>
+<Step rID="T45">
+<Obj ><![CDATA[[TASE Function Name:=SetTextBox  ]  :  [ Step :=  Set 'DT_REFERENCE' in Textbox : 'Transaction Number']]></Obj>
+<Details ><![CDATA[Value Used :-
+AttachedText:Transaction Number
+Text BoxName: SO_TRNR-LOW
+ValueField:DT_REFERENCE ] ]]></Details>
+<Time><![CDATA[08/05/2025 - 12:27:22]]></Time>
+<TimeTick>1746687442</TimeTick>
+<NodeArgs eType="User" icon="14" nRep="124" >
+<Disp><![CDATA[[TASE Function Name:=SetTextBox  ]  :  [ Step :=  Set 'DT_REFERENCE' in Textbox : 'Transaction Number']]></Disp>
+</NodeArgs>
+</Step>
+<Step rID="T46">
+<Obj ><![CDATA[[TASE Function Name:=PressEnter  ]  :  [ Step :=  Press Enter Key]]></Obj>
+<Details ><![CDATA[Enter Key Pressed  ] ]]></Details>
+<Time><![CDATA[08/05/2025 - 12:27:49]]></Time>
+<TimeTick>1746687469</TimeTick>
+<NodeArgs eType="User" icon="14" nRep="131" >
+<Disp><![CDATA[[TASE Function Name:=PressEnter  ]  :  [ Step :=  Press Enter Key]]></Disp>
+</NodeArgs>
+</Step>
+<Step rID="T47">
+<Obj ><![CDATA[[TASE Function Name:=TakeScreenshot  ]  :  [ Step :=  Take Screenshot]]></Obj>
+<Details ><![CDATA[Screenshot was captured.  ] ]]></Details>
+<Time><![CDATA[08/05/2025 - 12:27:50]]></Time>
+<TimeTick>1746687470</TimeTick>
+<NodeArgs eType="User" icon="14" nRep="133" >
+<Disp><![CDATA[[TASE Function Name:=TakeScreenshot  ]  :  [ Step :=  Take Screenshot]]></Disp>
+</NodeArgs>
+</Step>
+<Step rID="T48">
+<Obj ><![CDATA[[TASE Function Name:=ClickButton  ]  :  [ Step := Click 'Execute   (F8)' Button]]></Obj>
+<Details ><![CDATA[Button with :-
+tooltipOrButtonName:Execute   (F8) has been clicked  successfully ] ]]></Details>
+<Time><![CDATA[08/05/2025 - 12:28:18]]></Time>
+<TimeTick>1746687498</TimeTick>
+<NodeArgs eType="User" icon="14" nRep="140" >
+<Disp><![CDATA[[TASE Function Name:=ClickButton  ]  :  [ Step := Click 'Execute   (F8)' Button]]></Disp>
+</NodeArgs>
+</Step>
+<Step rID="T49">
+<Obj ><![CDATA[[TASE Function Name:=VerifyGridCellContent  ]  :  [ Step := Gui Grid]]></Obj>
+<Details ><![CDATA[Gui Grid Object Missing ] ]]></Details>
+<Time><![CDATA[08/05/2025 - 12:28:21]]></Time>
+<TimeTick>1746687501</TimeTick>
+<NodeArgs eType="User" icon="14" nRep="145" status="Failed" >
+<Disp><![CDATA[[TASE Function Name:=VerifyGridCellContent  ]  :  [ Step := Gui Grid]]></Disp>
+</NodeArgs>
+</Step>
+<Step rID="T50">
+<Obj ><![CDATA[[TASE Function Name:=TakeScreenshot  ]  :  [ Step :=  Take Screenshot]]></Obj>
+<Details ><![CDATA[Screenshot was captured.  ] ]]></Details>
+<Time><![CDATA[08/05/2025 - 12:28:22]]></Time>
+<TimeTick>1746687502</TimeTick>
+<NodeArgs eType="User" icon="14" nRep="149" >
+<Disp><![CDATA[[TASE Function Name:=TakeScreenshot  ]  :  [ Step :=  Take Screenshot]]></Disp>
+</NodeArgs>
+</Step>
+<Step rID="T51">
+<Obj ><![CDATA[[TASE Function Name:=SelectAllRowGuiGrid  ]  :  [ Step := SelectAllRowGuiGrid]]></Obj>
+<Details ><![CDATA[GuiGrid Object Not Found,Please verify the Screen ] ]]></Details>
+<Time><![CDATA[08/05/2025 - 12:28:24]]></Time>
+<TimeTick>1746687504</TimeTick>
+<NodeArgs eType="User" icon="14" nRep="154" status="Failed" >
+<Disp><![CDATA[[TASE Function Name:=SelectAllRowGuiGrid  ]  :  [ Step := SelectAllRowGuiGrid]]></Disp>
+</NodeArgs>
+</Step>
+<Step rID="T52">
+<Obj ><![CDATA[Test :  [ Test_S2C_03_02_024-E-commerce returns_P3_C1E_MON0  ] Completed]]></Obj>
+<Details ><![CDATA[Failed]]></Details>
+<Time><![CDATA[08/05/2025 - 12:28:26]]></Time>
+<TimeTick>1746687506</TimeTick>
+<NodeArgs eType="User" icon="14" nRep="157" status="Failed" >
+<Disp><![CDATA[Test :  [ Test_S2C_03_02_024-E-commerce returns_P3_C1E_MON0  ] Completed]]></Disp>
+</NodeArgs>
+</Step>
+<Summary sTime="08/05/2025 - 12:23:09" eTime="08/05/2025 - 12:28:35" passed="0" failed="3" warnings="0" ><Param paramInOut = "In"><ParamName><![CDATA[gstrInputExcelFilePathAndName]]></ParamName><ParamVal><![CDATA[S:\TASETestData\P3\MI\RETAIL\TASE_DT_S2C_03_02_024-E-commerce returns_P3_C1E_MON0.xls]]></ParamVal>
+</Param>
+<Param paramInOut = "In"><ParamName><![CDATA[datatable_row]]></ParamName><ParamVal><![CDATA[2]]></ParamVal>
+</Param>
+<Param paramInOut = "In"><ParamName><![CDATA[gstrresultFolderPath]]></ParamName><ParamVal><![CDATA[S:\TASEResult\MI\RETAIL\AT_S2C_03_02_024]]></ParamVal>
+</Param>
+<Param paramInOut = "In"><ParamName><![CDATA[RunTimeResultFolder]]></ParamName><ParamVal><![CDATA[S:\TASEResult\MI\RETAIL\AT_S2C_03_02_024\GlobalRunTimeResultFolderPath\ResultFolderPath.txt]]></ParamVal>
+</Param>
+</Summary>
+<NodeArgs eType="StartAction" icon="15" nRep="44" status="Failed" >
+<Disp><![CDATA[AT [[1]Test_S2C_03_02_024-E-commerce returns_P3_C1E_MON0_TASE] Summary]]></Disp>
+</NodeArgs>
+</Action>
+<Summary sTime="08/05/2025 - 12:23:07" eTime="08/05/2025 - 12:28:38" passed="0" failed="0" warnings="0" ><Param paramInOut = "In"><ParamName><![CDATA[TC3_Path]]></ParamName><ParamVal><![CDATA[Automation_Repo\UFT Test Cases\Mega Image\P3\RETAIL\[1]Test_S2C_03_02_024-E-commerce returns_P3_C1E_MON0_TASE]]></ParamVal>
+</Param>
+<Param paramInOut = "In"><ParamName><![CDATA[TC3_ExcelinputFile]]></ParamName><ParamVal><![CDATA[S:\TASETestData\P3\MI\RETAIL\TASE_DT_S2C_03_02_024-E-commerce returns_P3_C1E_MON0.xls]]></ParamVal>
+</Param>
+<Param paramInOut = "In"><ParamName><![CDATA[TC3_DataRowNumber]]></ParamName><ParamVal><![CDATA[2]]></ParamVal>
+</Param>
+<Param paramInOut = "In"><ParamName><![CDATA[gstrresultFolderPath]]></ParamName><ParamVal><![CDATA[S:\TASEResult\MI\RETAIL\AT_S2C_03_02_024]]></ParamVal>
+</Param>
+<Param paramInOut = "In"><ParamName><![CDATA[RunTimeResultFolder]]></ParamName><ParamVal><![CDATA[S:\TASEResult\MI\RETAIL\AT_S2C_03_02_024\GlobalRunTimeResultFolderPath\ResultFolderPath.txt]]></ParamVal>
+</Param>
+</Summary>
+<NodeArgs eType="StartAction" icon="13" nRep="42" status="Failed" >
+<Disp><![CDATA[TC3_Test_S2C_03_02_024_P3 Summary]]></Disp>
+</NodeArgs>
+</Action>
+<Action rID="T53">
+<AName><![CDATA[TC4_Test_S2C_03_02_024_P4]]></AName>
+<Step rID="T54">
+<Obj ><![CDATA[Runtime ID is Generated]]></Obj>
+<Details ><![CDATA[ The value of RunTimeID is: "AT_S2_TC4_T_08052025_122840"]]></Details>
+<Time><![CDATA[08/05/2025 - 12:28:40]]></Time>
+<TimeTick>1746687520</TimeTick>
+<NodeArgs eType="User" icon="14" nRep="161" >
+<Disp><![CDATA[Runtime ID is Generated]]></Disp>
+</NodeArgs>
+</Step>
+<Action rID="T55">
+<AName><![CDATA[AT [[1]Test_S2C_03_02_024-E-commerce returns_P4_R1E_MB51_TASE]]]></AName>
+<Step rID="T56">
+<Obj ><![CDATA[[TASE Function Name:=Create&WriteTOFile  ]  :  [ Step := S:\TASEResult\MI\RETAIL\AT_S2C_03_02_024\GlobalRunTimeResultFolderPath\ResultFolderPath.txt]]></Obj>
+<Details ><![CDATA[Value Used :-
+Input Text:S:\TASEResult\MI\RETAIL\AT_S2C_03_02_024\AT_S2C_03_02_024_08052025_121734 ] ]]></Details>
+<Time><![CDATA[08/05/2025 - 12:28:41]]></Time>
+<TimeTick>1746687521</TimeTick>
+<NodeArgs eType="User" icon="14" nRep="163" >
+<Disp><![CDATA[[TASE Function Name:=Create&WriteTOFile  ]  :  [ Step := S:\TASEResult\MI\RETAIL\AT_S2C_03_02_024\GlobalRunTimeResultFolderPath\ResultFolderPath.txt]]></Disp>
+</NodeArgs>
+</Step>
+<Step rID="T57">
+<Obj ><![CDATA[[TASE Function Name:=Login  ]  :  [ Step := Enter User Name : AUTOMI and Password : ********]]></Obj>
+<Details ><![CDATA[Values Used:
+ Username:AUTOMI
+ Password: 5bb4ae45bc215224a80ac643 ] ]]></Details>
+<Time><![CDATA[08/05/2025 - 12:30:20]]></Time>
+<TimeTick>1746687620</TimeTick>
+<NodeArgs eType="User" icon="14" nRep="171" >
+<Disp><![CDATA[[TASE Function Name:=Login  ]  :  [ Step := Enter User Name : AUTOMI and Password : ********]]></Disp>
+</NodeArgs>
+</Step>
+<Step rID="T58">
+<Obj ><![CDATA[[TASE Function Name:=PressEnter  ]  :  [ Step :=  Press Enter Key]]></Obj>
+<Details ><![CDATA[Enter Key Pressed  ] ]]></Details>
+<Time><![CDATA[08/05/2025 - 12:30:45]]></Time>
+<TimeTick>1746687645</TimeTick>
+<NodeArgs eType="User" icon="14" nRep="178" >
+<Disp><![CDATA[[TASE Function Name:=PressEnter  ]  :  [ Step :=  Press Enter Key]]></Disp>
+</NodeArgs>
+</Step>
+<Step rID="T59">
+<Obj ><![CDATA[[TASE Function Name:=SetTcode  ]  :  [ Step := Set Transaction Code]]></Obj>
+<Details ><![CDATA[Transaction Code : MB51 has been entered in the t-code textbox ] ]]></Details>
+<Time><![CDATA[08/05/2025 - 12:30:48]]></Time>
+<TimeTick>1746687648</TimeTick>
+<NodeArgs eType="User" icon="14" nRep="182" >
+<Disp><![CDATA[[TASE Function Name:=SetTcode  ]  :  [ Step := Set Transaction Code]]></Disp>
+</NodeArgs>
+</Step>
+<Step rID="T60">
+<Obj ><![CDATA[[TASE Function Name:=PressEnter  ]  :  [ Step :=  Press Enter Key]]></Obj>
+<Details ><![CDATA[Enter Key Pressed  ] ]]></Details>
+<Time><![CDATA[08/05/2025 - 12:31:13]]></Time>
+<TimeTick>1746687673</TimeTick>
+<NodeArgs eType="User" icon="14" nRep="189" >
+<Disp><![CDATA[[TASE Function Name:=PressEnter  ]  :  [ Step :=  Press Enter Key]]></Disp>
+</NodeArgs>
+</Step>
+<Step rID="T61">
+<Obj ><![CDATA[[TASE Function Name:=TakeScreenshot  ]  :  [ Step :=  Take Screenshot]]></Obj>
+<Details ><![CDATA[Screenshot was captured.  ] ]]></Details>
+<Time><![CDATA[08/05/2025 - 12:31:13]]></Time>
+<TimeTick>1746687673</TimeTick>
+<NodeArgs eType="User" icon="14" nRep="191" >
+<Disp><![CDATA[[TASE Function Name:=TakeScreenshot  ]  :  [ Step :=  Take Screenshot]]></Disp>
+</NodeArgs>
+</Step>
+<Step rID="T62">
+<Obj ><![CDATA[[TASE Function Name:=CheckTCodeScreen  ]  :  [ Step := SAP Screen ]]></Obj>
+<Details ><![CDATA[Validation : Passed ] ]]></Details>
+<Time><![CDATA[08/05/2025 - 12:31:14]]></Time>
+<TimeTick>1746687674</TimeTick>
+<NodeArgs eType="User" icon="14" nRep="192" status="Passed" >
+<Disp><![CDATA[[TASE Function Name:=CheckTCodeScreen  ]  :  [ Step := SAP Screen ]]></Disp>
+</NodeArgs>
+</Step>
+<Step rID="T63">
+<Obj ><![CDATA[[TASE Function Name:=SetTextBox  ]  :  [ Step :=  Set 'PVS0350792310' in Textbox : 'Reference']]></Obj>
+<Details ><![CDATA[Value Used :-
+AttachedText:Reference
+Text BoxName: XBLNR-LOW
+ValueField:PVS0350792310 ] ]]></Details>
+<Time><![CDATA[08/05/2025 - 12:32:25]]></Time>
+<TimeTick>1746687745</TimeTick>
+<NodeArgs eType="User" icon="14" nRep="199" >
+<Disp><![CDATA[[TASE Function Name:=SetTextBox  ]  :  [ Step :=  Set 'PVS0350792310' in Textbox : 'Reference']]></Disp>
+</NodeArgs>
+</Step>
+<Step rID="T64">
+<Obj ><![CDATA[[TASE Function Name:=SetTextBox  ]  :  [ Step :=  Set '' in Textbox : 'Company Code']]></Obj>
+<Details ><![CDATA[Value Used :-
+AttachedText:Company Code
+Text BoxName: BUKRS-LOW
+ValueField: ] ]]></Details>
+<Time><![CDATA[08/05/2025 - 12:32:26]]></Time>
+<TimeTick>1746687746</TimeTick>
+<NodeArgs eType="User" icon="14" nRep="204" >
+<Disp><![CDATA[[TASE Function Name:=SetTextBox  ]  :  [ Step :=  Set '' in Textbox : 'Company Code']]></Disp>
+</NodeArgs>
+</Step>
+<Step rID="T65">
+<Obj ><![CDATA[[TASE Function Name:=SetTextBox  ]  :  [ Step :=  Set 'R340' in Textbox : 'Site']]></Obj>
+<Details ><![CDATA[Value Used :-
+AttachedText:Site
+Text BoxName: WERKS-LOW
+ValueField:R340 ] ]]></Details>
+<Time><![CDATA[08/05/2025 - 12:32:26]]></Time>
+<TimeTick>1746687746</TimeTick>
+<NodeArgs eType="User" icon="14" nRep="209" >
+<Disp><![CDATA[[TASE Function Name:=SetTextBox  ]  :  [ Step :=  Set 'R340' in Textbox : 'Site']]></Disp>
+</NodeArgs>
+</Step>
+<Step rID="T66">
+<Obj ><![CDATA[[TASE Function Name:=SetTextBox  ]  :  [ Step :=  Set '08.05.2025' in Textbox : 'Posting Date']]></Obj>
+<Details ><![CDATA[Value Used :-
+AttachedText:Posting Date
+Text BoxName: BUDAT-LOW
+ValueField:08.05.2025 ] ]]></Details>
+<Time><![CDATA[08/05/2025 - 12:32:27]]></Time>
+<TimeTick>1746687747</TimeTick>
+<NodeArgs eType="User" icon="14" nRep="214" >
+<Disp><![CDATA[[TASE Function Name:=SetTextBox  ]  :  [ Step :=  Set '08.05.2025' in Textbox : 'Posting Date']]></Disp>
+</NodeArgs>
+</Step>
+<Step rID="T67">
+<Obj ><![CDATA[[TASE Function Name:=TakeScreenshot  ]  :  [ Step :=  Take Screenshot]]></Obj>
+<Details ><![CDATA[Screenshot was captured.  ] ]]></Details>
+<Time><![CDATA[08/05/2025 - 12:32:28]]></Time>
+<TimeTick>1746687748</TimeTick>
+<NodeArgs eType="User" icon="14" nRep="216" >
+<Disp><![CDATA[[TASE Function Name:=TakeScreenshot  ]  :  [ Step :=  Take Screenshot]]></Disp>
+</NodeArgs>
+</Step>
+<Step rID="T68">
+<Obj ><![CDATA[[TASE Function Name:=PressEnter  ]  :  [ Step :=  Press Enter Key]]></Obj>
+<Details ><![CDATA[Enter Key Pressed  ] ]]></Details>
+<Time><![CDATA[08/05/2025 - 12:32:57]]></Time>
+<TimeTick>1746687777</TimeTick>
+<NodeArgs eType="User" icon="14" nRep="223" >
+<Disp><![CDATA[[TASE Function Name:=PressEnter  ]  :  [ Step :=  Press Enter Key]]></Disp>
+</NodeArgs>
+</Step>
+<Step rID="T69">
+<Obj ><![CDATA[[TASE Function Name:=TakeScreenshot  ]  :  [ Step :=  Take Screenshot]]></Obj>
+<Details ><![CDATA[Screenshot was captured.  ] ]]></Details>
+<Time><![CDATA[08/05/2025 - 12:32:58]]></Time>
+<TimeTick>1746687778</TimeTick>
+<NodeArgs eType="User" icon="14" nRep="225" >
+<Disp><![CDATA[[TASE Function Name:=TakeScreenshot  ]  :  [ Step :=  Take Screenshot]]></Disp>
+</NodeArgs>
+</Step>
+<Step rID="T70">
+<Obj ><![CDATA[[TASE Function Name:=ClickButtonIfExist  ]  :  [ Step := Click 'Execute   (F8)' Button]]></Obj>
+<Details ><![CDATA[Button with :-
+tooltipOrButtonName:Execute   \(F8\) has been clicked  successfully ] ]]></Details>
+<Time><![CDATA[08/05/2025 - 12:33:24]]></Time>
+<TimeTick>1746687804</TimeTick>
+<NodeArgs eType="User" icon="14" nRep="233" >
+<Disp><![CDATA[[TASE Function Name:=ClickButtonIfExist  ]  :  [ Step := Click 'Execute   (F8)' Button]]></Disp>
+</NodeArgs>
+</Step>
+<Step rID="T71">
+<Obj ><![CDATA[[TASE Function Name:=TakeScreenshot  ]  :  [ Step :=  Take Screenshot]]></Obj>
+<Details ><![CDATA[Screenshot was captured.  ] ]]></Details>
+<Time><![CDATA[08/05/2025 - 12:33:25]]></Time>
+<TimeTick>1746687805</TimeTick>
+<NodeArgs eType="User" icon="14" nRep="235" >
+<Disp><![CDATA[[TASE Function Name:=TakeScreenshot  ]  :  [ Step :=  Take Screenshot]]></Disp>
+</NodeArgs>
+</Step>
+<Step rID="T72">
+<Obj ><![CDATA[[TASE Function Name:=DoubleClickGuiGridCell  ]  :  [ Step := Double Click Cell in GuiGrid with Column Name: Article Document and row number: 1]]></Obj>
+<Details ><![CDATA[Grid Object Not Found ] ]]></Details>
+<Time><![CDATA[08/05/2025 - 12:33:26]]></Time>
+<TimeTick>1746687806</TimeTick>
+<NodeArgs eType="User" icon="14" nRep="240" status="Failed" >
+<Disp><![CDATA[[TASE Function Name:=DoubleClickGuiGridCell  ]  :  [ Step := Double Click Cell in GuiGrid with Column Name: Article Document and row number: 1]]></Disp>
+</NodeArgs>
+</Step>
+<Step rID="T73">
+<Obj ><![CDATA[Test :  [ Test_S2C_03_02_024-E-commerce returns_P4_R1E_MB51  ] Completed]]></Obj>
+<Details ><![CDATA[Failed]]></Details>
+<Time><![CDATA[08/05/2025 - 12:33:27]]></Time>
+<TimeTick>1746687807</TimeTick>
+<NodeArgs eType="User" icon="14" nRep="243" status="Failed" >
+<Disp><![CDATA[Test :  [ Test_S2C_03_02_024-E-commerce returns_P4_R1E_MB51  ] Completed]]></Disp>
+</NodeArgs>
+</Step>
+<Summary sTime="08/05/2025 - 12:28:41" eTime="08/05/2025 - 12:33:36" passed="1" failed="2" warnings="0" ><Param paramInOut = "In"><ParamName><![CDATA[gstrInputExcelFilePathAndName]]></ParamName><ParamVal><![CDATA[S:\TASETestData\P3\MI\RETAIL\TASE_DT_S2C_03_02_024-E-commerce returns_P4_R1E_MB51.xls]]></ParamVal>
+</Param>
+<Param paramInOut = "In"><ParamName><![CDATA[datatable_row]]></ParamName><ParamVal><![CDATA[2]]></ParamVal>
+</Param>
+<Param paramInOut = "In"><ParamName><![CDATA[gstrresultFolderPath]]></ParamName><ParamVal><![CDATA[S:\TASEResult\MI\RETAIL\AT_S2C_03_02_024]]></ParamVal>
+</Param>
+<Param paramInOut = "In"><ParamName><![CDATA[RunTimeResultFolder]]></ParamName><ParamVal><![CDATA[S:\TASEResult\MI\RETAIL\AT_S2C_03_02_024\GlobalRunTimeResultFolderPath\ResultFolderPath.txt]]></ParamVal>
+</Param>
+</Summary>
+<NodeArgs eType="StartAction" icon="15" nRep="162" status="Failed" >
+<Disp><![CDATA[AT [[1]Test_S2C_03_02_024-E-commerce returns_P4_R1E_MB51_TASE] Summary]]></Disp>
+</NodeArgs>
+</Action>
+<Summary sTime="08/05/2025 - 12:28:38" eTime="08/05/2025 - 12:33:38" passed="0" failed="0" warnings="0" ><Param paramInOut = "In"><ParamName><![CDATA[TC4_Path]]></ParamName><ParamVal><![CDATA[Automation_Repo\UFT Test Cases\Mega Image\P3\RETAIL\[1]Test_S2C_03_02_024-E-commerce returns_P4_R1E_MB51_TASE]]></ParamVal>
+</Param>
+<Param paramInOut = "In"><ParamName><![CDATA[TC4_ExcelinputFile]]></ParamName><ParamVal><![CDATA[S:\TASETestData\P3\MI\RETAIL\TASE_DT_S2C_03_02_024-E-commerce returns_P4_R1E_MB51.xls]]></ParamVal>
+</Param>
+<Param paramInOut = "In"><ParamName><![CDATA[TC4_DataRowNumber]]></ParamName><ParamVal><![CDATA[2]]></ParamVal>
+</Param>
+<Param paramInOut = "In"><ParamName><![CDATA[gstrresultFolderPath]]></ParamName><ParamVal><![CDATA[S:\TASEResult\MI\RETAIL\AT_S2C_03_02_024]]></ParamVal>
+</Param>
+<Param paramInOut = "In"><ParamName><![CDATA[RunTimeResultFolder]]></ParamName><ParamVal><![CDATA[S:\TASEResult\MI\RETAIL\AT_S2C_03_02_024\GlobalRunTimeResultFolderPath\ResultFolderPath.txt]]></ParamVal>
+</Param>
+</Summary>
+<NodeArgs eType="StartAction" icon="13" nRep="160" status="Failed" >
+<Disp><![CDATA[TC4_Test_S2C_03_02_024_P4 Summary]]></Disp>
+</NodeArgs>
+</Action>
+<Summary sTime="08/05/2025 - 12:17:24" eTime="08/05/2025 - 12:33:38" passed="4" failed="5" warnings="0" ></Summary>
+<NodeArgs eType="StartTest" icon="11" nRep="3" status="Failed" >
+<Disp><![CDATA[Test AT_S2C_03_02_024-E-commerce returns - Emag and Hybris Summary]]></Disp>
+</NodeArgs>
+</Doc>
+</Report>

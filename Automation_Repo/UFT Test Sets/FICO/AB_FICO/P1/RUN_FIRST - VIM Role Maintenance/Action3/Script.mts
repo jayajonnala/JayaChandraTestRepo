@@ -1,0 +1,44 @@
+﻿'''************ Input parameter values for Zephyr sclae result updation function****************
+'These values are common for all the testsets and are mandatory to call at the start of the testset code.
+
+TestSetName = Environment.Value("TestName")
+ActionName = "AT"
+TestPath = Environment.Value("TestDir")
+OpCoName = StrValueOfPath(StrValueOfPathFromEnd(TestPath,2,"\"),0,"_")
+TargetCycle = StrValueOfPath(StrValueOfPathFromEnd(TestPath,2,"\"),1,"_")
+Priority = StrValueOfPathFromEnd(TestPath,1,"\")
+TestIterationVal = 0
+RunTimeId = GenerateRunTimeID() 
+Call ReporterEventRunTimeID(RunTimeId)
+
+'''*****************TC2_Test_06OM08_002_Create_Store_order_for_integrated_store_or_DC_Fresh_TASE***************************
+TC_Path = Parameter("TC2_Path")
+TC_ExcelInputFile = Parameter("TC2_ExcelinputFile")
+TC_DataRowNumber = Parameter("TC2_DataRowNumber")
+gstrresultFolderPath= Parameter("gstrresultFolderPath")	
+RunTimeResultFolder= Parameter("RunTimeResultFolder")	
+
+Call UpdateTestPath(TC_Path)
+LoadAndRunAction TC_Path,ActionName,TestIterationVal,TC_ExcelInputFile,TC_DataRowNumber,gstrresultFolderPath,RunTimeResultFolder
+Call PublishTestResults_PY(TestSetName,  StrValueOfLastElement(TC_Path,"\"), Environment.Value("TCExecutionStatus"), OpCoName, TargetCycle,  Environment.Value("HtmlResultReportpath"),RunTimeId,Priority)
+
+TC_DataRowNumber = Parameter("TC2_DataRowNumber_1")
+LoadAndRunAction TC_Path,ActionName,TestIterationVal,TC_ExcelInputFile,TC_DataRowNumber,gstrresultFolderPath,RunTimeResultFolder
+Call PublishTestResults_PY(TestSetName,  StrValueOfLastElement(TC_Path,"\"), Environment.Value("TCExecutionStatus"), OpCoName, TargetCycle,  Environment.Value("HtmlResultReportpath"),RunTimeId,Priority)
+
+TC_DataRowNumber = Parameter("TC2_DataRowNumber_2")
+LoadAndRunAction TC_Path,ActionName,TestIterationVal,TC_ExcelInputFile,TC_DataRowNumber,gstrresultFolderPath,RunTimeResultFolder
+Call PublishTestResults_PY(TestSetName,  StrValueOfLastElement(TC_Path,"\"), Environment.Value("TCExecutionStatus"), OpCoName, TargetCycle,  Environment.Value("HtmlResultReportpath"),RunTimeId,Priority)
+
+TC_DataRowNumber = Parameter("TC2_DataRowNumber_3")
+LoadAndRunAction TC_Path,ActionName,TestIterationVal,TC_ExcelInputFile,TC_DataRowNumber,gstrresultFolderPath,RunTimeResultFolder
+Call PublishTestResults_PY(TestSetName,  StrValueOfLastElement(TC_Path,"\"), Environment.Value("TCExecutionStatus"), OpCoName, TargetCycle,  Environment.Value("HtmlResultReportpath"),RunTimeId,Priority)
+
+TC_DataRowNumber = Parameter("TC2_DataRowNumber_4")
+LoadAndRunAction TC_Path,ActionName,TestIterationVal,TC_ExcelInputFile,TC_DataRowNumber,gstrresultFolderPath,RunTimeResultFolder
+Call PublishTestResults_PY(TestSetName,  StrValueOfLastElement(TC_Path,"\"), Environment.Value("TCExecutionStatus"), OpCoName, TargetCycle,  Environment.Value("HtmlResultReportpath"),RunTimeId,Priority)
+
+TC_DataRowNumber = Parameter("TC2_DataRowNumber_5")
+LoadAndRunAction TC_Path,ActionName,TestIterationVal,TC_ExcelInputFile,TC_DataRowNumber,gstrresultFolderPath,RunTimeResultFolder
+Call PublishTestResults_PY(TestSetName,  StrValueOfLastElement(TC_Path,"\"), Environment.Value("TCExecutionStatus"), OpCoName, TargetCycle,  Environment.Value("HtmlResultReportpath"),RunTimeId,Priority)
+

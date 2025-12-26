@@ -1,0 +1,17 @@
+﻿RunAction "TC0_RunTimeResultFolder", oneIteration
+RunAction "TC1_Test_PRE_Create_PO_ZMPO_PO", oneIteration
+RunAction "TC2_DataTransfer_1", oneIteration
+RunAction "TC3_Test_P2P_01_01_062-P1", oneIteration
+RunAction "TC4_DataTransfer_2", oneIteration
+RunAction "TC5_Test_P2P_01_01_062_P2", oneIteration
+RunAction "TC6_Test_P2P_01_01_062_P2", oneIteration
+RunAction "TC7_DataTransfer_3", oneIteration
+RunAction "TC8_Test_P2P_01_01_062_P3", oneIteration
+RunAction "TC9_Test_P2P_01_01_062_P3", oneIteration
+RunAction "TC10_DataTransfer_4", oneIteration
+RunAction "TC11_Test_P2P_01_01_062_P4", oneIteration
+RunAction "TC12_DataTransfer_5", oneIteration
+RunAction "TC13_Test_P2P_01_01_062_P5", oneIteration
+RunAction "TC14_Wait", oneIteration
+RunAction "TC15_DataTransfer_6", oneIteration
+RunAction "TC16_Test_P2P_01_01_062_P6", oneIteration

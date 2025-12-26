@@ -1,0 +1,767 @@
+﻿  ''*********************************************************************************
+'Functions Definition
+'**********************************************************************************
+'Name of the Function   : ConvertDate
+'Author		     :
+'Description		     : Converts date into proper text format that is accepted by system(ex: 31052020)
+'Input Parameters	     :  DtDate,DtDate_Increment
+'Output Parameters        : Null
+'Creation Date : 
+'***********************************************************************************
+'Function ConvertDate
+'**********************************************************************************
+  Public Function ConvertDateTxt(DtDate,DtDate_Increment)
+    DtDate_New=FormatDateTime(DateAdd("d",DtDate_Increment,DtDate),0)
+	If IsDate(DtDate_New) Then
+			NewDate= ConvertDoubledigit(CSTR(Day(DtDate_New))) +""+ConvertDoubledigit( Cstr(Month(DtDate_New))) + ""+ Cstr(Year(DtDate_New))
+  			ConvertDateTxt = NewDate
+	Else
+			DateVal=Cstr(DtDate)
+			ConvertDateTxt =Left(DtDate,2) +""+ Mid(DtDate,4,2)+ ""+Right(DtDate,4)
+	End If
+  
+  End Function
+  Public Function ConvertDateTxtYYYY(DtDate)
+'  DtDate=Cdate(DtDate)
+	If IsDate(DtDate) Then
+			NewDate=  Cstr(Year(DtDate)) +""+ConvertDoubledigit( Cstr(Month(DtDate))) + ""+ ConvertDoubledigit(CSTR(Day(DtDate)))
+  			ConvertDateTxtYYYY = NewDate
+	Else
+			DateVal=Cstr(DtDate)
+			ConvertDateTxt =Left(DtDate,2) +""+ Mid(DtDate,4,2)+ ""+Right(DtDate,4)
+	End If
+  
+  End Function  
+  'Name of the Function   : CaptureScreenshot_Mainframe(p_TEWindowShortName_Value) 
+'Author		     						:
+'Description		    		 : Capture Screenshot of Mainframe Application.
+'     Input Parameters     : p_TEWindowShortName_Value,resultstring
+'p_TEWindowShortName_Value : Short Name and Value of Class Name (Ex:short name:=A)
+'Creation Date : 
+'***********************************************************************************
+'Function CaptureScreenshot_Mainframe(p_TEWindowShortName_Value) 
+Public Function CaptureScreenshot_Mainframe(p_TEWindowShortName_Value) 
+	If Not (Environment.Value("blnFatalError")) Then
+		If blnShowNotification Then BalloonTooltip.Show "TASE Automation","Executing Now : CaptureScreenshot_Mainframe"
+	       strStepName = "Capture the Screen"
+		   Set ParentObject = TeWindow("short name:=" & p_TEWindowShortName_Value,"index:=0")
+		   'Set ParentObject = ObjectFactory("TeWindow", Nothing, "short name:="& p_TEWindowShortName_Value)
+    	'Window("hwnd:="& cstr(browserProperty)).Activate
+'		ImagePath =CaptureSAPObject(ParentObject)
+				blnCaptureFlag = True
+     			If blnCaptureFlag  or  blnCreateImageEachStep or blnCreateTrainingDoc Then
+		           ImagePath=CaptureScreenshot(strStepName,ParentObject,True,False,False)
+		       End If
+    	
+    	strStatus = "DONE"
+    	strMsg = "Mainframe Application Screenshot Captured."
+    	Call ReporterFunction(strLibraryFileName,"CaptureScreenshot_Mainframe","2",strStepName,strMsg)
+    	If blnDefault_eSwiftReporting Then  
+		   Call UpdateResultHtml(strStepName,"",strMsg,strStatus,"")
+	 End If
+	End If
+End Function
+'***********************************************************************************
+'Name of the Function   : CloseAllMainframeSessions(p_TEWindowShortName_Value)
+'Author		     						:
+'Description		    		 : Close AllMainframeSessions 
+'p_TEWindowShortName_Value : Short Name and Value of Class Name (Ex:short name:=A)
+'     Input Parameters     : p_TEWindowName,p_TEWindowShortName_Value,strTextDialog,strTextDialogButton
+'strTextDialog : Text field value of the Dialog screen.(Ex: PC5250)
+'strTextDialogButton : Text field value of the Dialog screen WinButton(Ex : &No)
+'Creation Date : 
+'***********************************************************************************
+'Function CloseAllMainframeSessions(p_TEWindowShortName_Value)
+'***********************************************************************************
+Public Function CloseAllMainframeSessions(p_TEWindowShortName_Value,strTextDialog,strTextDialogButton)
+
+  If Not (Environment.Value("blnFatalError") )Then ' Checking for the fatal error
+	If blnShowNotification Then BalloonTooltip.Show "TASE Automation","Executing Now : CloseSessionsSAP"
+       strFuncName = "CloseAllMainframeSessions"
+       strStepName = "Close_All_Existing_Mainframe_Application"
+       on error resume next
+       err.clear
+'       If err.number<>0 Then
+	Do  
+		   Closed = False
+		   Set ParentObject = TeWindow("short name:=" & p_TEWindowShortName_Value,"index:=0")
+		   Set OBJ = ParentObject.TeScreen("label:=.*","index:=0")
+		   'Set ParentObject = ObjectFactory("TeWindow", Nothing, "short name:=" & p_TEWindowShortName_Value)
+		   'Set OBJ = ObjectFactory("TeScreen", ParentObject, "label:=.*")
+		   If  not OBJ Is Nothing then
+		       OBJ.highlight
+		       'ImagePath =CaptureSAPObject_Doc(OBJ,False)
+'		       blnCaptureFlag = True
+'		       If blnCaptureFlag  or  blnCreateImageEachStep or blnCreateTrainingDoc Then
+'                  ImagePath=CaptureScreenshot(strStepName,OBJ,True,False,False)' Taking the snapshot of the complete window        
+'               End If
+                Window("nativeclass:=PCSWS.*").Close
+                If Dialog("text:=" & strTextDialog).WinButton("text:=" & strTextDialogButton).Exist(5) Then
+                   Call CloseDialogPopUpScreen(strTextDialog,strTextDialogButton)
+                End If
+                If Window("nativeclass:=PCSWS.*").Exist(5) Then
+                   Closed = False
+                Else 
+                   Closed = True
+                End If                
+  				
+                'Call ReporterFunction(strLibraryFileName,strFuncName,"2",strStepName,"Values Used:"& vbNewLine &" TEWindowName:TEWindow"&vbNewLine&" TEScreenName:TEScreen")        			   
+           End If 
+     Loop Until Closed = True
+   strStatus = "DONE" 
+   strMsg=" All Existing Mainframe Application Window Closed Successfully."
+'   blnCaptureFlag = True
+'   If blnCaptureFlag  or  blnCreateImageEachStep or blnCreateTrainingDoc Then
+'      Set objWindow = Window("text:=Program Manager")
+'      ImagePath=CaptureScreenshot(strStepName,objWindow,True,False,False)' Taking the snapshot of the complete window       
+'   End If
+'   If blnDefault_eSwiftReporting Then  
+'      Call UpdateResultHtml(strStepName,strInputValue,strMsg,strStatus,"")
+'   End If
+ 'End If 
+End If 
+End Function   
+'************************************************************************************
+'End Function - CloseAllMainframeSessions
+'************************************************************************************
+'Name of the Function   : Launch_Mainframe(p_profile,p_TEWindowShortName_Value,strTextDialog,strTextDialogButton)
+'Author     :
+'Description     : Launch into Mainframe Application
+'       p_profile    :-valid profile
+'Input Parameters     : p_profile,p_TEWindowShortName_Value
+'Output Parameters      :Null
+'Creation Date : 
+'Modified By : 
+'Modified  Date: 
+'***********************************************************************************
+'Function Launch_Mainframe(p_profile,p_TEWindowShortName_Value,strTextDialog,strTextDialogButton)
+'***********************************************************************************
+Public Function Launch_Mainframe(p_profile,p_TEWindowShortName_Value,strTextDialog,strTextDialogButton)
+  Call CloseAllMainframeSessions(p_TEWindowShortName_Value,strTextDialog,"&No")
+  If Not (Environment.Value("blnFatalError") )Then ' Checking for the fatal error
+	If blnShowNotification Then BalloonTooltip.Show "TASE Automation","Executing Now : Launch_Mainframe"
+       strFuncName = "Launch_Mainframe"
+       strStepName = "Launching GOLD/Artemis Application."
+       p_Input= "Emulator : pcsws.exe"&" and Profile : "&p_profile&""
+       on error resume next
+       err.clear
+          Dim LocalShell
+          Set LocalShell = CreateObject("WScript.Shell")
+	'LocalShell.Run """C:\Program Files\IBM\Personal Communications\pcsws.exe """ & """S:\SAPTAORTL\TE Libraries\ARTEMIS Profile\GRAS4.WS"""
+	   LocalShell.Run """C:\Program Files (x86)\IBM\Client Access\Emulator\pcsws.exe """ & "" & chr(34) & p_profile & chr(34) & ""
+	   wait 60
+     End If
+      If Dialog("text:=" & strTextDialog).WinButton("text:=OK").Exist(5) Then
+         Dialog("text:=" & strTextDialog).WinButton("text:=OK").Click
+         wait 2
+      End If 
+        Call CloseDialogPopUpScreen(strTextDialog,strTextDialogButton)
+        If Dialog("text:=Open WorkStation Profile").Exist(5) Then
+           Dialog("text:=Open WorkStation Profile").WinButton("text:=Open").Click
+           Wait 10          
+        End If
+         If Dialog("text:=" & strTextDialog).WinButton("text:=OK").Exist(5) Then
+            Dialog("text:=" & strTextDialog).WinButton("text:=OK").Click
+            wait 2
+         End If
+     'End If 
+    strStatus = "DONE"
+    strMsg = "The Application Launched Successfully."
+    If blnDefault_eSwiftReporting Then  
+	   Call UpdateResultHtml(strStepName,p_Input,strMsg,strStatus,"")
+	End If     
+End Function
+
+'================ End of Function===================
+
+'**********************************************************************************
+'Name of the Function   : Login_Mainframe
+'Author     :
+'Description     : Login into Mainframe Application
+'       p_userName :- valid username
+'       p_password :-valid Password
+'       p_TEWindowShortName_Value : ShortName Value of TEWindow (Ex: "A")
+'Input Parameters     : p_password,p_password,p_TEWindowShortName_Value
+'Output Parameters      :Null
+'Creation Date : 
+'Modified By : 
+'Modified  Date: 
+'***********************************************************************************
+'Function Login_Mainframe(p_TEWindowShortName_Value,p_userName,p_password)
+'***********************************************************************************
+Public Function Login_Mainframe(p_TEWindowShortName_Value,p_userName,p_password)
+
+   Call SetTEField(p_TEWindowShortName_Value,"User",p_userName)
+   Call SetTEField(p_TEWindowShortName_Value,"Password",p_password)
+End Function
+'================ End of Function===================
+
+'Name of the Function   : logOffTEWindow(p_TEWindowShortName_Value,p_value,strTextDialog,strTextDialogButton)
+'Author		     						:
+'Description		    		 :  The TeWindow will be activated if the focus is not there.
+'p_TEWindowShortName_Value : ShortName Value of TEWindow (Ex: "A")
+'p_value : TE Screen Label Name (Ex : "ALFABETA VASILOPOULO","")
+'     Input Parameters     : p_value,p_TEWindowShortName_Value,strTextDialog,strTextDialogButton
+'Creation Date : 
+'***********************************************************************************
+'Function logOffTEWindow(p_TEWindowShortName_Value,p_value,strTextDialog,strTextDialogButton)
+Public Function logOffTEWindow(p_TEWindowShortName_Value,p_value,strTextDialog,strTextDialogButton)
+  If Not (Environment.Value("blnFatalError") )Then ' Checking for the fatal error
+     If blnShowNotification Then BalloonTooltip.Show "TASE Automation","Executing Now : TEFieldExists"
+       strFuncName = "logOffTEWindow"
+       strStepName = "TE Session Logged-OFF Successfully."
+       on error resume next
+       err.clear
+      MainWin = False
+	     i = 0
+	  Do until MainWin = True or i = 5
+		i = i + 1
+		Set ParentObject = TeWindow("short name:=" & p_TEWindowShortName_Value,"index:=0")
+	       Set OBJ = ParentObject.TeScreen("label:=.*","index:=0")
+'		Set ParentObject = ObjectFactory("TeWindow", Nothing, "short name:=" & p_TEWindowShortName_Value)
+'		Set OBJ = ObjectFactory("TeScreen", ParentObject, "label:=.*")
+		If not OBJ Is Nothing then
+			TempValue = OBJ.GetROProperty("label")
+		End If
+		
+		if TempValue <> p_value then
+			Call SendTEScreenKey (p_TEWindowShortName_Value,"@3") 
+'			MainWin = True
+		else 
+			Call SendTEScreenKey (p_TEWindowShortName_Value,"@a") 
+'			MainWin = True
+		End if
+		If Window("nativeclass:=PCSWS.*").Exist(5) Then
+           Call CloseAllMainframeSessions(p_TEWindowShortName_Value,strTextDialog,strTextDialogButton)
+           MainWin = False
+        Else 
+           MainWin = True
+           Call ReporterFunction(strLibraryFileName,"logOffTEWindow","2","LogOff :","The Mainframe Application Logged-off Successfully.")	
+           strStatus = "DONE" 
+           strMsg="The Mainframe Application Logged-off Successfully."
+        End If  
+	Loop            
+    If blnDefault_eSwiftReporting Then  
+       Call UpdateResultHtml(strStepName,strInputValue,strMsg,strStatus,"")
+    End If
+ End If 
+End Function
+  '***********************************************************************************
+'Name of the Function   : CloseDialogPopUpScreen(strTextDialog,strTextDialogButton)
+'Author		     						:
+'Description		    		 : Close Dialog Pop-Up Screen 
+'p_TEWindowShortName_Value : Short Name and Value of Class Name (Ex:short name:=A)
+'     Input Parameters     : strTextDialog,strTextDialogButton
+'strTextDialog : Text field value of the Dialog screen.(Ex: PC5250)
+'strTextDialogButton : Text field value of the Dialog screen WinButton(Ex : &No)
+'Creation Date : 
+'***********************************************************************************
+'Function CloseDialogPopUpScreen(strTextDialog,strTextDialogButton)
+Public Function CloseDialogPopUpScreen(strTextDialog,strTextDialogButton)
+         If Dialog("text:=" & strTextDialog).WinButton("text:=" & strTextDialogButton).Exist(5) Then
+            Dialog("text:=" & strTextDialog).WinButton("text:=" & strTextDialogButton).Click
+            wait 2
+         End If   
+End Function
+'***********************************************************************************
+
+'***********************************************************************************
+'Name of the Function   : ActivateTEWindow (p_TEWindowShortName_Value)
+'Author		     						:
+'Description		    		 : Activate TE Window
+'     Input Parameters     : p_TEWindowShortName_Value
+'p_TEWindowShortName_Value : Short Name and Value of Class Name (Ex:short name:=A)
+'Creation Date : 
+'***********************************************************************************
+'ActivateTEWindow (p_TEWindowShortName_Value)
+Public Function ActivateTEWindow (p_TEWindowShortName_Value)
+    If Not (Environment.Value("blnFatalError") )Then ' Checking for the fatal error
+	If blnShowNotification Then BalloonTooltip.Show "TASE Automation","Executing Now : ActivateTEWindow"
+       strFuncName = "ActivateTEWindow"
+       strStepName = "Activate TE Window with Title name :" & p_TEWindowShortName_Value & "."
+       on error resume next
+       err.clear
+'	   Set OBJ = ObjectFactory("TeWindow", Nothing, "short name:=" & p_TEWindowShortName_Value)
+       Set OBJ = TeWindow("Class Name:=TeWindow","short name:=" & p_TEWindowShortName_Value,"index:=0")
+	   sync OBJ,0
+		If not OBJ Is Nothing then			
+			
+			OBJ.Activate
+            Call ReporterFunction(strLibraryFileName,"ActivateTEWindow","2","Activate TE Window :","The following Terminal Emulator window was Activated " & p_TEWindowShortName_Value & ".")	
+		    strStatus = "DONE"
+            strMsg = "Activate TE Window : The following Terminal Emulator window was Activated " & p_TEWindowShortName_Value & "."                
+            blnCaptureFlag = True
+		    If blnCaptureFlag  or  blnCreateImageEachStep or blnCreateTrainingDoc Then
+		    ImagePath=CaptureScreenshot(strStepName,OBJ_TE_Field,True,True,True)
+		    End If
+			
+		Else
+			Call ReporterFunction(strLibraryFileName,"ActivateTEWindow","1","Activate TE Window :" & p_TEWindowShortName_Value & ".")	
+		    strStatus = "FAIL"
+		    blndefectFlag =True
+		    strMsg = "Activate TE Window : The following Terminal Emulator window was not found" & p_TEWindowShortName_Value & "." 
+   		End if
+	If  blnObjectError  Then
+		Environment.Value("blnFatalError")=True
+	End If
+	
+	If  strStatus = "FAIL"  Then
+		SetTEField = strMsg
+		blnMainFailFlag = True
+		ImagePath=CaptureScreenshot(strStepName,OBJ,True,False,False)
+	Else
+		SetTEField = True
+	End If
+	If blnDefault_eSwiftReporting Then  
+       Call UpdateResultHtml(strStepName,Content,strMsg,strStatus,"")
+	End If	
+ End If		
+End function
+
+
+Public function GetROProperty_Dialog (p_dialogTitle, p_dialogProperty, p_dtColumn)
+   If  p_dialogTitle <> "" Then
+  
+	Set OBJ = ObjectFactory("Dialog",Nothing,"regwndtitle:=" & p_dialogTitle)
+		If not OBJ Is Nothing then
+			Value = OBJ.getROProperty (p_dialogProperty)
+			createEventMessage "INFO","Get Dialog Property","Get Dialog Property","The property " & p_dialogProperty & " had the following value " & Value & "." ,""
+			'DDL_DATASOURCE.setParameter p_dtColumn,Value......................Need to Check
+			createEventMessage "INFO","Write to DT","Get Dialog Property","The value: " & Value & " was written to the DataTable Field: " & p_dtColumn,""
+		Else
+			createEventMessage "FAILED","Get Dialog Property","Get Dialog Property","The Dialogbox " & p_dialogTitle & " has NOT been found",""
+		End if	
+
+		Else
+			createEventMessage "FAILED","Get Dialog Property","Get Dialog Property","The Dialogbox name is empty" ,""
+		 End If
+end function
+
+'***********************************************************************************
+'Name of the Function   : ObjectFactory(p_ClassName,p_ParentClassObject,p_ObjPro_Val)
+'Author		     						:
+'Description		    		 : Helper function that mimics the factory pattern. The object factory receives the most basic
+'	                               object recognition data, returning valid element references or nothing as a result.
+'Input Parameters     : p_ClassName,p_ParentClassObject,p_ObjPro_Val
+' 	p_ClassName: High level class of the element to identify(Ex: TEWindow,TEScreen)
+'	p_ParentClassObject: Valid reference of the container where the element is to be identified. Passing Nothing is an option.(Ex: ParentObj,Nothing)
+'   p_ObjPro_Val:Properties Name with respective Value for the Object.
+'Creation Date : 
+'***********************************************************************************
+'ObjectFactory(p_ClassName,p_ParentClassObject,p_ObjPro_Val)
+'---------------------------------------------------------------------------------------------
+Public Function ObjectFactory(p_ClassName,p_ParentClassObject,p_ObjPro_Val)
+	'Returns the Object Definition attributes for the given parameter <what>
+            'what,where,props
+	Set objDef = getObjectDef(p_ClassName)
+	
+	props = splitTOAttributeList(parseSTDAttributes(p_ObjPro_Val))
+	'props = splitTOAttributeList(parseTOAttributes(props))
+	For each prop in p_ObjPro_Val
+		'Splits the property/value string
+		propDic = splitTOAttribute(prop)
+		propName = propDic(0)
+		propValue = propDic(1)
+		
+		if objDef.Exists(propName) then
+		   objDef.Item(propName) = propValue
+		else
+           objDef.Add propName,propValue
+		end if
+	Next
+
+	propsStr = ""
+
+	For Each objDefStr in objDef
+		If objDef(objDefStr) <> "" And objDefStr <> "micclass" Then
+			propsStr = propsStr + Chr(34) + objDefStr + ":=" + objDef(objDefStr) + Chr(34)	+ ","	
+		End If	
+	Next
+
+	propsStr = Left(propsStr,Len(propsStr)-1)
+	
+	Select Case Ucase(typename(where))
+		Case "NOTHING"
+			str =  "Set Obj = " & what &"(" & propsStr &")" 
+		Case else
+			str =  "Set Obj = where." & what &"(" & propsStr &")" 
+
+	End Select
+
+	    Execute str
+	if objectExist(Obj,10) then
+       Set ObjectFactory = Obj
+
+	else 
+		Set ObjectFactory = Nothing
+	end if
+End Function
+'***********************************************************************************
+'Name of the Function   : 'SelectWinTab (p_tabName, p_parentName)
+'Author		     						:
+'Description		    		 : Activate TE Window
+'     Input Parameters     : p_tabName, p_parentName
+'p_tabName : 
+'p_parentName : 
+'Creation Date : 
+'***********************************************************************************
+'SelectWinTab (p_tabName, p_parentName)
+Function SelectWinTab(p_tabName, p_parentName)
+    If Not (Environment.Value("blnFatalError") )Then ' Checking for the fatal error
+	If blnShowNotification Then BalloonTooltip.Show "TASE Automation","Executing Now : SelectWinTab"
+       SelectWinTab = "SelectWinTab"
+       strStepName = "TE Window Menu Interaction with Menu Item :" & p_menuItem & "."
+       on error resume next
+       err.clear
+       Set ParentObject = ObjectFactory("Dialog", Nothing, "regexpwndtitle:=" & p_parentName)
+	   Set OBJ = ObjectFactory("WinTab", ParentObject, "regexpwndclass:=SysTabControl32")
+	   If not OBJ Is Nothing then
+		  OBJ.select (p_tabName)
+          Call ReporterFunction(strLibraryFileName,"SelectWinTab","2","Select Win Tab :","The Tab " & p_tabName & " was selected.")
+          strStatus = "DONE"
+          strMsg = "Select Win Tab : The Tab " & p_tabName & " was selected."          
+          blnCaptureFlag = True
+          If blnCaptureFlag  or  blnCreateImageEachStep or blnCreateTrainingDoc Then
+             ImagePath=CaptureScreenshot(strStepName,ParentObject,True,True,True)
+          End If
+        Else
+		  Call ReporterFunction(strLibraryFileName,"SelectWinTab","2","Select Win Tab :","The WinTab " & p_tabName & " has NOT been found")	
+          strStatus = "FAILED"
+          strMsg = "Select Win Tab: The WinTab " & p_tabName & " has NOT been found"        
+        End if
+
+	If  blnObjectError  Then
+		Environment.Value("blnFatalError")=True
+	End If
+	
+	If strStatus = "FAIL"  Then
+		SelectWinTab = strMsg
+		blnMainFailFlag = True
+		ImagePath=CaptureScreenshot(strStepName,ParentObject,True,False,False)
+	Else
+		SelectWinTab = True
+	End If
+	If blnDefault_eSwiftReporting Then  
+       Call UpdateResultHtml(strStepName,Content,strMsg,strStatus,"")
+	End If	
+ End If		
+End function
+
+'***********************************************************************************
+
+
+'Name of the Function   : 'Select_ListItem (p_item,  p_parentName, p_listBox)
+'Author		     						:
+'Description		    		 : Activate TE Window
+'     Input Parameters     :p_item,  p_parentName, p_listBox
+'p_item : 
+'p_parentName :
+'p_listBox :
+'Creation Date : 
+'***********************************************************************************
+'Select_ListItem (p_item,  p_parentName, p_listBox)
+Function Select_ListItem (p_item,  p_parentName, p_listBox)
+    If Not (Environment.Value("blnFatalError") )Then ' Checking for the fatal error
+	If blnShowNotification Then BalloonTooltip.Show "TASE Automation","Executing Now : Select_ListItem"
+       SelectWinTab = "Select_ListItem"
+       strStepName = "TE Window Menu Interaction with Menu Item :" & p_menuItem & "."
+       on error resume next
+       err.clear
+	   Set ParentObject = ObjectFactory("Dialog", Nothing, "regexpwndtitle:=" & p_parentName)
+	   Set OBJ = ObjectFactory("WinList", ParentObject, "attached text:=" &p_listBox)
+       If IsNumeric(p_item) AND p_item<>"" Then
+		  If not OBJ Is Nothing  then
+		   	 OBJ.select (p_item-1)
+             Call ReporterFunction(strLibraryFileName,"Select_ListItem","2","Select List Item :","The Item " & p_item & " was selected.")
+             strStatus = "DONE"
+             strMsg = "Get WinEdit Property : The Item " & p_item & " was selected."      
+             blnCaptureFlag = True
+             If blnCaptureFlag  or  blnCreateImageEachStep or blnCreateTrainingDoc Then
+                ImagePath=CaptureScreenshot(strStepName,ParentObject,True,True,True)
+             End If
+           Else 
+                Call ReporterFunction(strLibraryFileName,"Select_ListItem","2","Select List Item :","The WinList has NOT been found.")
+                strStatus = "FAILED"
+                strMsg = "Get WinEdit Property : The WinList has NOT been found."                   
+            End if
+          Else
+             Call ReporterFunction(strLibraryFileName,"Select_ListItem","2","Select List Item :","Please enter a valid numeric value.")	
+             strStatus = "FAILED"
+             strMsg = "Get WinEdit Property : Please enter a valid numeric value."  
+          End If 
+      
+	If  blnObjectError  Then
+		Environment.Value("blnFatalError")=True
+	End If
+	
+	If strStatus = "FAIL"  Then
+		Select_ListItem = strMsg
+		blnMainFailFlag = True
+		ImagePath=CaptureScreenshot(strStepName,ParentObject,True,False,False)
+	Else
+		Select_ListItem = True
+	End If
+	If blnDefault_eSwiftReporting Then  
+       Call UpdateResultHtml(strStepName,Content,strMsg,strStatus,"")
+	End If	
+ End If		
+End function
+
+'Name of the Function   : 'Click_Win_Button (p_windowClassName,p_buttonName)
+'Author		     						:
+'Description		    		 : Activate TE Window
+'     Input Parameters     :p_windowClassName,p_buttonName
+'p_windowClassName : Dialog Window Parent ClassName (Ex : regexpwndclass:=#32770)
+'Creation Date : 
+'***********************************************************************************
+'Click_Win_Button (p_windowClassName,p_buttonName)
+Function Click_Win_Button (p_windowClassName,p_buttonName)
+    If Not (Environment.Value("blnFatalError") )Then ' Checking for the fatal error
+	If blnShowNotification Then BalloonTooltip.Show "TASE Automation","Executing Now : Click_Win_Button"
+       SelectWinTab = "Click_Win_Button"
+       strStepName = "TE Window Menu Interaction with Menu Item :" & p_menuItem & "."
+       on error resume next
+       err.clear
+	   If p_buttonName <> "" Then
+		Set ParentObject = ObjectFactory("Dialog", Nothing, "regexpwndclass:=" & p_windowClassName)
+		Set OBJ = ObjectFactory("WinButton", ParentObject, "text:=" & p_buttonName )
+			If not OBJ Is Nothing then
+				OBJ.click
+             Call ReporterFunction(strLibraryFileName,"Click_Win_Button","2","Click Win Button :","The button " & p_buttonName & " was clicked.")
+             strStatus = "DONE"
+             strMsg = "Click Win Button : The button " & p_buttonName & " was clicked."      
+             blnCaptureFlag = True
+             If blnCaptureFlag  or  blnCreateImageEachStep or blnCreateTrainingDoc Then
+                ImagePath=CaptureScreenshot(strStepName,ParentObject,True,True,True)
+             End If
+           Else 
+                Call ReporterFunction(strLibraryFileName,"Click_Win_Button","2","Click Win Button :","The Win Button " & p_buttonName & " has NOT been found.")
+                strStatus = "FAILED"
+                strMsg = "Click Win Button : The Win Button " & p_buttonName & " has NOT been found."                   
+            End if
+          Else
+             Call ReporterFunction(strLibraryFileName,"Click_Win_Button","2","Click Win Button :","The Win Button was not specified")	
+             strStatus = "FAILED"
+             strMsg = "Click Win Button : The Win Button was not specified."  
+          End If 
+      
+	If  blnObjectError  Then
+		Environment.Value("blnFatalError")=True
+	End If
+	
+	If strStatus = "FAIL"  Then
+		Click_Win_Button = strMsg
+		blnMainFailFlag = True
+		ImagePath=CaptureScreenshot(strStepName,ParentObject,True,False,False)
+	Else
+		Click_Win_Button = True
+	End If
+	If blnDefault_eSwiftReporting Then  
+       Call UpdateResultHtml(strStepName,Content,strMsg,strStatus,"")
+	End If	
+ End If		
+End function
+
+
+'---------------------------------------------------------------------'
+public function changePaymentFile(p_Row_Num,p_Row_Per_Screen,p_Value, p_Start_Row)
+
+	If cStr(p_Row_Num) = "" Then
+		'Do nothing
+	Else
+		rowNum = CInt(p_Row_Num)
+		pageNum = (rowNum/p_Row_Per_Screen)
+
+		loopNum = FiX(pageNum) 'minus the decemal\
+		loopSoFar=1
+
+			Do Until  loopSoFar > loopNum
+				Send_TE_Screen_Key "@8"
+				loopSoFar=loopSoFar+1
+			Loop
+
+		Remainder 	   =rowNum MOD p_Row_Per_Screen
+		'msgbox Remainder
+		p_fieldid 			= p_Start_Row + (Remainder * 80)
+		'msgbox p_fieldid
+
+		Set_TE_Field_by_id p_fieldid, p_Value
+		
+		Set_TE_Field "Command","Top"
+		
+		Send_TE_Screen_Key "@E"
+		
+	End If
+end Function
+
+public Function changeJobTime()
+	'arrivtime = Get_TE_Field_Value_by_ID("1386")
+	'deadlineTime = Get_TE_Field_Value_by_ID("1410")
+	set configNode = DDL_RUNTIME_CONFIG.getRuntimeParameter("BATCH_COUNTER")
+	
+	arrivtime = configNode("value")
+	
+	intArriveTime = CDbl(arrivTime)
+	'intDeadline = CDbl(deadlineTime)
+	
+	intArriveTime = intArriveTime + 0.01
+	intArriveTime = cStr(intArriveTime)
+	if Len(intArriveTime) < 5 then
+		intArriveTime = intArriveTime & "0"
+	end if
+	'intDeadline = intDeadline + 0.07
+	
+	Set_TE_Field_by_id "1386",CStr(intArriveTime)
+	DDL_RUNTIME_CONFIG.setRuntimeParameter "BATCH_COUNTER",cStr(intArriveTime)
+	'Set_TE_Field_by_id "1410",CStr(intDeadline)
+	
+	
+end Function
+
+Function createArchiveStamp()
+
+   y  = Year(Date)
+   m  = Month(Date)
+   d  = Day(Date)
+   h  = Hour(Time)
+   mi = Minute(Time)
+   s  = Second(Time)
+   date_time = y & m & d & "_" & h & mi & s
+
+   newFileStamp = "_" & date_time
+
+   createArchiveStamp = newFileStamp
+
+End Function
+
+' Function Name: Activate_Dialog
+' Function Description: The Dialog will be activated if the focus is not there.
+' Function Parameters: p_dialogTitle: The Title of the dialog window
+' Created By: 
+' Creation Date: 
+' Modified by:
+' Modified Date:
+
+Public function Activate_Dialog (p_dialogTitle)
+	Set OBJ = ObjectFactory("Dialog",Nothing,"regexpwndtitle:=" & p_dialogTitle)
+		If not OBJ Is Nothing then
+			OBJ.activate
+		Else
+		End if
+end function
+
+ 'Name of the Function   : getObjectDef(p_object_class)
+'Author		     						:
+'Description		    		 : Processing Object Definition.
+'Input Parameters     : p_object_class
+'p_object_class : ClassName (Ex: TeWindow,TeScreen)
+'Creation Date : 
+'***********************************************************************************
+Public Function getObjectDef(p_object_class)
+		nodePath = "getter//object[@micclass='" & p_object_class & "']" 
+		Set getObjectDef = xmllib.selectSingleNode(config_file_ref,nodePath)
+		Set getObjectDef =  xmllib.nodeToDictionary(getObjectDef)	
+End Function
+ 'Name of the Function   : splitTOAttributeList(Byval p_attribute_string)
+'Author		     						:
+'Description    		 : Returns an array of pairs (attribute name - attribute value) out of
+'	                       formatted attributes string. 
+'Input Parameters     : p_attribute_string
+'p_attribute_string : Formatted attribute string (Ex: attr_name:=attr_value,"short name:=A")
+'Creation Date : 
+'***********************************************************************************
+Public Function splitTOAttributeList(Byval p_attribute_string)
+	splitTOAttributeList = Split(p_attribute_string,FORMATTED_ATTRIBUTE_LIST_SEPARATOR)
+End Function
+ 'Name of the Function   : selectSingleNode(Byval p_node_ref,p_xpath_query)
+'Author		     						:
+'Description    		 : 'Returns a reference of a matching node using the XPath Query given.
+'Input Parameters     : p_node_ref,p_xpath_query
+'p_node_ref [XML Node] An XML node
+' p_xpath_query [String] An XPath query string
+'Creation Date : 
+'***********************************************************************************	
+Public Function selectSingleNode(Byval p_node_ref,p_xpath_query)
+		If isDocument(p_node_ref) Then
+		  Set selectSingleNode = p_node_ref.documentElement.selectSingleNode(p_xpath_query)
+		else
+		  Set selectSingleNode = p_node_ref.selectSingleNode(p_xpath_query)
+		End If	
+End Function
+ 'Name of the Function   : isDocument(Byval p_node_ref)
+'Author		     						:
+'Description    		 : 'Returns a boolean indicating if the object reference passed is an XML Document or not
+'Input Parameters     : p_node_ref
+'p_node_ref [XML Node] A valid XML Node Reference	
+'Creation Date : 
+'***********************************************************************************	
+Public Function isDocument(Byval p_node_ref)
+		isDocument = false
+		if TypeName(p_node_ref) = "DOMDocument" then
+		  isDocument = true
+		end if	
+End Function
+
+ 'Name of the Function   : nodeToDictionary(p_xml_node_ref)
+'Author		     						:
+'Description    		 : 'The function receives an xml node or a node attribute collection,
+	                       'returning a Dictionary where the keys are the node attribute names
+	                       'and the values the node attribute values. If not a Node XML or Node XML Attr Collection
+	                       'the function returns Nothing.
+'Input Parameters     : p_xml_node_ref
+'p_xml_node_ref [XML Node/XML Node Attribute Collection] XML Node or XML Node Attribute Collection.
+'Creation Date : 
+'***********************************************************************************
+	Public Function nodeToDictionary(p_xml_node_ref)
+		'Creates the Dictionary object
+		Set nodeAttributeDictionary = CreateObject("Scripting.Dictionary")
+		
+		'Checks the type of the xml node reference.
+		Select case typeOfNode(p_xml_node_ref)
+			'XML Node references, extract the node attribute collection 
+			Case "IXMLDOMElement"
+				Set nodeAttributesCollection = getNodeAttributes(p_xml_node_ref)
+			'XML NOde Attribute Collection, there is no processing required
+			Case "IXMLDOMNamedNodeMap"
+				Set nodeAttributesCollection = p_xml_node_ref
+			'If none of them, return nothing and exit the function
+			Case else
+				Set nodeAttributesCollection = Nothing
+				Exit Function
+		End Select
+		
+		'Iterating over the attribute collection.
+		For each nodeAttribute in nodeAttributesCollection
+			'Adding a new item in the Ditionary, storing the node name and 
+			'node value respectively.
+			nodeAttributeDictionary.add nodeAttribute.name,nodeAttribute.value
+		Next 
+		
+		Set nodeToDictionary = nodeAttributeDictionary
+End Function
+ 'Name of the Function   : sync(p_what,p_timeout)
+'Author		     						:
+'Description    		 : 'Receives a reference of a test object in order to apply a sync
+'	                        method call to it. 
+'Input Parameters     : p_what,p_timeout
+'p_what [TO Reference] Test Object Reference
+'p_timeout [Integer] Timeout in seconds 
+'Creation Date : 
+'***********************************************************************************
+Function sync(p_what,p_timeout)
+	timeout = CInt(p_timeout)
+
+	RepCurrentMode = Reporter.Filter
+	Reporter.Filter = 3
+
+	If timeout = 0  Then
+	   p_what.Sync 
+	else
+		p_what.Sync timeout
+	End If
+
+	Reporter.Filter = RepCurrentMode
+
+End Function
+
+

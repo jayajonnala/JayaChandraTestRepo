@@ -1,0 +1,1 @@
+﻿var __testDataSource={items:[{dataFilePath:'Default.xlsx',dataFileFormat:'excel',dataFileFolder:'S:\\Automation_Repo\\UFT Test Sets\\RETAIL\\DS_RETAIL\\P1\\AT_01 Create High Level Promotion_TASE\\Res2',namePairs:[]}]};

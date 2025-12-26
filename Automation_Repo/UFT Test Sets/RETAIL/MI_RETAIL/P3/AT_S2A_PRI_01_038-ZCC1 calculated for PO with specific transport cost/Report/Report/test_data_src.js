@@ -1,0 +1,1 @@
+﻿var __testDataSource={items:[{dataFilePath:'Default.xlsx',dataFileFormat:'excel',dataFileFolder:'S:\\14_Jira_Migration\\Automation_Repo\\UFT Test Sets\\RETAIL\\MI_RETAIL\\P3\\AT_S2A_PRI_01_038-ZCC1 calculated for PO with specific transport cost\\Report',namePairs:[]}]};

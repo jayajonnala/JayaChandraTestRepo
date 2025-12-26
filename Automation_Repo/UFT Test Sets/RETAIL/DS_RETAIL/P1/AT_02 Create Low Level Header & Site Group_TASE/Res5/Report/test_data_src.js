@@ -1,0 +1,1 @@
+﻿var __testDataSource={items:[{dataFilePath:'Default.xlsx',dataFileFormat:'excel',dataFileFolder:'S:\\Automation_Repo\\UFT Test Sets\\RETAIL\\DS_RETAIL\\P1\\AT_02 Create Low Level Header & Site Group_TASE\\Res5',namePairs:[]}]};

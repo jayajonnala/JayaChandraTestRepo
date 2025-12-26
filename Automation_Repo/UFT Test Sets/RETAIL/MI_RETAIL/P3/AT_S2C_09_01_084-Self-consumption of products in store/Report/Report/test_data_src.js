@@ -1,0 +1,1 @@
+﻿var __testDataSource={items:[{dataFilePath:'Default.xlsx',dataFileFormat:'excel',dataFileFolder:'S:\\14_Jira_Migration\\Automation_Repo\\UFT Test Sets\\RETAIL\\MI_RETAIL\\P3\\AT_S2C_09_01_084-Self-consumption of products in store\\Report',namePairs:[]}]};

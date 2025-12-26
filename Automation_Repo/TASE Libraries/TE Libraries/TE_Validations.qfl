@@ -1,0 +1,520 @@
+﻿
+'************************************************************************************
+'Name of the Function   : Verify_Launch_LoginPage
+'Author     :
+'Description     : Verify Mainframe Application Log In Page Exist
+'p_TEWindowShortName_Value : Short Name and Value of Class Name (Ex:short name:=A)
+'     Input Parameters     : p_TEWindowName,p_TEWindowShortName_Value,
+'Output Parameters      :Null
+'Creation Date : 
+'Modified By : 
+'Modified  Date: 
+'***********************************************************************************
+'Function Verify_Launch_LoginPage()
+'***********************************************************************************
+Public Function Verify_Launch_LoginPage(p_TEWindowShortName_Value)
+
+   If blnShowNotification Then BalloonTooltip.Show "TASE Automation","Executing Now : Verify_Launch_LoginPage"
+  If Not (Environment.Value("blnFatalError") )Then ' Checking for the fatal error
+	If blnShowNotification Then BalloonTooltip.Show "TASE Automation","Executing Now : Verify_Launch_LoginPage"
+       strFuncName = "Verify_Launch_LoginPage"
+       strStepName = "Verify LogIn Page Launched Successfully."
+       on error resume next
+       err.clear
+   	   LogInPage = False 
+
+   Do until LogInPage = True
+        Set ParentObject = TeWindow("short name:=" & p_TEWindowShortName_Value,"index:=0")
+		Set OBJ = ParentObject.TeScreen("label:=.*","index:=0")
+'    	Set ParentObject = ObjectFactory("TeWindow", Nothing,"short name:=" & p_TEWindowShortName_Value)
+'		Set OBJ = ObjectFactory("TeScreen", ParentObject, "label:=.*")		
+		If OBJ.Exist Then
+	       OBJ.Highlight
+   		End If
+		If not OBJ Is Nothing then
+			TempValue = OBJ.GetROProperty("input field count")
+		End If
+		
+		If TempValue >= "2" then
+			LogInPage = True
+			Call ReporterFunction(strLibraryFileName,"WaitForLoginPage","2"," LogInPage :","The LogInPage launched Successfully.")	
+			strStatus = "PASS"
+			strMsg = "The LogIn Page Launched Successfully."
+			blnCaptureFlag = True				
+			If blnCaptureFlag  or  blnCreateImageEachStep or blnCreateTrainingDoc Then
+    		           ImagePath=CaptureScreenshot(strStepName,OBJ,True,True,True)
+			End If        			   
+		else 
+			wait 5
+        End if
+   Loop
+ 	If blnDefault_eSwiftReporting Then  
+	   Call UpdateResultHtml(strStepName,Content,strMsg,strStatus,"")
+	End If
+ End If 
+End Function
+'***********************************************************************************
+
+'Name of the Function   : Verify_TEFieldExists(TE_FieldName,Options,p_TEWindowShortName_Value,p_value)
+'Author		     						:
+'Description		    		 :  
+'p_TEWindowShortName_Value : ShortName Value of TEWindow (Ex: "A")
+'p_field : TE Screen Field Name (Ex : User)
+'p_value : TE Screen Label Name (Ex : "ALFABETA VASILOPOULO")
+'str_obj_PageName : Page Name of the Object to Verify for report function(Ex : LogIn Page).
+'     Input Parameters     : p_field,Options,p_TEWindowShortName_Value,str_obj_PageName
+'Creation Date : 
+'***********************************************************************************
+'Function Verify_TEFieldExists(TE_FieldName,Options,p_TEWindowShortName_Value,p_value,strTextDialog,strTextDialogButton,str_obj_PageName)
+Public Function Verify_TEFieldExists(TE_FieldName,Options,p_TEWindowShortName_Value,p_value,strTextDialog,strTextDialogButton,str_obj_PageName)
+  
+  If Not (Environment.Value("blnFatalError") )Then ' Checking for the fatal error
+	If blnShowNotification Then BalloonTooltip.Show "TASE Automation","Executing Now : Verify_TEFieldExists"
+       strFuncName = "Verify_TEFieldExists"
+       strStepName = "Verify the " & str_obj_PageName & " Launched with object " & TE_FieldName & " ."
+       on error resume next
+       err.clear
+          Wait 7 
+	      Set OBJ_TE_Window = TeWindow("short name:=" & Trim(p_TEWindowShortName_Value))
+	      Set OBJ_TE_Screen =OBJ_TE_Window.TeScreen("label:=.*")
+	      Set OBJ_TE_Field =  OBJ_TE_Screen.TeField("text:=" & Trim(TE_FieldName))
+
+	      If OBJ_TE_Field.Exist(1) = Empty Then
+		     Call logOffTEWindow(p_TEWindowShortName_Value,p_value,strTextDialog,strTextDialogButton)
+		     Call ReporterFunction(strLibraryFileName,"Verify_TEFieldExists","1",str_obj_PageName & " :","Object Not Exist : TE session terminated")	
+		     strStatus = "FAIL"
+			 blndefectFlag =True
+			 strMsg = "TE Screen" & str_obj_PageName & ": Object Not Exist: TE session terminated."
+		     ExitTest()
+		     TE_Field_Exists = "False"
+		     'createEventMessage "INFO"," Terminal Emulator Screen was Found","TE Field: " &Trim(TE_FieldName), "Found in TE screen", ""
+	      Else
+		     Call ReporterFunction(strLibraryFileName,"Verify_TEFieldExists","2",str_obj_PageName & ":","Object Exist : Verified Successfully.")	
+		     strStatus = "PASS"
+ 			 strMsg = "TE Screen " & str_obj_PageName & ": Object Exist : Verified Successfully."
+		     blnCaptureFlag = True
+		     If blnCaptureFlag  or  blnCreateImageEachStep or blnCreateTrainingDoc Then
+		   	    ImagePath=CaptureScreenshot(strStepName,OBJ_TE_Field,True,True,True)
+		     End If
+		     TE_Field_Exists = "True"
+	     End If
+	If  blnObjectError  Then
+		Environment.Value("blnFatalError")=True
+	End If
+	
+	If strStatus = "FAIL"  Then
+		Verify_TEFieldExists = strMsg
+'		blnMainFailFlag = True
+'		ImagePath=CaptureScreenshot(strStepName,OBJ_TE_Field,True,True,True)
+	Else
+		Verify_TEFieldExists = True
+	End If
+	If blnDefault_eSwiftReporting Then  
+       Call UpdateResultHtml(strStepName,Content,strMsg,strStatus,"")
+	End If
+ End If 
+End Function   
+'***********************************************************************************
+
+'Name of the Function   : VerifyTEFieldByID(p_TEWindowShortName_Value,p_fieldid, p_value, desc)
+'Author		     						:
+'Description		    		 : Set TE Field BY ID with ID name 
+'p_TEWindowShortName_Value : Short Name and Value of Class Name (Ex:short name:=A)
+'     Input Parameters     : p_TEWindowShortName_Value,p_fieldid, p_value, desc
+'p_fieldid : Field ID.(Ex: 1527)
+'p_value : Field Value(Ex : 1)
+'p_sendKey : Value of Send Key (Ex : @E)
+'desc : Description of the Field ID .(Ex : "" )
+'Creation Date : 
+'***********************************************************************************
+'Function VerifyTEFieldByID(p_TEWindowShortName_Value,p_fieldid, p_value, desc)
+Public Function VerifyTEFieldByID(p_TEWindowShortName_Value,p_field_id, p_value, desc)
+	If Not (Environment.Value("blnFatalError") )Then ' Checking for the fatal error
+	If blnShowNotification Then BalloonTooltip.Show "TASE Automation","Executing Now : VerifyTEFieldByID"
+       strFuncName = "VerifyTEFieldByID"
+       strStepName = "Verification of the TE Field with ID : " & p_field_id & " populated with value: "& p_value &" ."
+       on error resume next
+       err.clear
+       If   p_field_id <>"" Then
+
+		    Set RootTeWindowObject = TeWindow("short name:=" & p_TEWindowShortName_Value,"index:=0")
+		    Set ParentObject = RootTeWindowObject.TeScreen("label:=.*","index:=0")
+		    sync ParentObject,0
+		    Set OBJ =ParentObject.TeField("field id:=" & p_field_id,"index:=0")
+			If not OBJ Is Nothing then
+				TempValue = OBJ.GetROProperty("text")
+				wait(2)
+'				Set regVal = RegExpEval(p_Value,TempValue)
+'					If regVal.count = 0 Then
+					If  trim(TempValue) <>  p_Value Then
+						Call ReporterFunction(strLibraryFileName,"VerifyTEFieldByID","1","Verify TE Field by ID","The expected value: " & p_value & " for the TEField [" & desc &  "] was not same as the current value: " &trim(TempValue))	
+		                strStatus = "FAIL"
+			            blndefectFlag =True
+			            strMsg = "The expected value: " & p_value & " for the TEField [" & desc &  "] was not the same as the current value: " &trim(TempValue)
+					Else
+						Call ReporterFunction(strLibraryFileName,"VerifyTEFieldByID","2","Verify TE Field by ID :","Verify TE Field by ID :" & p_value & " for the TEField [" & desc &  "] was the same as the current value: " &trim(TempValue) & " .")	
+		                strStatus = "PASS"
+ 			            strMsg = "The expected value : " & p_value & " for the TEField [" & desc &  "] was same as the current value: " & trim(TempValue) & " ."
+		                blnCaptureFlag = True
+		                If blnCaptureFlag  or  blnCreateImageEachStep or blnCreateTrainingDoc Then
+		   	               ImagePath=CaptureScreenshot(strStepName,OBJ_TE_Field,True,True,True)
+			            End If
+			   		End If
+			Else 
+				        Call ReporterFunction(strLibraryFileName,"VerifyTEFieldByID","1","Verify TE Field by ID :","The TE Field "& desc &" with technical name " & p_field & " cannot be found")	
+		                strStatus = "FAIL"
+			            blndefectFlag =True
+			            strMsg = "The TE Field was not found."
+			End if
+
+	Else
+		    Call ReporterFunction(strLibraryFileName,"VerifyTEFieldByID","1","Verify TE Field by ID :","The TE Field  name is empty.")	
+            strStatus = "FAIL"
+            blndefectFlag =True
+            strMsg =" The TE Field  name is empty."
+	End If
+	If  blnObjectError  Then
+		Environment.Value("blnFatalError")=True
+	End If
+	
+	If strStatus = "FAIL"  Then
+		VerifyTEFieldByID = strMsg
+'		blnMainFailFlag = True
+'		ImagePath=CaptureScreenshot(strStepName,OBJ,True,False,False)
+	Else
+		VerifyTEFieldByID = True
+	End If
+	If blnDefault_eSwiftReporting Then  
+       Call UpdateResultHtml(strStepName,p_value,strMsg,strStatus,"")
+	End If	
+ End If		
+End function
+
+'Name of the Function   : 'Verify_TEField(p_TEWindowShortName_Value,p_fieldid, p_value)
+'Author		     						:
+'Description		    		 : Activate TE Window
+'     Input Parameters     : p_TEWindowShortName_Value,p_fieldid, p_value
+'p_TEWindowShortName_Value : Short Name and Value of Class Name (Ex:short name:=A)
+'p_fieldid : 
+'p_value : 
+'Creation Date : 
+'***********************************************************************************
+'Verify_TEField(p_TEWindowShortName_Value,p_fieldid, p_value)
+Public Function Verify_TEField(p_TEWindowShortName_Value,p_field, p_value)
+    If Not (Environment.Value("blnFatalError") )Then ' Checking for the fatal error
+	If blnShowNotification Then BalloonTooltip.Show "TASE Automation","Executing Now : Verify_TEField"
+       strFuncName = "Verify_TEField"
+       strStepName = "TE Window Menu Interaction with Menu Item :" & p_menuItem & "."
+       on error resume next
+       err.clear
+	   If  p_field <> "" Then
+  	
+			Set RootTeWindowObject = ObjectFactory("TeWindow", Nothing, "short name:=" & p_TEWindowShortName_Value)
+			Set ParentObject = ObjectFactory("TeScreen", RootTeWindowObject, "label:=.*")
+			sync ParentObject,0
+			Set OBJ = ObjectFactory("TeField", ParentObject, "attached text:=" & p_field)			
+			If not OBJ Is Nothing then
+			TempValue = OBJ.GetROProperty("text")
+			wait(2)
+			Set regVal = RegExpEval(p_Value,TempValue)
+				If regVal.count = 0 Then
+				'If  trim(TempValue) <>  p_Value Then
+
+			   Call ReporterFunction(strLibraryFileName,"Verify_TEField","2","Verify TE Field :","The expected value: " & p_value & " for the TEField [" & p_field &  "] was not the same as the current value: " & trim(TempValue) & " .")	
+               strStatus = "FAILED"
+               strMsg = "Verify TE Field : The expected value: " & p_value & " for the TEField [" & p_field &  "] was not the same as the current value: " &trim(TempValue)            
+	       Else
+		    Call ReporterFunction(strLibraryFileName,"Verify_TEField","2","Verify TE Field :","The expected value: " & p_value & " for the TEField [" & p_field &  "] was the same as the current value: " & trim(TempValue) & " .")	
+               strStatus = "PASSED"
+               strMsg = "Verify TE Field : The expected value: " & p_value & " for the TEField [" & p_field &  "] was the same as the current value: " &trim(TempValue)           
+               blnCaptureFlag = True
+               If blnCaptureFlag  or  blnCreateImageEachStep or blnCreateTrainingDoc Then
+	              ImagePath=CaptureScreenshot(strStepName,ParentObject,True,True,True)
+	           End If
+   	      End if
+    Else
+		  Call ReporterFunction(strLibraryFileName,"Verify_TEField","1","Verify TE Field :","The Expected value: "  & p_value & " can not be compaired")	
+		  strStatus = "FAIL"
+		  blndefectFlag =True
+	      strMsg = "Verify TE Field :The Expected value: " & p_value & " can not be compaired."
+    End If
+ Else
+    Call ReporterFunction(strLibraryFileName,"Verify_TEField","1","Verify TE Field :","The Terminal Emulator Field is empty.")	
+    strStatus = "FAIL"
+    blndefectFlag =True
+    strMsg = "Verify TE Field : The Terminal Emulator Field is empty."
+ End If    
+	If  blnObjectError  Then
+		Environment.Value("blnFatalError")=True
+	End If
+	
+	If strStatus = "FAIL"  Then
+		Verify_TEField = strMsg
+		blnMainFailFlag = True
+		ImagePath=CaptureScreenshot(strStepName,ParentObject,True,False,False)
+	Else
+		Verify_TEField = True
+	End If
+	If blnDefault_eSwiftReporting Then  
+       Call UpdateResultHtml(strStepName,Content,strMsg,strStatus,"")
+	End If	
+ End If		
+End function
+
+'Name of the Function   : 'Verify_WinCheckBox_State(p_checkboxName, p_State,  p_parentName)
+'Author		     						:
+'Description		    		 : Activate TE Window
+'     Input Parameters     :p_checkboxName, p_State,  p_parentName
+'p_checkboxName : 
+'p_State : 
+'p_parentName :
+'Creation Date : 
+'***********************************************************************************
+'Verify_WinCheckBox_State(p_checkboxName, p_State,  p_parentName)
+Public Function Verify_WinCheckBox_State(p_checkboxName, p_State,  p_parentName)
+    If Not (Environment.Value("blnFatalError") )Then ' Checking for the fatal error
+	If blnShowNotification Then BalloonTooltip.Show "TASE Automation","Executing Now : Verify_WinCheckBox_State"
+       SelectWinTab = "Verify_WinCheckBox_State"
+       strStepName = "TE Window Menu Interaction with Menu Item :" & p_menuItem & "."
+       on error resume next
+       err.clear
+     If  p_checkboxName <> ""Then   
+       Set ParentObject = ObjectFactory("Dialog", Nothing, "regexpwndtitle:=" & p_parentName)
+	   Set OBJ = ObjectFactory("WinCheckBox", ParentObject, "regexpwndtitle:=" & p_checkboxName)
+	   If not OBJ Is Nothing then
+		  TempValue = OBJ.GetROProperty ("checked")
+		  If  UCase(TempValue) <>  UCase(p_State) Then
+			  Call ReporterFunction(strLibraryFileName,"Verify_WinCheckBox_State","2","Verify Win Checkbox State :","The expected given value: " & UCase(p_State) & " for checkbox: [" & p_checkboxName &  "] is not the same as the current value: " &TempValue)
+              strStatus = "FAILED"
+              strMsg = "Get WinCheckbox Property : The expected given value: " & UCase(p_State) & " for checkbox: [" & p_checkboxName &  "] is not the same as the current value: " &TempValue         
+          Else 
+                Call ReporterFunction(strLibraryFileName,"Verify_WinCheckBox_State","2","Verify Win Checkbox State :","The expected given value: " & UCase(p_State) & " for checkbox: [" & p_checkboxName &  "] is the same as the current value: " &TempValue)
+                strStatus = "PASSED"
+                strMsg = "Get WinCheckbox Property : The expected given value: " & UCase(p_State) & " for checkbox: [" & p_checkboxName &  "] is the same as the current value: " &TempValue
+                blnCaptureFlag = True
+                If blnCaptureFlag  or  blnCreateImageEachStep or blnCreateTrainingDoc Then
+                   ImagePath=CaptureScreenshot(strStepName,ParentObject,True,True,True)
+                End If                
+            End if
+          Else
+             Call ReporterFunction(strLibraryFileName,"Verify_WinCheckBox_State","2","Verify Win Checkbox State :","The WinCheckbox " & p_checkboxName & " has NOT been found.")	
+             strStatus = "FAILED"
+             strMsg = "Get WinCheckbox Property : The WinCheckbox " & p_checkboxName & " has NOT been found."  
+          End If
+       Else
+          Call ReporterFunction(strLibraryFileName,"Verify_WinCheckBox_State","2","Verify Win Checkbox State :","The WinCheckbox name is empty.")	
+          strStatus = "FAILED"
+          strMsg = "Get WinCheckbox Property : The WinCheckbox name is empty."  
+       End If          
+      
+	If  blnObjectError  Then
+		Environment.Value("blnFatalError")=True
+	End If
+	
+	If strStatus = "FAIL"  Then
+		Verify_WinCheckBox_State = strMsg
+		blnMainFailFlag = True
+		ImagePath=CaptureScreenshot(strStepName,ParentObject,True,False,False)
+	Else
+		Verify_WinCheckBox_State = True
+	End If
+	If blnDefault_eSwiftReporting Then  
+       Call UpdateResultHtml(strStepName,Content,strMsg,strStatus,"")
+	End If	
+ End If	
+End function
+
+'***********************************************************************************
+
+'***********************************************************************************
+'Name of the Function   : 'Verify_WinRadioButton_State(p_radioButtonName, p_State, p_parentName)
+'Author		     						:
+'Description		    		 : Activate TE Window
+'     Input Parameters     :p_checkboxName, p_State,  p_parentName
+'p_checkboxName : 
+'p_State : 
+'p_parentName :
+'Creation Date : 
+'***********************************************************************************
+'Verify_WinRadioButton_State(p_checkboxName, p_State,  p_parentName)
+Public Function Verify_WinRadioButton_State(p_checkboxName, p_State,  p_parentName)
+    If Not (Environment.Value("blnFatalError") )Then ' Checking for the fatal error
+	If blnShowNotification Then BalloonTooltip.Show "TASE Automation","Executing Now : Verify_WinRadioButton_State"
+       SelectWinTab = "Verify_WinCheckBox_State"
+       strStepName = "TE Window Menu Interaction with Menu Item :" & p_menuItem & "."
+       on error resume next
+       err.clear
+       If  p_radioButtonName <>""Then
+           Set ParentObject = ObjectFactory("Dialog", Nothing, "regexpwndtitle:=" & p_parentName)
+	       Set OBJ = ObjectFactory("WinRadioButton", ParentObject, "regexpwndtitle:=" & p_radioButtonName)
+		   If not OBJ Is Nothing then
+			  TempValue = OBJ.GetROProperty ("checked")
+			  If  UCase(TempValue) <>  UCase(p_State) Then
+			     Call ReporterFunction(strLibraryFileName,"Verify_WinRadioButton_State","2","Verify Win Radiobutton :","The expected given value: " & UCase(p_State) & " for RadioButton: [" & p_radioButtonName &  "] is not the same as the current value: " &TempValue)
+                 strStatus = "FAILED"
+                 strMsg = "Verify Win Radiobutton : The expected given value: " & UCase(p_State) & " for RadioButton: [" & p_radioButtonName &  "] is not the same as the current value: " &TempValue        
+              Else 
+                 Call ReporterFunction(strLibraryFileName,"Verify_WinRadioButton_State","2","Verify Win Radiobutton :","The expected given value: " & UCase(p_State) & " for RadioButton: [" & p_radioButtonName &  "] is the same as the current value: " &TempValue)
+                 strStatus = "PASSED"
+                 strMsg = "Verify Win Radiobutton : The expected given value: " & UCase(p_State) & " for RadioButton: [" & p_radioButtonName &  "] is the same as the current value: " &TempValue
+                 blnCaptureFlag = True
+                 If blnCaptureFlag  or  blnCreateImageEachStep or blnCreateTrainingDoc Then
+                    ImagePath=CaptureScreenshot(strStepName,ParentObject,True,True,True)
+                 End If                
+              End if
+           Else
+              Call ReporterFunction(strLibraryFileName,"Verify_WinRadioButton_State","2","Verify Win Radiobutton :","The radiobutton " & p_radioButtonName & " has NOT been found.")	
+              strStatus = "FAILED"
+              strMsg = "Verify Win Radiobutton : The radiobutton " & p_radioButtonName & " has NOT been found."  
+           End If
+       Else
+          Call ReporterFunction(strLibraryFileName,"Verify_WinRadioButton_State","2","Verify Win Radiobutton :","The radiobutton name is empty.")	
+          strStatus = "FAILED"
+          strMsg = "Verify Win Radiobutton : The radiobutton name is empty."  
+       End If          
+      
+	If  blnObjectError  Then
+		Environment.Value("blnFatalError")=True
+	End If
+	
+	If strStatus = "FAIL"  Then
+		Verify_WinRadioButton_State = strMsg
+		blnMainFailFlag = True
+		ImagePath=CaptureScreenshot(strStepName,ParentObject,True,False,False)
+	Else
+		Verify_WinRadioButton_State = True
+	End If
+	If blnDefault_eSwiftReporting Then  
+       Call UpdateResultHtml(strStepName,Content,strMsg,strStatus,"")
+	End If	
+ End If	
+End function
+
+'Name of the Function   : 'Verify_WinEdit_Text (p_editField, p_Text,p_parentName)
+'Author		     						:
+'Description		    		 : Activate TE Window
+'     Input Parameters     :p_checkboxName, p_Text,  p_parentName
+'p_checkboxName : 
+'p_Text : 
+'p_parentName :
+'Creation Date : 
+'***********************************************************************************
+'Verify_WinEdit_Text (p_editField, p_Text,p_parentName)
+Public Function Verify_WinEdit_Text (p_editField, p_Text,p_parentName)
+    If Not (Environment.Value("blnFatalError") )Then ' Checking for the fatal error
+	If blnShowNotification Then BalloonTooltip.Show "TASE Automation","Executing Now : Verify_WinEdit_Text"
+       SelectWinTab = "Verify_WinEdit_Text"
+       strStepName = "TE Window Menu Interaction with Menu Item :" & p_menuItem & "."
+       on error resume next
+       err.clear
+       If p_editField <> "" Then
+          Set ParentObject = ObjectFactory("Dialog", Nothing, "regexpwndtitle:=" & p_parentName)
+	      Set OBJ = ObjectFactory("WinEdit", ParentObject, "attached text:=" & p_editField )
+		  If not OBJ Is Nothing then
+			 TempValue = OBJ.GetROProperty ("text")
+			 If  TempValue <>  p_Text Then
+			     Call ReporterFunction(strLibraryFileName,"Verify_WinEdit_Text","2","Verify WinEdit :","The expected given value: " & p_Text & " for the WinEdit Field: [" & p_editField &  "] is not the same as the current value: " &TempValue)
+                 strStatus = "FAILED"
+                 strMsg = "Verify WinEdit : The expected given value: " & p_Text & " for the WinEdit Field: [" & p_editField &  "] is not the same as the current value: " &TempValue        
+             Else 
+                 Call ReporterFunction(strLibraryFileName,"Verify_WinEdit_Text","2","Verify WinEdit :","The expected given value: " & p_Text & " for the WinEdit Field: [" & p_editField &  "] is the same as the current value: " &TempValue)
+                 strStatus = "PASSED"
+                 strMsg = "Verify WinEdit : The expected given value: " & p_Text & " for the WinEdit Field: [" & p_editField &  "] is the same as the current value: " &TempValue
+                 blnCaptureFlag = True
+                 If blnCaptureFlag  or  blnCreateImageEachStep or blnCreateTrainingDoc Then
+                    ImagePath=CaptureScreenshot(strStepName,ParentObject,True,True,True)
+                 End If                
+             End if
+           Else
+              Call ReporterFunction(strLibraryFileName,"Verify_WinEdit_Text","2","Verify WinEdit :","The WinEdit " & p_editField & " has NOT been found.")	
+              strStatus = "FAILED"
+              strMsg = "Verify WinEdit : The WinEdit " & p_editField & " has NOT been found."  
+           End If
+       Else
+          Call ReporterFunction(strLibraryFileName,"Verify_WinEdit_Text","2","Verify WinEdit :","The WinEdit name is empty.")	
+          strStatus = "FAILED"
+          strMsg = "Verify Win Radiobutton : The WinEdit name is empty."  
+       End If          
+      
+	If  blnObjectError  Then
+		Environment.Value("blnFatalError")=True
+	End If
+	
+	If strStatus = "FAIL"  Then
+		Verify_WinEdit_Text = strMsg
+		blnMainFailFlag = True
+		ImagePath=CaptureScreenshot(strStepName,ParentObject,True,False,False)
+	Else
+		Verify_WinEdit_Text = True
+	End If
+	If blnDefault_eSwiftReporting Then  
+       Call UpdateResultHtml(strStepName,Content,strMsg,strStatus,"")
+	End If	
+ End If	
+End function
+
+
+'***********************************************************************************
+'Name of the Function   : 'Verify_WinComboBox (p_comboBoxName,p_WndId, p_Value,p_parentName)
+'Author		     						:
+'Description		    		 : Activate TE Window
+'     Input Parameters     :p_comboBoxName, p_Text,  p_parentName,p_WndId
+'p_comboBoxName : 
+'p_Text : 
+'p_parentName :
+'p_WndId : 
+'Creation Date : 
+'***********************************************************************************
+'Verify_WinComboBox (p_comboBoxName,p_WndId, p_Value,p_parentName)
+Public Function Verify_WinComboBox (p_comboBoxName,p_WndId, p_Value,p_parentName)
+    If Not (Environment.Value("blnFatalError") )Then ' Checking for the fatal error
+	If blnShowNotification Then BalloonTooltip.Show "TASE Automation","Executing Now : Verify_WinComboBox"
+       SelectWinTab = "Verify_WinComboBox"
+       strStepName = "TE Window Menu Interaction with Menu Item :" & p_menuItem & "."
+       on error resume next
+       err.clear
+       If p_WndId <> "" Then
+          Set ParentObject = ObjectFactory("Dialog", Nothing, "regexpwndtitle:=" &p_parentName)
+	      Set OBJ = ObjectFactory("WinComboBox", ParentObject, "window id:=" & p_WndId )
+	      If not OBJ Is Nothing then
+			 TempValue = OBJ.GetROProperty("text")
+	         If  TempValue <>  p_Value Then
+			     Call ReporterFunction(strLibraryFileName,"Verify_WinComboBox","2","Verify WinCombo :","The expected given value: " & p_Value & " for the WinComboBox: [" & p_comboBoxName &  "] is not the same as the current value: " &TempValue)
+                 strStatus = "FAILED"
+                 strMsg = "Verify WinCombo : The expected given value: " & p_Value & " for the WinComboBox: [" & p_comboBoxName &  "] is not the same as the current value: " &TempValue        
+             Else 
+                 Call ReporterFunction(strLibraryFileName,"Verify_WinComboBox","2","Verify WinCombo :","The expected given value: " & p_Value & " for the WinComboBox: [" & p_comboBoxName &  "] is the same as the current value: " &TempValue)
+                 strStatus = "PASSED"
+                 strMsg = "Verify WinCombo : The expected given value: " & p_Value & " for the WinComboBox: [" & p_comboBoxName &  "] is the same as the current value: " &TempValue
+                 blnCaptureFlag = True
+                 If blnCaptureFlag  or  blnCreateImageEachStep or blnCreateTrainingDoc Then
+                    ImagePath=CaptureScreenshot(strStepName,ParentObject,True,True,True)
+                 End If                
+             End if
+           Else
+              Call ReporterFunction(strLibraryFileName,"Verify_WinComboBox","2","Verify WinCombo :","The WinCombo " & p_comboBoxName & " has NOT been found.")	
+              strStatus = "FAILED"
+              strMsg = "Verify WinCombo : The WinCombo " & p_comboBoxName & " has NOT been found."  
+           End If
+       Else
+          Call ReporterFunction(strLibraryFileName,"Verify_WinComboBox","2","Verify WinCombo :","The WinCombo name is empty.")	
+          strStatus = "FAILED"
+          strMsg = "Verify WinCombo : The WinCombo name is empty."  
+       End If          
+      
+	If  blnObjectError  Then
+		Environment.Value("blnFatalError")=True
+	End If
+	
+	If strStatus = "FAIL"  Then
+		Verify_WinComboBox = strMsg
+		blnMainFailFlag = True
+		ImagePath=CaptureScreenshot(strStepName,ParentObject,True,False,False)
+	Else
+		Verify_WinComboBox = True
+	End If
+	If blnDefault_eSwiftReporting Then  
+       Call UpdateResultHtml(strStepName,Content,strMsg,strStatus,"")
+	End If	
+ End If	
+End function

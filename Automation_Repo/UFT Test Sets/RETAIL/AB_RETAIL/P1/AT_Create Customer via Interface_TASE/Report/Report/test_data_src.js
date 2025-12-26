@@ -1,0 +1,1 @@
+﻿var __testDataSource={items:[{dataFilePath:'Default.xlsx',dataFileFormat:'excel',dataFileFolder:'S:\\Automation_Repo\\UFT Test Sets\\RETAIL\\AB_RETAIL\\P1\\AT_Create Customer via Interface_TASE\\Report',namePairs:[]}]};

@@ -1,0 +1,1 @@
+﻿var __testDataSource={items:[{dataFilePath:'Default.xlsx',dataFileFormat:'excel',dataFileFolder:'C:\\Users\\JJONN\\Documents\\UFT One\\Test_03.03.01.07.01 Manage Maintenance Plans - Create_TASE\\Res1',namePairs:[]}]};

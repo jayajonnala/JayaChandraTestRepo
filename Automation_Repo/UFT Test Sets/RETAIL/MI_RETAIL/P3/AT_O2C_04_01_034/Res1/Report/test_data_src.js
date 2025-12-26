@@ -1,0 +1,1 @@
+﻿var __testDataSource={items:[{dataFilePath:'Default.xlsx',dataFileFormat:'excel',dataFileFolder:'S:\\9_Backup_and_other\\TASE Local\\AT_O2C_04_01_034\\Res1',namePairs:[]}]};

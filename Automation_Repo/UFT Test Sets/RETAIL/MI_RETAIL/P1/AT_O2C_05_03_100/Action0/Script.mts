@@ -1,0 +1,13 @@
+﻿RunAction "RunTimeResultFolder", oneIteration
+RunAction "TC1_O2C_100_P1_VA01_TASE", oneIteration
+RunAction "DataTransfer_1", oneIteration
+RunAction "TC2_O2C_100_P2_XML_VBSS_TASE", oneIteration
+RunAction "DataTransfer_2", oneIteration
+RunAction "TC3_O2C_100_P3_XML_VBSCN_TASE", oneIteration
+RunAction "DataTransfer_3", oneIteration
+RunAction "TC4_O2C_100_P4_WE02_TASE", oneIteration
+RunAction "Wait_TASE", oneIteration
+RunAction "TC5_O2C_100_P5_VL03N_TASE", oneIteration
+RunAction "TC6_O2C_100_P6_VF01_TASE", oneIteration
+RunAction "DataTransfer_4", oneIteration
+RunAction "TC7_O2C_100_P7_VF03_TASE", oneIteration

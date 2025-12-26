@@ -1,0 +1,1 @@
+﻿var __testDataSource={items:[{dataFilePath:'Default.xlsx',dataFileFormat:'excel',dataFileFolder:'C:\\Users\\JJONN\\Documents\\UFT One\\Test_04.01.05.01.01 Request for Equipment Repair - Create _ Change\\Res1',namePairs:[]}]};

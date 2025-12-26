@@ -1,0 +1,12 @@
+﻿RunAction "TC0_RunTimeResultFolder", oneIteration
+RunAction "TC1_Test_CL0001", oneIteration
+RunAction "TC2_Test_CL0002", oneIteration
+RunAction "TC3_Test_CL0003", oneIteration
+RunAction "TC4_Test_CL0005", oneIteration
+RunAction "TC5_Test_CL0007", oneIteration
+RunAction "TC6_Test_CL0008", oneIteration
+RunAction "TC7_Test_CL0010", oneIteration
+RunAction "TC8_Test_CL0011", oneIteration
+RunAction "TC9_Test_CL0013", oneIteration
+RunAction "TC10_Test_CL0026", oneIteration
+RunAction "TC11_Test_CL0032", oneIteration

@@ -1,0 +1,11 @@
+﻿RunAction "TC0_RunTimeResultFolder", oneIteration
+RunAction "DT1", oneIteration
+RunAction "TC1_BR01", oneIteration
+RunAction "TC2_BR02", oneIteration
+RunAction "TC3_BR03", oneIteration
+RunAction "TC4_BR04", oneIteration
+RunAction "TC5_BR05a", oneIteration
+RunAction "TC6_BR05b", oneIteration
+RunAction "TC7_BR06", oneIteration
+RunAction "TC8_BR07", oneIteration
+RunAction "TC9_BR09", oneIteration

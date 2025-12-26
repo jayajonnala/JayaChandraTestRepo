@@ -1,0 +1,1 @@
+﻿var __testDataSource={items:[{dataFilePath:'Default.xlsx',dataFileFormat:'excel',dataFileFolder:'S:\\9_Backup_and_other\\TASE Local\\AT_116_SRM Standard SC Limit Item on Cost Center (all opcos)_TASE\\Res8',namePairs:[]}]};

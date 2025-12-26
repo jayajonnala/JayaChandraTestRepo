@@ -1,0 +1,1 @@
+﻿var __testDataSource={items:[{dataFilePath:'Default.xlsx',dataFileFormat:'excel',dataFileFolder:'S:\\14_Jira_Migration\\Automation_Repo\\UFT Test Sets\\RETAIL\\MI_RETAIL\\P1\\AT_S2A_PRO_01_043-Check promotions and deactivation\\Report',namePairs:[]}]};

@@ -1,0 +1,1 @@
+﻿var __testDataSource={items:[{dataFilePath:'Default.xlsx',dataFileFormat:'excel',dataFileFolder:'S:\\14_Jira_Migration\\Automation_Repo\\UFT Test Sets\\RETAIL\\DS_RETAIL\\P3\\AT_1.7.4 Returns from Third party customers_TASE\\Report',namePairs:[]}]};

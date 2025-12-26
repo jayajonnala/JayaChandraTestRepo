@@ -1,0 +1,1 @@
+﻿var __testDataSource={items:[{dataFilePath:'Default.xlsx',dataFileFormat:'excel',dataFileFolder:'S:\\14_Jira_Migration\\Automation_Repo\\UFT Test Sets\\FICO\\DLL_FICO\\P1\\AT_04.04.02.24 VIM - PO Precontrole Issue - BR04 - Invalid Vendor (PO)_TASE\\Report',namePairs:[]}]};

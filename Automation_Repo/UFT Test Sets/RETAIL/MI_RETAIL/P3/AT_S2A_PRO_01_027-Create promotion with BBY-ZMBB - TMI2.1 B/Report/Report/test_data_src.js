@@ -1,0 +1,1 @@
+﻿var __testDataSource={items:[{dataFilePath:'Default.xlsx',dataFileFormat:'excel',dataFileFolder:'S:\\14_Jira_Migration\\Automation_Repo\\UFT Test Sets\\RETAIL\\MI_RETAIL\\P3\\AT_S2A_PRO_01_027-Create promotion with BBY-ZMBB - TMI2.1 B\\Report',namePairs:[]}]};

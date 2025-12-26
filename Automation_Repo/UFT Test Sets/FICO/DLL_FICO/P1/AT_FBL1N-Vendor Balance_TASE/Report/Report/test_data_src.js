@@ -1,0 +1,1 @@
+﻿var __testDataSource={items:[{dataFilePath:'Default.xlsx',dataFileFormat:'excel',dataFileFolder:'S:\\14_Jira_Migration\\Automation_Repo\\UFT Test Sets\\FICO\\DLL_FICO\\P1\\AT_FBL1N-Vendor Balance_TASE\\Report',namePairs:[]}]};

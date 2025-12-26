@@ -1,0 +1,1 @@
+﻿var __testDataSource={items:[{dataFilePath:'Default.xlsx',dataFileFormat:'excel',dataFileFolder:'S:\\9_Backup_and_other\\TASE Local\\AT_09.11.01.07.01 Manage Asset Transfer [Intra-Opco]_Transfer within Company Code_TASE\\Res2',namePairs:[]}]};

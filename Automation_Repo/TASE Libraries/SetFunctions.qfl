@@ -1,0 +1,1021 @@
+﻿''**********************************************************************************
+'Name of the Function   :  SetTcode
+'Description		     : Enters tcode value in the guiok code text box in the SAP easy access home page.
+'Input Parameters	     :  tcode
+ '                							  tcode:-Tcode that needs to be navigated 
+'Updates Done : Updated the CaptureScreenshot function call as part of changes for the Training Doc creation.
+'***********************************************************************************
+Public Function SetTcode(tcode)
+
+ If Not (Environment.Value("blnFatalError")) Then
+	If blnShowNotification Then BalloonTooltip.Show "TASE Automation","Executing Now : SetTcode"
+	
+	If INSTR(1,tcode,"/n",1) Then
+       transactionCode = tcode
+	Else
+        transactionCode = "/n"&tcode
+	End If 	   
+'	Call Html_iteration(tcode)
+	Set WshShell = CreateObject("WScript.Shell")
+	Set WshDTEnv = WshShell.Environment("USER")
+	If LEFT(tcode,2) = "/n"  Then
+	       transactionCode = tcode
+   WshDTEnv("sheetNameEnv") = MID(tcode,3)
+	Else
+	        transactionCode = "/n"&tcode
+			WshDTEnv("sheetNameEnv") = tcode   
+	End If 	   
+	Set objTcode =SAPGuisession(sessionObject).sapguiwindow(windowObject).sapguiokcode(tCodeTextBox)
+	strStepName = "Set Transaction code -  "& "'"  & transactionCode&"'"
+	   If   objTcode.Exist Then
+	
+		    
+		    If tcode <> "" Then     
+			     objTcode.Set transactionCode
+	             Call ReporterFunction(strLibraryFileName,"SetTcode","2","Set Transaction Code","Transaction Code : "&  tcode  & " has been entered in the t-code textbox")
+			     strStatus = "DONE"
+			     strMsg = "Tcode set successfully"
+			     
+		     	If blnCaptureFlag  or  blnCreateImageEachStep or blnCreateTrainingDoc Then
+					ImagePath=CaptureScreenshot(strStepName,objTcode,False,False,True)
+				End if
+	  		else 
+			   Call ReporterFunction(strLibraryFileName,"SetTcode","1","Set Transaction Code","Function Parameter Not Passed Properly. Check the --SetTcode-- Function Call")
+				strStatus = "FAIL" 'This should be marked 'FAIL'
+	            strMsg = "Function Parameter Not Passed Properly. Check the --SetTcode-- Function Call"
+	            
+	      End If
+	  else 
+'		        strStepName = "tCodeTextBox : No Such Object Found"
+	            Call ReporterFunction(strLibraryFileName,"SetTcode","1","Set Transaction Code","Textbox for setting the transaction code is not found")
+	            strStatus = "FAIL"
+	            strMsg = "Textbox for setting the transaction code is not found"
+	            blnObjectError=True
+	  End If
+	  
+	  
+	  If  blnObjectError  Then
+			Environment.Value("blnFatalError")=True
+		End If
+	
+		If strStatus = "FAIL"  Then
+			SetTcode = strMsg
+			blnMainFailFlag = True
+			ImagePath=CaptureScreenshot(strStepName,objTcode,False,False,True)
+		Else
+			SetTcode = True
+		End If
+		If blnDefault_eSwiftReporting Then  
+			Call UpdateResultHtml(strStepName,transactionCode,strMsg,strStatus,"")
+		End If
+End If
+	
+ ' //////////Word Document ///////////
+'			If blnCreateTrainingDoc Then
+'				Check=CheckStatus_Doc(strStatus)
+'				If Check=1 Then
+'					Call storeCoordinates(obj)
+'					Call StoreSteps(strStepName)					
+'				End If
+'			End If
+'				Set obj=Nothing
+' ' //////////Word Document ///////////
+'
+'Call Importsheets()
+End Function
+'**********************************************************************************
+'End Function - SetTCode
+'***********************************************************************************
+
+
+'''**********************************************************************************
+'Name of the Function  	   :  SetTextbox
+'Description		     			: Setting a value into a Textbox in SAP main window or in popup
+'                                                          
+'Input Parameters	    	 :  attachedText,textboxName,textboxIndex,textboxValue,blnIsItPopup
+
+'					textboxName:- name property of the text box 
+'			        attachedText :- attachedtext property of the textbox/text attached with the textbox
+'			        textboxValue :- The value that user want to set into the Text Box.    
+'                  textboxIndex-The index of the textbox
+'					 blnIsItPopup-A  parameters whiich  checks if the SAP window is main window or a popup 
+'												=Yes - if it is popup ;   No/""=If it is main SAP  window
+'Output Parameters        : Null
+'Updates Done : Updated the CaptureScreenshot function call as part of changes for the Training Doc creation.
+'************************************************************************************
+Function SetTextbox(textboxAttachedText,textboxName,textboxIndex,textboxValue,blnIsItPopup)
+    If Not (Environment.Value("blnFatalError") or textboxValue= DS_SKIP) Then
+	If blnShowNotification Then BalloonTooltip.Show "TASE Automation","Executing Now : SetTextbox"
+	
+    	Dim objTextboxGuiComp32,objTextboxGuicomp31,objTextbox,objWindow
+	
+	
+	strStepName = " Set "  & "'" & textboxValue & "'" & " in Textbox : " & "'"& textBoxAttachedText & "'"                   
+        Set objWindow= SetSAPwindowObj(blnIsItPopup)
+	Set objTextboxGuiComp32 = SAPGuisession(sessionObject).sapguiwindow(objWindow).sapguiedit("guicomponenttype:=32","attachedtext:="&textboxAttachedText,"name:="&textboxName,"Index:="&textboxIndex)
+	Set objTextboxGuicomp31 = SAPGuisession(sessionObject).sapguiwindow(objWindow).sapguiedit("guicomponenttype:=31","attachedtext:="&textboxAttachedText,"name:="&textboxName,"Index:="&textboxIndex)
+	Set objTextbox=SetObj(objTextboxGuiComp32,objTextboxGuicomp31)  
+	If objTextbox.Exist then
+			
+	     	If VerifyObjectStatus(objTextbox) Then  
+			If textboxValue= DS_BLANK Then
+			      objTextbox.set ""
+			Else
+'''				objTextbox.Highlight
+			      objTextbox.set textboxValue
+			End If
+        	        If blnCaptureFlag  or  blnCreateImageEachStep or blnCreateTrainingDoc Then
+				ImagePath=CaptureScreenshot(strStepName,objTextbox,FALSE,False,TRUE)
+			End if
+			Call ReporterFunction(strLibraryFileName,"SetTextBox","2",strStepName,"Value Used :-"& vbNewLine & "AttachedText:"&textboxAttachedText & vbNewLine & "Text BoxName: " &textboxName & vbnewline &"ValueField:" &textboxValue)
+			strStatus = "DONE"
+			strMsg = "Text box set successfully"
+		Else
+			Call ReporterFunction(strLibraryFileName,"SetTextBox","1",strStepName,"The Textfield: "& textboxAttachedText & "is not enabled")
+			strStatus = "FAIL"
+			strMsg = "The Textfield '"& textboxAttachedText & "' is not enabled"
+                   	blnObjectError=True
+		End if		
+	Else 
+	        
+	        Call ReporterFunction(strLibraryFileName,"SetTextBox","1",strStepName,"Object Missing--Check the Screen Properly")
+		strStatus = "FAIL"
+		strMsg = "The Textfield '"& textboxAttachedText & "'  is not Found--Check the Screen Properly"
+		blnObjectError=True
+	End If		
+	If  blnObjectError  Then
+		Environment.Value("blnFatalError")=True
+	End If
+
+	If strStatus = "FAIL"  Then
+		SetTextbox = strMsg
+		blnMainFailFlag = True
+		ImagePath=CaptureScreenshot(strStepName,objTextbox,FALSE,False,TRUE)
+	Else
+		SetTextbox = True
+	End If
+	If blnDefault_eSwiftReporting Then  
+		Call UpdateResultHtml(strStepName,textboxValue,strMsg,strStatus,"")
+	End If
+'	' //////////Word Document ///////////
+'			If blnCreateTrainingDoc Then
+'				   Check=CheckStatus_Doc(strStatus)
+'				   If Check=1 Then
+'						  Call storeCoordinates(objTextbox)
+'						  Call StoreSteps(strStepName)
+'				   End If
+'			End If
+'	 ' //////////Word Document ///////////
+	Set objTextbox=Nothing
+	Set objTextboxGuiComp32=Nothing
+	Set objTextboxGuicomp31=Nothing
+	Set objWindow=Nothing
+    End If
+End function
+
+'************************************************************************************
+'End Function - SetTextbox
+'************************************************************************************
+
+'**********************************************************************************
+'Name of the Function   :  SetTableData
+'Description		    		 : Enters value in table cell fields like "material","order quantity","picking quantity"              
+'Input Parameters	     :   	tableName:-Name property of the Table as observed in object spy
+'												columnName :- Column name of table where value is to be entered	
+'                                      			 rowNumber:- Row number of table where value is to be entered
+'												refColumnName - Name of the reference column which will be used for calculating row number if row number is unknown
+'												refCellValue - value within the reference column corrosponding to desired row if the row number is unknown
+'			        							cellvalue :- Value to be entered	 
+'												 blnIsItPopup-A  parameters whiich  checks if the SAP window is main window or a popup 
+'																			=Yes - if it is popup ;   No/"" =If it is main SAP  window
+'Output Parameters        :Null
+'Updates Done : Updated the CaptureScreenshot function call as part of changes for the Training Doc creation.
+'***********************************************************************************
+'Function SetTableData(tableName,columnName,rowNumber,refColumnName,refCellValue,cellValue,blnIsItPopup)
+'***********************************************************************************
+Public Function SetTableData(tableName,columnName,rowNumber,refColumnName,refCellValue,cellValue,blnIsItPopup)
+	If Not (Environment.Value("blnFatalError") or cellValue= DS_SKIP) Then
+		If blnShowNotification Then BalloonTooltip.Show "TASE Automation","Executing Now : SetTableData"
+
+
+		Dim objTable,objWindow
+
+		strStepName ="Set " & "'" & cellValue & "'"& " in Table '"&tableName&"'"
+    	Set objWindow= SetSAPwindowObj(blnIsItPopup)
+		Set objTable= SAPGuisession(sessionObject).sapguiwindow(objWindow).sapguitable(guiTable,"name:="&tableName)
+		If  objTable.Exist Then
+				
+				On Error Resume Next
+					If  rowNumber= "" Then
+						strRowNumber = objTable.FindRowByCellContent(refColumnName,refCellValue)
+					Else 
+						strRowNumber=rowNumber
+					End If
+
+					IF Err.Number = 13 Then
+							Call ReporterFunction(strLibraryFileName,"SetTableData","1","Table Data Field","refCellValue Not Found Within RefColumn. Check the --refCellValue--Parameter of--SetTableDataByRefColumn-- Function Call")
+							strMsg = "'" & refCellValue & "'" & " Not Found Within reference column: '" & refColumnName & "' .Check the --refCellValue--Parameter of --SetTableData-- Function Call"
+							strStatus = "FAIL"
+							
+					ElseIf Err.Number=-2147220983 Then
+							Call ReporterFunction(strLibraryFileName,"SetTableData","1","Table Data Field","refColumn Not Found. Check the --refColumnName--Parameter of--SetTableDataByRefColumn-- Function Call")
+							strMsg = "'" & refColumn & "'" & " Not Found. Check the --refColumnName--Parameter of --SetTableData-- Function Call"
+							strStatus = "FAIL"
+							blnObjectError=True
+
+                    End If 
+					If Err.Number = 0 Then
+						Err.Clear	
+						If blnCaptureFlag  or  blnCreateImageEachStep or blnCreateTrainingDoc Then
+					       ImagePath=CaptureScreenshot(strStepName,objTable,FALSE,False,TRUE)
+					    End if	
+
+					    strStepName ="Set " & "'" & cellValue & "'"& " in Row Number: "& "'" & rowNumber & "'" & " and in Column Name: "& "'" & columnName& "'" & " in Table"
+					    On Error Resume Next
+						If cellValue=DS_BLANK Then
+							objTable.SetCellData strRowNumber,columnName,""
+						Else
+							objTable.SetCellData strRowNumber,columnName,cellValue 
+						End If
+
+					If Err.Number = 0 Then
+						    Call ReporterFunction(strLibraryFileName,"SetTableData","2","Table Data Field","Value Used :-" & vbNewLine &"Table Name:" & tableName &vbNewLine&"Column Field: "& columnName & vbNewLine &"Row Field: "&strRowNumber & vbNewLine &" ValueField: "&strcellValue)
+						    strStatus = "DONE"
+						    strMsg = "Table Data set successfully"
+						    
+					ElseIf Err.Number=-2147220983  Then
+                            Call ReporterFunction(strLibraryFileName,"SetTableData","1","Table Data Field","Column Not Found. Check the --columnName--Parameter of--SetTableData-- Function Call")
+							strMsg = "Column Not Found. Check the --columnName--Parameter of --SetTableData-- Function Call"
+							strStatus = "FAIL"
+							blnObjectError=True
+					ElseIf Err.Number=-2147220975  Then
+						If not rowNumber="" Then
+						Call ReporterFunction(strLibraryFileName,"SetTableData","1","Table Data Field"," Row Not Found. Check the --rowNumber--Parameter of --SetTableData-- Function Call")
+							strMsg = "Row Not Found. Check the --rowNumber--Parameter of --SetTableData-- Function Call"
+							strStatus = "FAIL"
+						End If
+					ElseIf objTable.IsCellEditable(strRowNumber,columnName)=False Then
+								Call ReporterFunction(strLibraryFileName,"SetTableData","1","Table Data Field"," Table Cell Not Editable. Check the --SetTableData-- Function Call")
+								strMsg = "Table Cell Not Editable. Check the --SetTableData-- Function Call"
+								strStatus = "FAIL"
+								
+						ElseIf Err.Number=-2147220476 Then
+								Call ReporterFunction(strLibraryFileName,"SetTableData","1","Table Data Field","Value Not Valid. Check the--cellValue-- Paramater  of --SetTableData-- Function Call")
+								strMsg = "Value Not Valid. Check the--cellValue-- Paramater  of --SetTableData-- Function Call"
+								strStatus = "FAIL"
+						End If	
+				 End If 
+					
+
+					Else 
+							Call ReporterFunction(strLibraryFileName,"SetTableData","1","Table Data Field","Table Object Missing")
+							strMsg = "Table Not Found- Please Check the Screen"
+							strStatus = "FAIL"
+							blnObjectError=True
+				End If
+
+
+	If  blnObjectError  Then
+		Environment.Value("blnFatalError")=True
+	End If
+
+	If strStatus = "FAIL"  Then
+		SetTableData = strMsg
+		blnMainFailFlag = True
+		ImagePath=CaptureScreenshot(strStepName,objTable,FALSE,False,TRUE)
+	Else
+		SetTableData = True
+	End If
+	If blnDefault_eSwiftReporting Then  
+		Call UpdateResultHtml(strStepName,cellValue,strMsg,strStatus,"")
+	End If
+End If
+
+ ' //////////Word Document ///////////
+'If blnCreateTrainingDoc Then
+'			Check=CheckStatus_Doc(strStatus)
+'			If Check=1 Then
+'				Call storeTableorGridCoordinates(objTable)
+'				Call StoreSteps(strStepName)
+'			End If 
+'End if
+ ' //////////Word Document ///////////
+
+Set objTable=Nothing
+Set objWindow=Nothing
+End Function   
+'************************************************************************************
+'End Function-SetTableData
+'************************************************************************************
+
+
+
+''**********************************************************************************
+'Name of the Function   :  SetCombo
+'Description		     : selects a value from Drop Down list where there are more than one similar values in the Drop Down 
+'			        					attachedText :- value of attachedtext property of combo box
+'			        					comboValue :-  selecteditem property of Combo as observed in object spy after selecting the desired value	    
+'Input Parameters	     :  attachedText or Name ,comboValue
+'Output Parameters        :Null
+''Updates Done : Updated the CaptureScreenshot function call as part of changes for the Training Doc creation.
+'***********************************************************************************
+'Function SetCombo(attachedTextOrComboName,comboValue)
+'**********************************************************************************
+Public Function SetCombo(attachedTextOrComboName,comboValue)
+	If Not (Environment.Value("blnFatalError") or comboValue= DS_SKIP) Then
+		If blnShowNotification Then BalloonTooltip.Show "TASE Automation","Executing Now : SetCombo"
+		strStepName = "Select "&"'"&comboValue&"'"&" in the Combo Box '"&attachedTextOrComboName&"'"
+	Dim objCombo
+				
+		If  SAPGuisession(sessionObject).sapguiwindow(windowObject).SAPGuiComboBox("guicomponenttype:=34","attachedtext:="&attachedTextOrComboName).exist Then
+    			Set objCombo = SAPGuisession(sessionObject).sapguiwindow(windowObject).SAPGuiComboBox("guicomponenttype:=34","attachedtext:="&attachedTextOrComboName)
+    			blnObjectFound = True
+		ElseIf SAPGuisession(sessionObject).sapguiwindow(windowObject).SAPGuiComboBox("guicomponenttype:=34","name:="&attachedTextOrComboName).exist Then
+				Set objCombo =SAPGuisession(sessionObject).sapguiwindow(windowObject).SAPGuiComboBox("guicomponenttype:=34","name:="&attachedTextOrComboName)
+		blnObjectFound = True
+		End If
+If blnObjectFound = True then
+                    
+				If VerifyObjectStatus(objCombo) Then
+                	strAllItems = objCombo.GetROProperty("allitems")
+					strAllItems = ";"&strAllItems			
+					strComboValAppended = ";"&comboValue&";"
+					If blnCaptureFlag  or  blnCreateImageEachStep or blnCreateTrainingDoc Then
+						ImagePath=CaptureScreenshot(strStepName,objCombo,FALSE,False,TRUE)
+					End if
+						If instr(1,strAllItems,strComboValAppended,1) Then
+							objCombo.Select comboValue
+							Call ReporterFunction(strLibraryFileName,"SetCombo","2","ComboBox Field","Value Used :-" & vbNewLine &" ComboBox Name : "&attachedText & vbNewLine &" ValueField : "&comboValue)
+							strStatus = "DONE"
+							strMsg = "Combo Box Set Successfully"
+						else
+							Call ReporterFunction(strLibraryFileName,"SetCombo","1","ComboBox Field"," Value Not Found Within Combo Box . Please verify --comboValue--Parameter of --SetCombo--Function Call")
+							strMsg = " Value Not Found Within Combo Box . Please verify --comboValue--Parameter of --SetCombo--Function Call"
+							strStatus = "FAIL"
+							
+						End If
+			 	Else
+					Call ReporterFunction(strLibraryFileName,"SetCombo","1","ComboBox Field"," Combo Box Is Not Enabled . Please verify The Screen")
+					strMsg = "Combo Box Is Not Enabled . Please verify The Screen"
+					strStatus = "FAIL"
+					blnObjectError=True
+				End If
+			
+			Else 
+				Call ReporterFunction(strLibraryFileName,"SetCombo","1","ComboBox Field","Combo Object Not Found . Please Verify The Screen")
+				strMsg =attachedText & " Combo Object Not Found . Please Verify The Screen"
+				strStatus = "FAIL"
+				blnObjectError=True
+
+			End If
+'	End If		
+			If  blnObjectError  Then
+				Environment.Value("blnFatalError")=True
+			End If
+
+			If strStatus = "FAIL"  Then
+				SetCombo = strMsg
+				blnMainFailFlag = True
+				ImagePath=CaptureScreenshot(strStepName,objCombo,FALSE,False,TRUE)
+			Else
+				SetCombo = True
+			End If
+			If blnDefault_eSwiftReporting Then  
+				Call UpdateResultHtml(strStepName,comboValue,strMsg,strStatus,"")
+			End If
+End If			
+	' //////////Word Document ///////////
+'				If blnCreateTrainingDoc Then
+'					Check=CheckStatus_Doc(strStatus)
+'					If Check=1 Then
+'						Call storeCoordinates(objCombo)
+'						Call StoreSteps(strStepName)
+'					End If
+'				End If
+' ' //////////Word Document ///////////
+
+	Set objCombo = Nothing
+End function
+'************************************************************************************
+'End Function - SetCombo
+'************************************************************************************
+''**********************************************************************************
+'Name of the Function   :  SetGridData
+'Description		     : Enters value in Grid cell fields like "material","order quantity","picking quantity"
+'Input Parameters	     :  gridTitle,gridRowNumber,gridColumnName,cellValue,blnIsItPopup
+ '                							  gridTitle:-Title of the grid
+'			       							 gridRowNumber :- Row number of  Grid where value is to be entered
+'			        						gridColumnName :- Column name of Grid where value is to be entered
+ '                              			gridName:-Name of the grid
+'			        						cellValue :- Value to be entered
+'					 blnIsItPopup-A  parameters whiich  checks if the SAP window is main window or a popup 
+'												=Yes - if it is popup ;   No/""=If it is main SAP  window			        
+'Output Parameters        :Null
+'Updates Done : Updated the CaptureScreenshot function call as part of changes for the Training Doc creation.
+'***********************************************************************************
+'Function SetGridData(  gridTitle,gridRowNumber,gridColumnName,cellValue,blnIsItPopup)
+'***********************************************************************************
+Public Function SetGridData(gridTitle,gridRowNumber,gridColumnName,cellValue,blnIsItPopup)
+	If Not (Environment.Value("blnFatalError") or cellValue= DS_SKIP) Then
+		If blnShowNotification Then BalloonTooltip.Show "TASE Automation","Executing Now : SetGridData"
+		Dim objGuiGrid201,objGuiGrid80,objGuiGrid,objWindow
+	
+		strStepName = "Set " & "'" & cellValue & "'"& " in Row Number:  "& "'" & gridRowNumber & "'" & " and in Column Name: "& "'" & gridColumnName &  "'" & " in Grid"& gridTitle
+		Set objWindow= SetSAPwindowObj(blnIsItPopup)
+		Set objGuiGrid201=SAPGuisession(sessionObject).sapguiwindow(windowObject).SAPGuiGrid("guicomponenttype:=201","title:="&gridTitle,"index:="&gridIndex)
+		Set objGuiGrid80=SAPGuisession(sessionObject).sapguiwindow(objWindow).SAPGuiGrid("guicomponenttype:=80","title:="&gridTitle,"index:="&gridIndex)
+		Set objGuiGrid=SetObj(objGuiGrid201,objGuiGrid80)
+		
+	    If objGuiGrid.Exist then
+		   On Error Resume Next
+
+			If blnCaptureFlag  or  blnCreateImageEachStep or blnCreateTrainingDoc Then
+				ImagePath=CaptureScreenshot(strStepName,objGuiGrid,False,False,True)
+				Err.Clear
+			End if
+					   objGuiGrid.SelectCell gridRowNumber,gridColumnName
+			 				If Err.Number=-2147220983 Then
+                                   Call ReporterFunction(strLibraryFileName,"SetGridData","1","Grid Data Field","The column "&gridColumnName&" does not exist")
+								   strStatus = "FAIL"
+								   strmsg = "The column '"&gridColumnName&"' does not exist"
+                                   blnObjectError=True
+								   Err.Clear
+						    ElseIf Err.Number=0 Then
+						           If cellValue=DS_BLANK Then
+									  objGuiGrid.SetCellData  gridRowNumber,gridColumnName,""
+								   Else
+									  objGuiGrid.SetCellData  gridRowNumber,gridColumnName,cellValue
+									  wait 10
+									 
+								   End If
+								   If Err.Number=-2147220476 Then
+									  	Call ReporterFunction(strLibraryFileName,"SetGridData","1","Grid Data Field","The column "&gridColumnName&" is not editable")
+								   strStatus = "FAIL"
+								   strmsg = "The column '"&gridColumnName&"'  is not editable"
+                                   
+									Else
+								   Call ReporterFunction(strLibraryFileName,"SetGridData","2","Grid Data Field","Value Used :-" & vbNewLine  &"Row Field: "&gridRowNumber & vbNewLine &"Column Field: "&gridColumnName & vbNewLine &" ValueField: "&strValue)
+								   strStatus = "DONE"
+								   strmsg = "The GuiGrid "&gridTitle&" set successfully"
+								   End If
+						    End If
+
+    else 
+				           Call ReporterFunction(strLibraryFileName,"SetGridData","1","Grid Data Field","Object Missing")
+					       strStatus = "FAIL"
+					       strmsg = "Grid Not Found- Please Check the Screen"
+				           blnObjectError=True
+   End If
+                           If  blnObjectError  Then
+						       Environment.Value("blnFatalError")=True
+						   End If
+
+	                       If strStatus = "FAIL"  Then
+							  SetGridData = strMsg
+							  blnMainFailFlag = True
+		                      ImagePath=CaptureScreenshot(strStepName,objGuiGrid,False,False,True)
+	                       Else
+							SetGridData = True
+						   End If
+						   If blnDefault_eSwiftReporting Then  
+		                      Call UpdateResultHtml(strStepName,cellValue,strMsg,strStatus,"")
+						   End If
+   
+   End If
+
+Set objGuiGrid201=Nothing
+Set objGuiGrid80=Nothing
+Set objGuiGrid=Nothing
+Set objWindow=Nothing
+
+End Function
+'************************************************************************************
+'End Function - SetGridData
+'************************************************************************************
+'
+''**********************************************************************************
+'Name of the Function   :  SetTextArea
+'Description		     : Enters value into TextArea having gui component type as 203 in a normal window (gui component type as 21)
+'                                     Val :- Value to be entered      
+'Input Parameters	     :  Val
+'Output Parameters        :
+'Updates Done : Updated the CaptureScreenshot function call as part of changes for the Training Doc creation.
+'***********************************************************************************
+'Function SetTextArea(Val)
+'***********************************************************************************
+Public Function SetTextArea(strTextAreaVal) 'Please rename 'Val' variable as 'strTextAreaVal'
+
+   If Not (Environment.Value("blnFatalError") or strTextAreaVal= DS_SKIP) Then
+		   If blnShowNotification Then BalloonTooltip.Show "TASE Automation","Executing Now : SetTextArea"
+	
+  strStepName = " Set " & "'" & strTextAreaVal & "'" & " in Text Area"
+  Set objTextArea = SAPGuisession(sessionObject).sapguiwindow(windowObject).SAPGuiTextArea("guicomponenttype:=203","name:=shell")
+    If objTextArea.Exist then
+      If  VerifyObjectStatus(objTextArea) Then
+		     textBoxtype= objTextArea.getROProperty("type")
+			 If Val=DS_BLANK Then
+				objTextArea.set ""
+			Else
+				objTextArea.set strTextAreaVal
+			 End If
+			 If blnCaptureFlag  or  blnCreateImageEachStep or blnCreateTrainingDoc Then
+				ImagePath=CaptureScreenshot(strStepName,objTextArea,FALSE,False,TRUE)
+			End if
+	         
+              Call ReporterFunction(strLibraryFileName,"SetTextArea","2","Text Area","Value Used :-"& vbNewLine &"Text BoxName: " &textBoxtype  & vbnewline &"ValueField:" &strTextAreaVal)
+	          strStatus = "DONE"
+	          strMsg = "Text Area set successfully"
+       Else 
+                  Call ReporterFunction(strLibraryFileName,"SetTextArea","1","Text Area","Text Area is not enabled. Check the Text Area status SAPGuiWindow")
+		  	       strStatus = "FAIL" 
+			       strMsg = "Text Area  is not enabled. Check theText Area status in SAPGuiWindow"
+				   blnObjectError=True
+        End If
+  Else
+       Call ReporterFunction(strLibraryFileName,"SetTextArea","1","Text Area","Text Area Object Missing")
+	   strStatus = "FAIL"
+	   strMsg = "Text Area Object Missing"
+       blnObjectError=True
+  End If
+  If  blnObjectError  Then
+		Environment.Value("blnFatalError")=True
+	End If
+
+	If strStatus = "FAIL"  Then
+		SetTextArea = strMsg
+		blnMainFailFlag = True
+		ImagePath=CaptureScreenshot(strStepName,objTextArea,FALSE,False,TRUE)
+	Else
+		SetTextArea = True
+	End If
+	If blnDefault_eSwiftReporting Then  
+		Call UpdateResultHtml(strStepName,strTextAreaVal,strMsg,strStatus,"")
+	End If
+  End If
+  	
+ Set objTextArea=Nothing
+
+End function
+'************************************************************************************
+'End Function - SetTextArea
+'***************************************************************************************
+
+
+'**********************************************************************************
+'Name of the Function   :  SetComboByKey
+'Description		     : 	selects a value from Drop Down list where there are more than one similar values in the Drop Down . This function can also be used to select blank (' ') value in drop down
+'			        					attachedText :- value of attachedtext property of combo box
+'			        					keyValue :-  selectedkey property of Combo as observed in object spy after selecting the desired value	        
+'Input Parameters	     :  attachedText or Name ,keyValue
+'Output Parameters        :Null
+'Updates Done : Updated the CaptureScreenshot function call as part of changes for the Training Doc creation.
+'***********************************************************************************
+'Function SetComboByKey(attachedTextOrComboName,keyValue)
+'***********************************************************************************
+Function SetComboByKey(attachedTextOrComboName,keyValue)
+	If Not (Environment.Value("blnFatalError") or keyValue= DS_SKIP) Then
+		If blnShowNotification Then BalloonTooltip.Show "TASE Automation","Executing Now : SetComboByKey"
+    	strStepName = "Select value"&"'"&keyValue&"'"& "from Combo ' "&attachedTextOrComboName&" '"
+    	If  SAPGuisession(sessionObject).sapguiwindow(windowObject).SAPGuiComboBox("guicomponenttype:=34","attachedtext:="&attachedTextOrComboName).Exist(2) Then
+    		Set objCombo = SAPGuisession(sessionObject).sapguiwindow(windowObject).SAPGuiComboBox("guicomponenttype:=34","attachedtext:="&attachedTextOrComboName)
+    				blnObjectFound = True
+		ElseIf SAPGuisession(sessionObject).sapguiwindow(windowObject).SAPGuiComboBox("guicomponenttype:=34","name:="&attachedTextOrComboName).Exist(2) Then
+			Set objCombo =SAPGuisession(sessionObject).sapguiwindow(windowObject).SAPGuiComboBox("guicomponenttype:=34","name:="&attachedTextOrComboName)
+					blnObjectFound = True
+		End If	
+	If 		blnObjectFound = True Then
+		
+	
+		If objCombo.Exist Then
+			If VerifyObjectStatus(objCombo) Then
+				strAllKey = objCombo.GetROProperty("allkeys")
+				strAllKey = ";"&strAllKey
+				strkeyValAppended = ";"&keyValue&";"
+				strkeyValAppendedNew = ";"&keyValue
+				If blnCaptureFlag  or  blnCreateImageEachStep or blnCreateTrainingDoc Then
+					ImagePath=CaptureScreenshot(strStepName,objCombo,False,False,True)
+				End if
+				If instr(1,strAllKey,strkeyValAppended,1) Then
+			
+					objCombo.Selectkey keyValue
+					Call ReporterFunction(strLibraryFileName,"SetComboByKey","2","ComboBox Field","Value Used :-" & vbNewLine &" ComboBox Name : "&attachedText & vbNewLine &" ValueField : "&keyValue)
+					strStatus = "DONE"
+					strMsg = "Combo box set successfully"
+					
+					ElseIf  instr(1,strAllKey,strkeyValAppendedNew,1) Then
+			
+					objCombo.Selectkey keyValue
+					Call ReporterFunction(strLibraryFileName,"SetComboByKey","2","ComboBox Field","Value Used :-" & vbNewLine &" ComboBox Name : "&attachedText & vbNewLine &" ValueField : "&keyValue)
+					strStatus = "DONE"
+					strMsg = "Combo box set successfully"
+				Else
+					Call ReporterFunction(strLibraryFileName,"SetComboByKey","1","ComboBox Field"," Key Not Found Within Combo Box . Please verify --keyValue--Parameter of --SetComboByKey--Function Call")
+					strMsg = "Value not found within the combo box. Please verify --keyValue--Parameter of --SetComboByKey--Function Call"
+					strStatus = "FAIL"
+				End If
+			Else
+				Call ReporterFunction(strLibraryFileName,"SetComboByKey","1","ComboBox Field"," Combo Box Is Not Enabled . Please verify The Screen")
+				strMsg = "Combo Box Is Not Enabled . Please verify The Screen"
+				strStatus = "FAIL"
+				blnObjectError=True
+			End If
+			End If
+		Else 
+			Call ReporterFunction(strLibraryFileName,"SetComboByKey","1","ComboBox Field","Combo Object Not Found . Please Verify The Screen")
+			strMsg =attachedText & " Combo Box Object Not Found . Please Verify The Screen"
+			strStatus = "FAIL"
+			blnObjectError=True
+		
+		End If
+		If  blnObjectError  Then
+			Environment.Value("blnFatalError")=True
+		End If
+	
+		If strStatus = "FAIL"  Then
+			SetComboByKey = strMsg
+			blnMainFailFlag = True
+			ImagePath=CaptureScreenshot(strStepName,objCombo,False,False,True)
+		Else
+			SetComboByKey = True
+		End If
+		If blnDefault_eSwiftReporting Then  
+			Call UpdateResultHtml(strStepName,keyValue,strMsg,strStatus,"")
+		End If
+End If		
+		
+			' //////////Word Document ///////////
+'				If blnCreateTrainingDoc Then
+'					Check=CheckStatus_Doc(strStatus)
+'					If Check=1 Then
+'						Call storeCoordinates(objCombo)
+'						Call StoreSteps(strStepName)
+'					End If
+'				End If
+ ' //////////Word Document ///////////
+
+	Set objCombo = Nothing
+End function
+'************************************************************************************
+'End Function - SetComboByKey
+'************************************************************************************
+
+
+'**********************************************************************************
+'Name of the Function   :  SetTextboxPopupIfExist
+'Description		     : Enters value into Textbox in a popup if the popup exists
+'			        textboxName :- Textbox name
+ '                  attachedText :- text attached with the textbox
+'			        val :- Value to be entered
+'			        
+'Input Parameters	     :  textboxName, attachedText,Val
+'Output Parameters        :Null
+''Updates Done : Updated the CaptureScreenshot function call as part of changes for the Training Doc creation.
+'***********************************************************************************
+'Function SetTextboxPopupIfExist(textboxName,attachedText,Val)
+'***********************************************************************************
+
+Public Function SetTextboxPopupIfExist(textboxName,attachedText,strTextboxValue) 'Rename 'Val' with 'strTextboxValue'
+
+	 If Not (Environment.Value("blnFatalError") or strTextboxValue= DS_SKIP) Then
+			If blnShowNotification Then BalloonTooltip.Show "TASE Automation","Executing Now : SetTextboxPopupIfExist"
+     		strStepName = " Set " & "'" & strTextboxValue & "'" &  " in Textbox : " &attachedText&" in Popup window"
+			If sapguisession(sessionObject).sapguiwindow(windowObject1).Exist Then
+				If textboxName <> "" or attachedText <>"" and strTextboxValue<>"" Then
+					If attachedText = "" Then
+						Set objPopupTextboxGuiComp31 = SAPGuisession(sessionObject).sapguiwindow(windowObject1).sapguiedit("guicomponenttype:=31","name:="&textboxName)
+						Set objPopupTextboxGuiComp32 = SAPGuisession(sessionObject).sapguiwindow(windowObject1).sapguiedit("guicomponenttype:=32","name:="&textboxName)
+					Else
+						Set objPopupTextboxGuiComp31 = SAPGuisession(sessionObject).sapguiwindow(windowObject1).sapguiedit("guicomponenttype:=31","attachedtext:="&attachedText,"name:="&textboxName)
+						Set objPopupTextboxGuiComp32 = SAPGuisession(sessionObject).sapguiwindow(windowObject1).sapguiedit("guicomponenttype:=32","attachedtext:="&attachedText,"name:="&textboxName)
+					End If
+					Set objPopupTextbox = SetObj(objPopupTextboxGuiComp31,objPopupTextboxGuiComp32)
+					If objPopupTextbox.Exist then 
+		      			If  VerifyObjectStatus(objPopupTextbox) Then
+				  			If strTextboxValue=DS_BLANK Then
+								objPopupTextbox.set ""
+							Else
+								objPopupTextbox.set strTextboxValue
+				  			End If
+			       		If blnCaptureFlag  or  blnCreateImageEachStep or blnCreateTrainingDoc Then
+							ImagePath=CaptureScreenshot(strStepName,objTextbox,,FALSE,False,TRUE)
+						End if
+			       	Call ReporterFunction(strLibraryFileName,"SetTextboxPopupIfExist","2","Text Box","Value Used :-"& vbNewLine &"Text BoxName: " &textboxName & vbnewline &"ValueField:" &strTextboxValue)
+			       		strstatus = "DONE"
+			       		strMsg = "TextboxPopup Set Successfuly"
+      	     		 Else 
+		           		Call ReporterFunction(strLibraryFileName,"SetTextboxPopupIfExist","1","Text Box","PopupTextbox is not enabled. Check the Textbox status in PopupWindow")
+			       		strStatus = "FAIL" 
+			       		strMsg = "PopupTextbox is not enabled. Check the Textbox status in PopupWindow"
+			       		blnObjectError=True
+              		End If
+              		Else
+              			Call ReporterFunction(strLibraryFileName,"SetTextboxPopupIfExist","1","Text Box","PopupTextbox does not exist in PopupWindow")
+              			strStatus = "FAIL" 
+			       		strMsg = "PopupTextbox does not exist in PopupWindow"
+			       		blnObjectError=True
+          		    End If
+          		    
+				Else
+   	               Call ReporterFunction(strLibraryFileName,"SetTextboxPopupIfExist","1","Text Box","Function Parameter Not Passed Properly. Check the --SetTextboxPopupIfExist-- Function Call")
+			       strStatus = "FAIL" 
+			       strMsg = "Function Parameter Not Passed Properly. Check the --SetTextboxPopupIfExist- Function Call"
+    			End If
+    			End If 
+    			End If
+    If  blnObjectError  Then
+		Environment.Value("blnFatalError")=True
+	End If
+
+	If strStatus = "FAIL"  Then
+		SetTextboxPopupIfExist = strMsg
+		blnMainFailFlag = True
+		ImagePath=CaptureScreenshot(strStepName,objTextbox,,FALSE,False,TRUE)
+	Else
+		SetTextboxPopupIfExist = True
+	End If
+	If blnDefault_eSwiftReporting Then  
+		Call UpdateResultHtml(strStepName,strTextboxValue,strMsg,strStatus,"")
+	End If
+
+		 ' //////////Word Document ///////////
+'				If blnCreateTrainingDoc AND sapguisession(sessionObject).sapguiwindow(windowObject1).Exist Then
+'					Check=CheckStatus_Doc(strStatus)
+'					If Check=1 Then
+'						Call storeCoordinates(objPopupTextbox)
+'						Call StoreSteps(strStepName)
+'					End If
+'				End If
+ ' //////////Word Document ///////////
+
+  Set objPopupTextbox=Nothing
+
+End function
+'************************************************************************************
+'End Function - SetTextboxPopupIfExist
+'************************************************************************************
+
+Function  SetCurrentSheet(SheetName)
+
+Call Html_iteration(SheetName)
+Set WshShell = CreateObject("WScript.Shell")
+Set WshDTEnv = WshShell.Environment("USER")
+WshDTEnv("sheetNameEnv") = SheetName
+status = "DONE"
+strMsg = "Sheet Uploaded"
+
+
+'Call Importsheets()
+End Function
+
+
+''**********************************************************************************
+'Name of the Function   :  SetTextboxByGuiLabelXYCordDiff
+'Description		     : 
+'                                     
+'Input Parameters	     :  refLabelContent,refLabelIndex,xDifferenceValue,yDifferenceValue,valToSet
+'Output Parameters        : Null
+''Updates Done : Updated the CaptureScreenshot function call as part of changes for the Training Doc creation.
+'***********************************************************************************
+'Function SetTextboxByGuiLabelXYCordDiff(refLabelContent,refLabelIndex,xDifferenceValue,yDifferenceValue,valToSet)
+'***********************************************************************************
+
+
+Public Function SetTextboxByGuiLabelXYCordDiff(refLabelContent,refLabelIndex,xDifferenceValue,yDifferenceValue,strTextboxValue) 'rename 'valToSet' as 'strTextboxValue'
+Dim ObjLabelTextBox
+If Not (Environment.Value("blnFatalError") or strTextboxValue= DS_SKIP) Then
+	If blnShowNotification Then BalloonTooltip.Show "TASE Automation","Executing Now : SetTextboxByGuiLabelXYCordDiff"
+	strStepName = "Set val " & "'" & strTextboxValue & "'" & " in Textbox"
+
+	Set objRefGuiLabel = SAPGuisession(sessionObject).sapguiwindow(windowObject).SAPGuiLabel("guicomponenttype:=30", "content:="&refLabelContent,"index:="&refLabelIndex) 'rename 'refObjGuiLabel' as 'objRefGuiLabel'
+	If refLabelContent<> "" OR  xDifferenceValue<>"" OR yDifferenceValue<> "" Then
+			If objRefGuiLabel.Exist Then 
+				
+						 yRefLabelValue=objRefGuiLabel.GetROProperty("y")
+						 xRefLabelValue =objRefGuiLabel.GetROProperty("x")
+						 On Error Resume Next
+						 yTextBoxValue= yRefLabelValue-CInt(yDifferenceValue)
+						 xTextBoxValue = xRefLabelValue-CInt(xDifferenceValue)
+						 
+						  If Err.Number=13 Then
+									   Call ReporterFunction(strLibraryFileName,"SetTextboxByGuiLabelXYCordDiff","1","Select Checkbox","Please check the xDifferenceValue parameter of the SetTextboxByGuiLabelXYCordDiff Function")
+									   strStatus = "FAIL"
+									   strMsg = "Passed Function Parameter xDifferenceValue is Not an Integer. Please check the xDifferenceValue parameter of the SetTextboxByGuiLabelXYCordDiff  Function"
+						  ElseIf Err.Number=0 Then
+									Set ObjLabelTextBox=SAPGuisession(sessionObject).sapguiwindow(windowObject).SAPGuiEdit("guicomponenttype:=32", "x:="&xTextBoxValue,"y:="&yTextBoxValue)
+									If strTextboxValue=DS_BLANK Then
+										ObjLabelTextBox.Set ""
+									Else
+										ObjLabelTextBox.Set strTextboxValue
+									End If
+									If blnCaptureFlag  or  blnCreateImageEachStep or blnCreateTrainingDoc Then
+										ImagePath=CaptureScreenshot( strStepName,ObjLabelTextBox,FALSE,False,TRUE)
+										Err.Clear
+									End if
+								    Call ReporterFunction(strLibraryFileName,"SetTextboxByGuiLabelXYCordDiff","2","TextBox","Value is Set")
+								    strStatus = "DONE"
+								    strMsg = "Textbox set Successfully"
+						  End If
+            else
+			      Call ReporterFunction(strLibraryFileName,"SetTextboxByGuiLabelXYCordDiff","1","labelContent","Object Missing")
+				  strStatus = "FAIL"
+			      strMsg = " The Object is not Found, Please verify the Screen"
+				  blnObjectError=True
+           end if
+else 
+          Call ReporterFunction(strLibraryFileName,"SetTextboxByGuiLabelXYCordDiff","1","TextBox","Function Parameter Not Passed Properly. Check the --SetTextboxByGuiLabelXYCordDiff-- Function Call-")
+	      strStatus = "FAIL"
+          strMsg = "Function Parameter Not Passed Properly. Check the --SetTextboxByGuiLabelXYCordDiff-- Function Call-"       
+end if  
+If  blnObjectError  Then
+		Environment.Value("blnFatalError")=True
+	End If
+
+	If strStatus = "FAIL"  Then
+		SetTextboxByGuiLabelXYCordDiff = strMsg
+		blnMainFailFlag = True
+		ImagePath=CaptureScreenshot( strStepName,ObjLabelTextBox,FALSE,False,TRUE)
+	Else
+		SetTextboxByGuiLabelXYCordDiff = True
+	End If
+	If blnDefault_eSwiftReporting Then  
+		Call UpdateResultHtml(strStepName,strTextboxValue,strMsg,strStatus,"")
+	End If
+Set objGuiLabel=Nothing
+End If
+
+End Function
+
+'************************************************************************************
+'End Function - SetCombo
+'************************************************************************************
+''********************************DELHAIZE**************************************************
+'Name of the Function   :  SetGridCheckbox
+'Description		     : Enters value in Grid cell fields like "material","order quantity","picking quantity"
+'Input Parameters	     :  gridTitle,gridRowNumber,gridColumnName,cellValue,blnIsItPopup
+ '                							  gridTitle:-Title of the grid
+'			       							 gridRowNumber :- Row number of  Grid where value is to be entered
+'			        						gridColumnName :- Column name of Grid where value is to be entered
+ '                              			cellValue :- Value to be entered
+'					 blnIsItPopup-A Boolean parameters whiich  checks if the SAP window is main window or a popup 
+'												=Yes - if it is popup ;   No/""=If it is main SAP  window			        
+'Output Parameters        :Null
+'Updates Done : Updated the CaptureScreenshot function call as part of changes for the Training Doc creation.
+'***********************************************************************************
+'Function SetGridCheckbox( gridRowNumber,gridColumnName,cellValue,blnIsItPopup)
+'***********************************************************************************
+Public Function SetGridCheckbox(gridRowNumber,gridColumnName,cellValue,blnIsItPopup)
+	If Not Environment.Value("blnFatalError") Then
+		If blnShowNotification Then BalloonTooltip.Show "TASE Automation","Executing Now : SetGridData"
+		Dim objGuiGrid201,objGuiGrid80,objWindow
+		',objGuiGrid
+	
+		strStepName = "Set " & "'" & cellValue & "'"& " in Row Number:  "& "'" & gridRowNumber & "'" & " and in Column Name: "& "'" & gridColumnName
+		Set objWindow= SetSAPwindowObj(blnIsItPopup)
+		Set objGuiGrid201=SAPGuisession(sessionObject).sapguiwindow(windowObject).SAPGuiGrid("guicomponenttype:=201")
+		'"guicomponenttype:=201","id:="&gridId
+				
+	    If objGuiGrid201.Exist then
+		   On Error Resume Next
+
+			If blnCaptureFlag  or  blnCreateImageEachStep or blnCreateTrainingDoc Then
+				ImagePath=CaptureScreenshot(strStepName,objGuiGrid201,False,False,True)
+				Err.Clear
+			End if
+					   objGuiGrid201.SelectCell gridRowNumber,gridColumnName
+			 				If Err.Number=-2147220983 Then
+                                   Call ReporterFunction(strLibraryFileName,"SetGridData","1","Grid Data Field","The column "&gridColumnName&" does not exist")
+								   strStatus = "FAIL"
+								   strmsg = "The column '"&gridColumnName&"' does not exist"
+                                   blnObjectError=True
+								   Err.Clear
+						    ElseIf Err.Number=0 Then
+						           If cellValue=DS_BLANK Then
+									  objGuiGrid201.SetCheckbox  gridRowNumber,gridColumnName,""
+								   Else
+									  objGuiGrid201.SetCheckbox gridRowNumber,gridColumnName,cellValue
+									  wait 10
+									 
+								   End If
+								   If Err.Number=-2147220476 Then
+									  	Call ReporterFunction(strLibraryFileName,"SetGridData","1","Grid Data Field","The column "&gridColumnName&" is not editable")
+								   strStatus = "FAIL"
+								   strmsg = "The column '"&gridColumnName&"'  is not editable"
+                                   
+									Else
+								   Call ReporterFunction(strLibraryFileName,"SetGridData","2","Grid Data Field","Value Used :-" & vbNewLine  &"Row Field: "&gridRowNumber & vbNewLine &"Column Field: "&gridColumnName & vbNewLine &" ValueField: "&strValue)
+								   strStatus = "DONE"
+								   strmsg = "The GuiGrid "&gridId&" set successfully"
+								   End If
+						    End If
+
+    else 
+				           Call ReporterFunction(strLibraryFileName,"SetGridData","1","Grid Data Field","Object Missing")
+					       strStatus = "FAIL"
+					       strmsg = "Grid Not Found- Please Check the Screen"
+				           blnObjectError=True
+   End If
+                           If  blnObjectError  Then
+						       Environment.Value("blnFatalError")=True
+						   End If
+
+	                       If strStatus = "FAIL"  Then
+							  SetGridCheckbox = strMsg
+							  blnMainFailFlag = True
+		                      ImagePath=CaptureScreenshot(strStepName,objGuiGrid201,False,False,True)
+	                       Else
+							SetGridCheckbox = True
+						   End If
+						   If blnDefault_eSwiftReporting Then  
+		                      Call UpdateResultHtml(strStepName,cellValue,strMsg,strStatus,"")
+						   End If
+   
+   End If
+
+Set objGuiGrid201=Nothing
+Set objGuiGrid80=Nothing
+'Set objGuiGrid=Nothing
+Set objWindow=Nothing
+
+End Function
+'************************************************************************************
+'End Function - SetGridData
+'************************************************************************************
+
+
+
+Function SetEmptyTextbox(textboxAttachedText,textboxName,textboxIndex,textboxValue,blnIsItPopup)
+    If Not (Environment.Value("blnFatalError")) Then
+    If blnShowNotification Then BalloonTooltip.Show "TASE Automation","Executing Now : SetEmptyTextbox"
+    
+        Dim objTextboxGuiComp32,objTextboxGuicomp31,objTextbox,objWindow
+    
+    
+    strStepName = " Set "  & "'" & textboxValue & "'" & " in Textbox : " & "'"& textBoxAttachedText & "'"                   
+        Set objWindow= SetSAPwindowObj(blnIsItPopup)
+    Set objTextboxGuiComp32 = SAPGuisession(sessionObject).sapguiwindow(objWindow).sapguiedit("guicomponenttype:=32","attachedtext:="&textboxAttachedText,"name:="&textboxName,"Index:="&textboxIndex)
+    Set objTextboxGuicomp31 = SAPGuisession(sessionObject).sapguiwindow(objWindow).sapguiedit("guicomponenttype:=31","attachedtext:="&textboxAttachedText,"name:="&textboxName,"Index:="&textboxIndex)
+    Set objTextbox=SetObj(objTextboxGuiComp32,objTextboxGuicomp31)  
+    If objTextbox.Exist then
+            
+             If VerifyObjectStatus(objTextbox) Then  
+            If textboxValue= DS_BLANK Then
+                  objTextbox.set ""
+            Else
+'''                objTextbox.Highlight
+                  objTextbox.set textboxValue
+            End If
+                    If blnCaptureFlag  or  blnCreateImageEachStep or blnCreateTrainingDoc Then
+                ImagePath=CaptureScreenshot(strStepName,objTextbox,FALSE,False,TRUE)
+            End if
+            Call ReporterFunction(strLibraryFileName,"SetEmptyTextbox","2",strStepName,"Value Used :-"& vbNewLine & "AttachedText:"&textboxAttachedText & vbNewLine & "Text BoxName: " &textboxName & vbnewline &"ValueField:" &textboxValue)
+            strStatus = "DONE"
+            strMsg = "Text box set successfully"
+        Else
+            Call ReporterFunction(strLibraryFileName,"SetEmptyTextbox","1",strStepName,"The Textfield: "& textboxAttachedText & "is not enabled")
+            strStatus = "FAIL"
+            strMsg = "The Textfield '"& textboxAttachedText & "' is not enabled"
+                       blnObjectError=True
+        End if        
+    Else
+            
+            Call ReporterFunction(strLibraryFileName,"SetEmptyTextbox","1",strStepName,"Object Missing--Check the Screen Properly")
+        strStatus = "FAIL"
+        strMsg = "The Textfield '"& textboxAttachedText & "'  is not Found--Check the Screen Properly"
+        blnObjectError=True
+    End If        
+    If  blnObjectError  Then
+        Environment.Value("blnFatalError")=True
+    End If
+
+
+
+
+
+  If strStatus = "FAIL"  Then
+        SetEmptyTextbox = strMsg
+        blnMainFailFlag = True
+        ImagePath=CaptureScreenshot(strStepName,objTextbox,FALSE,False,TRUE)
+    Else
+        SetEmptyTextbox = True
+    End If
+    If blnDefault_eSwiftReporting Then  
+        Call UpdateResultHtml(strStepName,textboxValue,strMsg,strStatus,"")
+    End If
+'    ' //////////Word Document ///////////
+'            If blnCreateTrainingDoc Then
+'                   Check=CheckStatus_Doc(strStatus)
+'                   If Check=1 Then
+'                          Call storeCoordinates(objTextbox)
+'                          Call StoreSteps(strStepName)
+'                   End If
+'            End If
+'     ' //////////Word Document ///////////
+    Set objTextbox=Nothing
+    Set objTextboxGuiComp32=Nothing
+    Set objTextboxGuicomp31=Nothing
+    Set objWindow=Nothing
+    End If
+End function
+
+
+

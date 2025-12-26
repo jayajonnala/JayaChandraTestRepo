@@ -1,0 +1,24 @@
+﻿ 
+'//---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------//
+'.................Test Script Name :
+'.................T-Codes Used :
+'.................Author : TCS
+'................ Creation Date : 06/10/2020
+'.................Modified By :
+'.................Modified Date/Details :
+
+'//---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------//
+
+
+
+gstrTestCaseName = "Wait"
+gstrTCDescription = "Wait"'.....Please give TestCase Description.
+gstrTCPrerequisite = ""'.....Please mention the pre-requisites for TestCase If any.
+
+If qtpParamExist("WaitTime") Then
+	WaitTime = Parameter("WaitTime")
+End If
+
+Wait WaitTime
+Environment.Value("TCExecutionStatus") = "Pass"
+Environment.Value("HtmlResultReportpath") = "Wait of "&WaitTime&" seconds is completed"

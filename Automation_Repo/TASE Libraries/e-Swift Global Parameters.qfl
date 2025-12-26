@@ -1,0 +1,372 @@
+﻿'####-----####-----####-----####-----####-----####-----####-----####-----####-----####-----####-----####-----####-----####-----####-----####-----####-----####-----####-----####-----####-----####-----####-----####-----####-----####-----
+'####-----####-----####-----####-----####-----####-----####-----####-----####-----####-----####-----####-----####-----####-----####-----####-----####-----####-----####-----####-----####-----####-----####-----####-----####-----####-----
+
+'																														IP Name					:TASE									
+'																														Copyright © 2011 TCSL. All Rights Reserved       
+'																														Framework Owner	: TCS ASU-ERP & Niche Testing COE			   
+'																														Summary : 	TASE is an intellectual Property of TCSL Which works as	an accelerator for Automation Testing of ERP Solutions.	
+'																														No part of this work may be reproduced, stored in a retrieval system,adapted or transmitted 		in any form or by any means electronic,	mechanical,photographic, 
+'																														optic recording or otherwise without the prior written permission of TCSL. 			       	    
+
+'####-----####-----####-----####-----####-----####-----####-----####-----####-----####-----####-----####-----####-----####-----####-----####-----####-----####-----####-----####-----####-----####-----####-----####-----####-----####-----
+'####-----####-----####-----####-----####-----####-----####-----####-----####-----####-----####-----####-----####-----####-----####-----####-----####-----####-----####-----####-----####-----####-----####-----####-----####-----####-----
+
+
+
+'-----------------------------------------------------------------------------------------------------------------		GLOBAL PARAMETERS		DECLARATION-----------------------------------------------------------------------------------------------------------------
+
+' ------------------------------------------------------------------------  New variables added for Unification purpose ----------------------------------------------------------------------------------------------------------------------------------
+Set objShell = CreateObject("WScript.Shell")
+Public blnWriteDataToOutputSheet : blnWriteDataToOutputSheet = True					'if true then the capture functions will Automatically write the capture data to excel. 
+Public gstrWriteDataToExcelRowNo : gstrWriteDataToExcelRowNo = 2
+Public gblnMultipleObjectsInSingleScreenshot : gblnMultipleObjectsInSingleScreenshot = True
+Public gblnScenarioMode : gblnScenarioMode = False
+Public gblnFirstIteration : gblnFirstIteration = True
+Public giCurrentIteration
+Public giTestCaseNumber												'to keep track of testcases uniqueness if in-case test case names in same iteration are same
+Public gstrSummaryDetailsXMLPath : gstrSummaryDetailsXMLPath = objShell.ExpandEnvironmentStrings("%LOCALAPPDATA%") & "/" & "e-Swift" 
+Public gstrSummaryDetailsXMLName : gstrSummaryDetailsXMLName = "e-Swift Summary Details.xml" 
+Public gstrUISettingsXMLPath : gstrUISettingsXMLPath = objShell.ExpandEnvironmentStrings("%LOCALAPPDATA%") & "/" & "e-Swift" 
+Public gstrUISettingsXMLName : gstrUISettingsXMLName = "e-Swift Settings.xml" 
+Public objXml
+Public gstrOutputSheetName : gstrOutputSheetName="OUTPUT" 
+
+'Added for multiple objects in sigle screenshot purpose -------------------------------------------------------------------------
+Public oDicAbsX
+Public oDicAbsY
+Public oDicHeight
+Public oDicWidth
+Public bDocFlag
+Public oDicSteps
+Public oDicObject
+Set oDicAbsX = createObject("Scripting.Dictionary")
+Set oDicAbsY= createObject("Scripting.Dictionary")
+Set oDicHeight= createObject("Scripting.Dictionary")
+Set oDicWidth= createObject("Scripting.Dictionary")
+Set oDicSteps= createObject("Scripting.Dictionary")
+Set oDicObject=createobject("Scripting.Dictionary")
+
+
+' -----------------------------------------------------------------------------------------------------------------  Added for SAP  Execution---------------------------------------------------------------------------------------------------------------------------------------------
+
+'******************************************************
+'Objects Declaration
+'******************************************************
+Public sessionObject								
+Public windowObject			
+Public windowObject1
+Public tCodeTextBox
+Public guiTable
+Public guiMenuBar
+Public guiStatusBar
+Public guiTab
+Public guiedit
+Public usernameField
+Public passwordField
+Public checkBoxObject
+Public comboBoxObject
+Public SAPwindowObject
+Public SAPStatusBarObject
+Public SAPwindowObject1
+
+'******************************************************
+'Objects and Variables for Training Document
+'******************************************************
+
+Public screenShotDoc
+Public TrainingDocPDFFlag
+Public TrainingDocWordFlag
+Public TrainingDocWordTemplateFlag
+Public strTrainingDocWordTemplatePath
+Public stepCount:stepCount=1                      'Varaiable is used to store screen count in training doc
+Public screenCount:screenCount=1                     'Varaiable  for naming screenshots uniquely. Screenshots in the same second are ovewritten elsewise.
+Public imageButtonPath:imageButtonPath="SKIP"               'Variable stores the path of latest button image for training doc creation
+Public ConfigSheet : ConfigSheet = "Config"
+
+
+'*********************************************************************************
+'Objects and Variables for entering data in differennt rows of SAP Tables and Grids
+'*********************************************************************************
+Public DicObjLineItems
+Public DicExcelRowNumberIteration
+Public nowLineItem
+Public totallineItems
+Public nextIterationNumber
+Public columncount
+Public colcounter
+Public lineItemSheetName : lineItemSheetName = "LineItems"
+Set DicObjLineItems=CreateObject("Scripting.Dictionary")   'Dictionary to store number of rows within each iteration----Key:iterationnumber and Item: totalnumber of line items for the iteration
+Set DicExcelRowNumberIteration=CreateObject("Scripting.Dictionary")  'Dictionary to store starting row number of excel for each iteration-----Key: IterationNumber and Item : starting row number
+
+'******************************************************
+'Objects Creation
+'******************************************************
+
+Set sessionObject = Description.Create()
+Set windowObject = Description.Create()
+Set windowObject1= Description.Create()
+Set tCodeTextBox = Description.Create()
+Set guiTable = Description.Create()
+Set guiMenuBar = Description.Create()
+Set guiedit = Description.Create()
+Set guiStatusBar = Description.Create()
+Set guiTab = Description.Create()
+Set usernameField = Description.Create()
+Set passwordField = Description.Create()
+Set checkBoxObject = Description.Create()
+Set comboBoxObject = Description.Create()
+
+'******************************************************
+'End Of Objects Creation
+'**********************************************************
+
+'*********************************************************
+'Defining Objects
+'**********************************************************
+
+sessionObject("guicomponenttype").value = "12"
+windowObject("guicomponenttype").value = "21"
+windowObject1("guicomponenttype").value = "22"
+tCodeTextBox("guicomponenttype").value = "35"
+guiTable("guicomponenttype").value = "80"
+guiMenuBar("guicomponenttype").value = "111"
+guiStatusBar("guicomponenttype").value = "103"
+guiStatusBar("index").value = "0"
+guiTab("guicomponenttype").value = "90"
+usernameField("guicomponenttype").value = "31"
+usernameField("name").value = "RSYST-BNAME"
+passwordField("guicomponenttype").value = "33"
+passwordField("name").value = "RSYST-BCODE"
+checkBoxObject("guicomponenttype").value = "42"
+Set SAPwindowObject = sapguisession(sessionObject).sapguiwindow(windowObject)
+Set SAPwindowObject1 = sapguisession(sessionObject).sapguiwindow(windowObject1)
+Set SAPStatusBarObject = SAPGuiSession(sessionObject).SAPGuiStatusBar(guiStatusBar)
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+Public Const wdFormatDocument                    =  0
+Public Const wdFormatDocument97                  =  0
+Public Const wdFormatDocumentDefault             = 16
+Public Const wdFormatDOSText                     =  4
+Public Const wdFormatDOSTextLineBreaks           =  5
+Public Const wdFormatEncodedText                 =  7
+Public Const wdFormatFilteredHTML                = 10
+Public Const wdFormatFlatXML                     = 19
+Public Const wdFormatFlatXMLMacroEnabled         = 20
+Public Const wdFormatFlatXMLTemplate             = 21
+Public Const wdFormatFlatXMLTemplateMacroEnabled = 22
+Public Const wdFormatHTML                        =  8
+Public Const wdFormatPDF                         = 17
+Public Const wdFormatRTF                         =  6
+Public Const wdFormatTemplate                    =  1
+Public Const wdFormatTemplate97                  =  1
+Public Const wdFormatText                        =  2
+Public Const wdFormatTextLineBreaks              =  3
+Public Const wdFormatUnicodeText                 =  7
+Public Const wdFormatWebArchive                  =  9
+Public Const wdFormatXML                         = 11
+Public Const wdFormatXMLDocument                 = 12
+Public Const wdFormatXMLDocumentMacroEnabled     = 13
+Public Const wdFormatXMLTemplate                 = 14
+Public Const wdFormatXMLTemplateMacroEnabled     = 15
+Public Const wdFormatXPS                         = 18
+' -------------------------------------------   Added constants for detailed and summary reports generation in doc and PDF formats ----------------------------------
+Public Const wdLineStyleSingle = 1
+Public Const wdLineStyleDouble = 7
+Public Const wdAlignParagraphCenter = 1
+Public Const wdShapeRight = -999996
+Public Const wdAlignParagraphRight = 2
+Public Const wdAlignParagraphLeft = 0
+Public Const END_OF_STORY=6
+Public Const wdAdjustNone = 0
+Public Const wdUnderlineSingle = 1
+Public Const wdDarkRed = 13
+Public Const wdGreen = 11
+Public Const wdBlack = 1
+Public Const wdWebLayout = 6
+Public Const xlDataLabelsShowPercent = 3
+Public Const xlDataLabelsShowvalue = 2
+Public Const Xlpie = 5
+Public Const XlBar = 2
+Public Const xlCategory = 2
+'------------------------------------------------------------------------------------------------------------
+' Public Const wdFormatOfficeDocumentTemplate      = 23 (1)
+' Public Const wdFormatMediaWiki                   = 24 (1) (2)
+Public Const xlToRight="-4161"
+Public Const xlFormatFromLeftOrAbove=0
+Public Const wdAlignPageNumberRight = 2
+Public Const wdFieldData=40
+Public Const wdCollapseEnd = 0
+Public Const wdPageBreak = 7
+Public Const wdLineStyleThinThickLargeGap = 15
+Public Const wdLineWidth100pt = 8  
+Public Const wdStory = 6
+'*************************************************************************
+'End of  Constant values for conversion of word to other formats
+'************************************************************************
+
+'// Below listed constants are used for generation of PieChart using Excel object//
+'Public Const xlPie=5
+Public Const xlColumns = 2
+Public Const xlColorIndexNone = -4142
+Public Const xlLineSttyleNone = -4142
+
+
+'*************************************************************************
+'Constant values for datasheet Parameter Controls
+'*************************************************************************
+Public Const DS_SKIP = "<SKIP>"
+Public Const DS_BLANK = "<BLANK>"
+
+
+
+
+'---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+Public gstrMainFrameworkFolder																											' Root Framework path 	
+Public gstrMainResultFolder																													' -----------Root Result path 
+Public InputFilePath                         		 		  																						    '  Variable for Input Excel File  Path 				
+Public gstrScenarioResultFolder 																										  ' ----------Variable for Test Scenario folder path .Contains value= Main Framework path + Testcase name + Timestamp
+Public gstrIterationResultFolder																										' ----------Variable for Test Scenario Iteration folder path .Contains value= Main Framework path + Iteration name + Testcase name + Timestamp
+Public ImagePath																																		' ----------Variable for containg the screenshots image paths
+Public objFso : Set objFso = CreateObject("Scripting.FileSystemObject")       								 ' Global variable to create File system object 
+Public errorCount																																		  ' Variable to hold number of errors happenning during execution
+Public gstrScreenShotDocument																											'----------Variable for  containing the Word screenshot doc name created for a testcase												
+Public blnCreateImageEachStep 																											 '----------Boolean Global variable to ake screenshot at each step by Default . Allowed Values= TRUE /	FALSE
+Public gstrLogoFileName																															'Variable for containing the  image file name havingt the customer logo
+Public gsrtLogoAltText 																																'--------- to contain the Alternate text that should appear in Summary report in case image is not displayed.	
+Public gstrSummaryGraphType																												 'Boolean Global variable for  selecting the Type of Graph in Summary Report . Allowed Values= PIE/ BAR
+Public TDConnection																																' Variable for Quality Center(QC) conenctions
+'Set TDConnection = CreateObject("TDAPIOLE80.TDConnection")												'	------------------ Set if QC connection is exists
+Public giTestCaseStartTime : giTestCaseStartTime =Timer()													' -----------Variable for setting timer on first execution					
+Public giLastUpdatedTime : giLastUpdatedTime = giTestCaseStartTime									' At end of each TEST STEP execution this variable would the time details.
+Public giTestCaseEndTime, giTotalTime																							 ' -----------At end of each test case execution this vairable would the time details.
+Public giTotalIterationCount : giTotalIterationCount = 0							  														  'Global Variable for Total  Test case count
+Public giPassIterationCount : giPassIterationCount = 0			    															 '------Global Variable for Total  Passed tescase count
+Public giFailIterationCount : giFailIterationCount =0																					'Global Variable for Toal Failed test case count
+Public gObjectTimeoutLimit : gObjectTimeoutLimit = 60																'-------Global Timeout variable to limit the maximum time to wait for any object
+Public existingErrorFlag : existingErrorFlag=False  																		'Global  Flag to check if  any existing error  is active
+Public gstrBrowserName																															  ' ------- Variable for holding the Browser 'Name'  property value
+Public gstrGeneralTestCase : gstrGeneralTestCase=""																	' Variable for Checking if a testcase name is other COMMON, OUTPUT,EXECUTIONDETAILS & DEFECT'----Used for mainly creating the Login and Logout Component
+Public gstrDefaultResponsibilityName																								   ' ------- Variable for holding the Default responsibility to be selected after Login
+Public blnCloseBrowserOnLogout																											'Global Variable to set True or False. Browser will be closed when True after loggin out. Allowed Value= TRUE	/FALSE
+Public strErrorFormName : strErrorFormName = ""     																		 ' Assign OracleForm name value to this variable wherver error is returned by error listener
+Public blnSetReporterFlag																														  '--------------Flag  to separate QTP result entry for each function step is required.Set 'True 'or 'False'. Recommended := False 	
+Public blnSetLogFileFlag 																															'Flag  to Set if separate Log File is needed.Set 'True 'or 'False'. Recommended := False 
+Public setDefectFlag 																																	'--------------Flag  to Set if Automatic Defect Logging Required: Set 'True 'or 'False'.
+Public setUploadZippedResultFile																										 ' Set to True of Automatic result upload in QC is required
+Public blnCloseAllForms 																															'----------- By default when this boolean variable is Set to True ,all opened forms will be closed when CloseForm function is called.
+Public blnIgnoreError : blnIgnoreError= False																															  ' Boolean variable to ignore error wherevr required.
+Public strDetailedHTMLFileName  																										  ' ----------Variable to store the File name of detailed HTML report.
+Public strDetailedReportHeader 																												' Vairable for holding the Main header title in the Detailed report	
+Public blnCaptureFlag  																																' --------- Global variable to capture screenshot wherever requried. Allowed Value= TRUE	(only )
+Public blnDefault_eSwiftReporting : blnDefault_eSwiftReporting = True
+Public blnShowNotification
+Public blnCreateTrainingDoc
+Public blnCreateWordTrainingDoc
+Public blnCreatePDFTrainingDoc 
+Public giStepCounterForTrainingDoc    									' the counter for step marking in training doc
+Public gstrScreenShotDocumentPDF
+Public gblnCreateExecutionReport
+Public gstrTrainingDocFileName
+Public gstrRuntimeScenarioDataFilePath 
+
+Public aImagePathArray(2000)
+Public iImageCounterForHTML: iImageCounterForHTML=0
+Public iCurrentImageCounterForHTML: iCurrentImageCounterForHTML=0
+Public stepNumber																															' stepNumber for containg the Manual testcase step no.
+Public blnSkipSteps: blnSkipSteps= False																												' Boolean variable to skip steps when unexpected error is found
+Public gstrTestCaseName,gstrTCDescription,gstrTCPrerequisite
+Public blnMainFailFlag : blnMainFailFlag = False
+Public gstrFailedFunctionList : gstrFailedFunctionList = ""
+Public blnTrueIfFullStringMatch: blnTrueIfFullStringMatch=true
+Public blnJavaError : blnJavaError = False
+Public blnCloseOpenIEBrowsersOnStart
+Public blnRecoveredFromError: blnRecoveredFromError = False
+Public blnLoginFailure : blnLoginFailure =False
+Public strLastActualResult:strLastActualResult=""
+Public aFileAttachmentPathArray(10)
+Public giCurrentFileAttachmentCounterForHTML: giCurrentFileAttachmentCounterForHTML=0
+Public giFileAttachmentCounterForHTML:giFileAttachmentCounterForHTML=0
+Public blnIgnoreValidation  
+Public giFailedStepNumber  
+Public giHTMLRowNumber : giHTMLRowNumber = 1
+Public gblnIgnoreApplicationError :gblnIgnoreApplicationError= False
+Public gblnContinueExecutionIFFailed  'Set this variable to TRUE in script incase execution is to be continued after the failed step
+Public blnCreateResultOnDesktop
+Public gstrMasterResultDrive
+Public gstrMasterResultFolderName
+Public strMainApplicationURL
+Public gstrOracleUserName
+Public gstrOraclePassWord
+Public gstrRunTimeDataSheetFolderName
+Public gblnCreatePDFDetailedAndSummaryReportDoc
+Public gblnCreateDetailedAndSummaryReportDoc
+Public blnObjectError
+Public blnExceptionFlag
+Public DSNName,DBUserName, DBPassword
+
+Public gstrIconPathForNotification : gstrIconPathForNotification= objShell.ExpandEnvironmentStrings("%CommonProgramFiles%") & "/" & "e-Swift Support" & "/" & "e-swift1.ico"
+Public BalloonTooltip:Set BalloonTooltip=New BalloonTooltipClass
+'                                       ' 
+
+DSNName = "e-Swift DB Connect"
+DBUserName = "apps"
+DBPassword = "apps"
+
+
+Environment.Value("blnFatalError") = False  																						' Global Environment Variable to retain the Error state information across Components
+Environment.Value("strFatalMessage") = ""																							'------------Global Environment Variable to retain the Error Message across Components, if any
+Environment.Value("blnResultFileExists") = False																			'Global Environment Variable to Control creation of single Result HTML File
+
+'gstrLogoFileName = "Company.jpg"																												'------------ Provide the Company Logo file name. Should be placed under Result/Images 
+'gsrtLogoAltText ="CompanyName"																																'------------ Provide alternate text in case logo is not properly displayed in html page
+gstrSummaryTitle="TASE Execution Summary Report"					  					  '------------ Provide the name of the HTLM Summary file 
+gstrTestingType= "Regression Automation"				 															'------------ Provide the type of  automation testing being done.e.g. Regression,SIT etc
+gstrDetailedReportHeader = "TASE Execution Report"                
+gstrDetailedHTMLFileName  = "TASE Detailed Report.html"																 '------------Provide the name of detailed HTML report file name
+gstrSummaryGraphType = "PIE"   '-------------Provide "BAR" or PIE as the Gragh Type in the Summary report
+gblnCreateDetailedAndSummaryReportDoc = True
+gblnCreatePDFDetailedAndSummaryReportDoc = True 																													 
+gstrTrainingDocFileName = "Testcase document _"																				 ' --------------Specify the name of the Training doc to be appended with Test case name
+gstrExecutionSheetName= "COMMON"																										' Variable to hold the name of the sheet where execution details would be updated. (VALUENOT TO BE CHANGED HERE)
+blnDefault_eSwiftReporting = True																												' Assign default to true for normal reporting structure
+
+'-----------------------------------------------------------------   Mandatory Section    -----------------------------------------------------------------------------
+'
+blnCreateTrainingDoc = False	' Set to True if  separet Training document is to be created
+blnCreateWordTrainingDoc = False	' Set to True if .Doc version of Training document is to be created 
+blnCreatePDFTrainingDoc = False                                 'Set to True if PDF version of Training document is to be generated. Word version will be converted to PDF
+gblnContinueExecutionIFFailed =False                       ' Set to True if Script execution is to continue in the event of any  failures midway during execution
+blnIgnoreValidation = False												'Set to True if Any particular function is to ignore any Error /exception validation is to skip. Set this variable to True before calling that function
+blnCloseOpenIEBrowsersOnStart=True                       'Set to True if All browsers are to be closed before script execution
+blnShowNotification = False                                                 'Set to True if  TASE execution notification is to be displayed on taskbar
+blnCreateImageEachStep  = False								'   Set True or False. True:= Screenshot will be captured for each step executed
+blnSetReporterFlag = True    											' Set to True if reporter.reportevent is to be used
+blnSetLogFileFlag=False													  ' Set to True if Logfile is to be generated
+setDefectFlag=False  														 '  Set to True if Defect is to be logged in QC
+setUploadZippedResultFile = True                               '  Set to True if Result (zipped) is to be uploaded in QC
+gblnCreateExecutionSummaryReport = True           	'  Set to True if Summary Execution report for all executed test cases are to be generated
+gstrRuntimeScenarioDataFilePath=""                            '  Provide Path to create Runtime Excel file to hold dynamic application data. Assigning Blank value would create file in result folder selected above
+gstrDefaultResponsibilityName = ""  							 ' Assign Default Oracle responsibility 
+
+
+gstrMasterResultDrive = objShell.ExpandEnvironmentStrings("%PROGRAMFILES%") & "/" & "COMMON FILES" & "/" & "e-Swift SUPPORT" 'objShell.Environment("USER").Item("Unified e-Swift_path")    ' Assign value for TASE Framework folder path
+gstrMasterResultFolderName  = "TASE Automation Testing Results"           ' Assign Name for Result Folder  which will hold the execution resutls
+strMainApplicationURL=""   												' Assign URL to this Variable to override all URL values from Datatable
+gstrOracleUserName=""  													' Assign UserName  to this Variable to override all UserName  values from Datatable
+gstrOraclePassWord=""													' Assign Password   to this Variable to override all Password  values from Datatable
+gstrRunTimeDataSheetFolderName = "Business Scenario RunTime Data Folder"   ' Assign folder name for Runtime data file folder
+gstrBrowserName = "Login"       									' Deafult browser name for Oracle during login
+Set objShell = Nothing    'unsets the object
+'-----------------------------------------------------------------   End of  Mandatory Section -----------------------------------------------------------------   
+																									
+
+
+
+' -----------------------------------------------------------------------------------------------------------  Unused  Variables skipped in unification library ----------------------------------------------------------------------------------------------
+ 'blnCreateResultOnDesktop = False								'Set to True if result files/foldera re to be created on desktop 
+ 'blnCloseBrowserOnLogout = True									
+'blnCloseAllForms =False
+'Environment.Value("strScenarioResultFileName") = ""																		'------------Global Environment Variable to Store Result Folder Name
+'gblnCreateSingleExecutionReport = False          		'  Set to True if Single Detailed report for all executed test cases are to be generated instead of individual reports	          
+

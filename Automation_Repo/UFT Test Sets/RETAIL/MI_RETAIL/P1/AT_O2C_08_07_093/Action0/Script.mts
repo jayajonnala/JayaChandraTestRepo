@@ -1,0 +1,10 @@
+﻿RunAction "RunTimeResultFolder", oneIteration
+RunAction "TC1_Test_O2C_093_VA01_TASE", oneIteration
+RunAction "DataTransfer_1", oneIteration
+RunAction "TC2_Test_O2C_093_P2_VA03_TASE", oneIteration
+RunAction "DataTransfer_2", oneIteration
+RunAction "TC3_Test_P3_MSR_INSPWH_TASE", oneIteration
+RunAction "DataTransfer_3", oneIteration
+RunAction "TC4_093_P4_VF01_TASE", oneIteration
+RunAction "DataTransfer_4", oneIteration
+RunAction "TC5_P5_MSR_TRC_C_TASE", oneIteration

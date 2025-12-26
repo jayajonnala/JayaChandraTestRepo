@@ -1,0 +1,12 @@
+﻿RunAction "TC0_RunTimeResultFolder", oneIteration
+RunAction "TC1_Test_REB_07_01-ZMU8", oneIteration
+RunAction "TC2_Test_REB_08_02-ZMU2", oneIteration
+RunAction "TC3_Test_REB_09_01-ZMU5", oneIteration
+RunAction "TC4_Test_REB_11_01-ZMU9", oneIteration
+RunAction "TC5_Test_REB_18-P2P", oneIteration
+RunAction "TC6_Test_REB_19-P2P", oneIteration
+RunAction "TC7_Test_REB_39-ZME3", oneIteration
+RunAction "TC8_Test_REB_13_01", oneIteration
+RunAction "TC9_Test_REB_14_01", oneIteration
+RunAction "TC10_Test_REB_06_01", oneIteration
+RunAction "TC11_Test_REB_25_01", oneIteration

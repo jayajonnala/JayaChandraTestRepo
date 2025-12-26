@@ -1,0 +1,1215 @@
+﻿
+'Name of the Function   : SendTEScreenKey (p_TEWindowShortName_Value,p_key)
+'Author		     						:
+'Description		    		 : Close AllMainframeSessions 
+'p_key : TE Screen Key Value (Ex: @E - Enter)
+'p_TEWindowShortName_Value : ShortName Value of TEWindow (Ex: "A")
+'     Input Parameters     : p_key,p_TEWindowShortName_Value
+'Creation Date : 
+'***********************************************************************************
+'Function SendTEScreenKey (p_TEWindowShortName_Value,p_key)
+'***********************************************************************************
+Public Function SendTEScreenKey (p_TEWindowShortName_Value,p_key)
+
+If blnShowNotification Then BalloonTooltip.Show "TASE Automation","Executing Now : SendTEScreenKey"
+  If Not (Environment.Value("blnFatalError") )Then ' Checking for the fatal error
+	If blnShowNotification Then BalloonTooltip.Show "TASE Automation","Executing Now : SendTEScreenKey"
+       strFuncName = "SendTEScreenKey"
+       strStepName = "Enter TE Screen Key : " & p_key & " ."
+       on error resume next
+       err.clear
+       If p_key <>"" Then
+             'Set ParentObject = ObjectFactory("TeWindow", Nothing, "short name:="&p_TEWindowShortName_Value)
+			 'Set OBJ = ObjectFactory("TeScreen", ParentObject, "label:=.*")
+		     Set ParentObject = TeWindow("short name:=" & p_TEWindowShortName_Value,"index:=0")
+             Set OBJ = ParentObject.TeScreen("label:=.*","index:=0")
+             sync OBJ,0
+ 			If not OBJ Is Nothing then
+
+				OBJ.sendKey p_key
+
+				Select Case p_key
+					Case "@E"
+						p_key = "Enter"
+					Case "@3"
+						p_key = "F3"
+					Case "@1"
+						p_key = "F1"
+					Case "@2"
+						p_key = "F2"
+					Case "@4"
+						p_key = "F4"
+					Case "@5"
+						p_key = "F5"
+					Case "@6"
+						p_key = "F6"
+					Case "@7"
+						p_key = "F7"	
+					Case "@8"
+						p_key = "F8"
+					Case "@9"
+						p_key = "F9"
+					Case "@a"
+						p_key = "F10"
+					Case "@b"
+						p_key = "F11"
+					Case "@c"
+						p_key = "F12"
+					Case "@d"
+						p_key = "F13"
+					Case "@V"
+						p_key = "Down"
+					Case "@L"
+						p_key = "Left"
+					Case "@Z"
+						p_key = "Right"
+					Case "@U"
+						p_key = "Up"
+					Case "@0"
+						p_key = "Home"
+					Case "@q"
+						p_key = "End"
+					Case "@v"
+						p_key = "Page Down"
+					Case "@u"
+						p_key = "Page Up"
+					Case "@T"
+						p_key = "Tab"
+					Case "@k"
+						p_key = "Shift+F8"
+					Case Else
+						p_key = p_key
+					
+				End Select
+				Call ReporterFunction(strLibraryFileName,"SendTEScreenKey","2","Send TE Screen Key","The  " & p_key & " key  was  pressed.")	
+				strStatus = "DONE"
+				strMsg = "The key  was pressed Successfully."
+				'blnCaptureFlag = True				
+				If blnCaptureFlag  or  blnCreateImageEachStep or blnCreateTrainingDoc Then
+		   			ImagePath=CaptureScreenshot(strStepName,OBJ,False,False,False)
+				End If		
+			Else 
+				Call ReporterFunction(strLibraryFileName,"SendTEScreenKey","1","Screen Key","The  " & p_key & " key  was  pressed.")	
+				strStatus = "FAIL"
+				blndefectFlag =True
+				strMsg = "The key  was not pressed."
+			End if
+
+	Else
+		        Call ReporterFunction(strLibraryFileName,"SendTEScreenKey","1","Send TE Screen Key","The Sendkey name is empty")	
+				strStatus = "FAIL"
+				blndefectFlag =True
+				strMsg = "The Sendkey name is empty"
+	End If
+	If  blnObjectError  Then
+		Environment.Value("blnFatalError")=True
+	End If
+	
+	If strStatus = "FAIL"  Then
+		SendTEScreenKey = strMsg
+'		blnMainFailFlag = True
+'		ImagePath=CaptureScreenshot(strStepName,OBJ,True,True,True)
+	Else
+		SendTEScreenKey = True
+	End If
+	If blnDefault_eSwiftReporting Then 
+        p_Input= "Button Name :" & p_key	
+		Call UpdateResultHtml(strStepName,p_Input,strMsg,strStatus,"")
+	End If
+ End If
+End Function   
+'************************************************************************************
+'End Function - SendTEScreenKey (p_key,p_TEWindowShortName_Value)
+
+'***********************************************************************************
+'Name of the Function   : SetTEField(p_TEWindowShortName_Value,p_field, p_value)
+'Author		     						:
+'Description		    		 :  The TeWindow will be activated if the focus is not there.
+'p_field : Name(attached text) of the Field.(Ex: "User")
+'p_value : Value of the Field.(Ex:1,25 )
+'p_TEWindowShortName_Value : ShortName Value of TEWindow (Ex: "A")
+'     Input Parameters     : p_field, p_value, p_sendKey,p_TEWindowShortName_Value
+'Creation Date : 
+'***********************************************************************************
+'Function SetTEField(p_TEWindowShortName_Value,p_field, p_value)
+Public Function SetTEField(p_TEWindowShortName_Value,p_field,p_value)
+  
+  If Not (Environment.Value("blnFatalError") )Then ' Checking for the fatal error
+	If blnShowNotification Then BalloonTooltip.Show "TASE Automation","Executing Now : SetTEField"
+       strFuncName = "SetTEField"
+       If p_field = "Password" Then
+           strStepName = "Set Value as : ##### for TE Field : " & p_field & " ."
+       Else 
+          strStepName = "Set Value as : " & p_value & " for TE Field : " & p_field & " ."
+        End  IF  
+       on error resume next
+       err.clear
+        If p_field <>"" Then			
+			Set RootTeWindowObject = TeWindow("short name:=" & p_TEWindowShortName_Value,"index:=0")
+            Set ParentObject = RootTeWindowObject.TeScreen("label:=.*","index:=0")
+			sync ParentObject,0
+			Set OBJ = ParentObject.TeField("attached text:=" & p_field,"index:=0")
+'			Set RootTeWindowObject = ObjectFactory("TeWindow", Nothing, "short name:=" & p_TEWindowShortName_Value)
+'			Set ParentObject = ObjectFactory("TeScreen", RootTeWindowObject, "label:=.*")
+								
+			If not OBJ Is Nothing then
+				
+				If p_field = "Password" Then
+				   'blnCaptureFlag = True				
+     			          OBJ.SetSecure p_value
+				Else
+     				OBJ.set p_value
+				End If              
+                
+				If p_field = "Password" Then
+					p_Input = "######"
+					Call ReporterFunction(strLibraryFileName,"SetTEField","2","Set TE Field :","The following TE Field was set: " & p_field &" and filled with the value : #####.")	
+				    strStatus = "DONE"
+				    strMsg = "TE Field was set Successfully."
+'				    blnCaptureFlag = True				
+'				    If blnCaptureFlag  or  blnCreateImageEachStep or blnCreateTrainingDoc Then
+'		   			   ImagePath=CaptureScreenshot(strStepName,OBJ,True,True,True)
+'				    End If
+				Else
+					p_Input = p_value
+					Call ReporterFunction(strLibraryFileName,"SetTEField","2","Set TE Field :","The following TE Field was set : " & p_field &" and filled with the value : " & p_value &" .")	
+				    strStatus = "DONE"
+				    strMsg = "TE Field was set Successfully."
+'				    blnCaptureFlag = True				
+'				    If blnCaptureFlag  or  blnCreateImageEachStep or blnCreateTrainingDoc Then
+'		   			   ImagePath=CaptureScreenshot(strStepName,OBJ,True,True,True)
+'				    End If
+				End If
+				
+			Else 
+				Call ReporterFunction(strLibraryFileName,"SetTEField","1","Set TE Field :","The TE Field: " & p_field & " was not set with the value: " & p_value &" .")	
+				strStatus = "FAIL"
+				blndefectFlag =True
+				strMsg = "TE Field was not set."
+            End if	
+'			If  p_sendKey <> "" Then
+'				Call SendTEScreenKey (p_sendKey,p_TEWindowShortName_Value)				
+'			End If
+	  Else 
+			Call ReporterFunction(strLibraryFileName,"SetTEField","1","Set TE Field :","The TE Field is empty.")	
+			strStatus = "FAIL"
+			blndefectFlag =True
+			strMsg = "The TE Field is empty."
+     End If		
+	If  blnObjectError  Then
+		Environment.Value("blnFatalError")=True
+	End If
+	
+	If strStatus = "FAIL"  Then
+		SetTEField = strMsg
+'		blnMainFailFlag = True
+'		ImagePath=CaptureScreenshot(strStepName,OBJ,True,True,True)
+	Else
+		SetTEField = True
+	End If
+	'blnCaptureFlag = True
+       If blnCaptureFlag  or  blnCreateImageEachStep or blnCreateTrainingDoc Then
+           ImagePath=CaptureScreenshot(strStepName,OBJ_TE_Field,False,False,False)
+       End If
+	If blnDefault_eSwiftReporting Then  
+          Call UpdateResultHtml(strStepName,p_Input,strMsg,strStatus,"")
+	End If
+ End If   
+End function
+'End Function - SetTEField(p_field, p_value, p_sendKey,p_TEWindowShortName_Value)
+
+'***********************************************************************************
+
+'Name of the Function   : SetTEFieldBY_ID(p_TEWindowShortName_Value,p_fieldid, p_value, desc)
+'Author		     						:
+'Description		    		 : Set TE Field BY ID with ID name 
+'p_TEWindowShortName_Value : Short Name and Value of Class Name (Ex:short name:=A)
+'     Input Parameters     : p_TEWindowShortName_Value,p_fieldid, p_value,p_sendKey, desc
+'p_fieldid : Field ID.(Ex: 1527)
+'p_value : Field Value(Ex : 1)
+'desc : Description of the Field ID .(Ex : "" )
+'Creation Date : 
+'***********************************************************************************
+'Function SetTEFieldBY_ID(p_TEWindowShortName_Value,p_fieldid, p_value, desc)
+Public Function SetTEFieldBY_ID(p_TEWindowShortName_Value,p_fieldid, p_value, desc)
+	
+	If Not (Environment.Value("blnFatalError") )Then ' Checking for the fatal error
+	If blnShowNotification Then BalloonTooltip.Show "TASE Automation","Executing Now : SetTEFieldBY_ID"
+       strFuncName = "SetTEFieldBY_ID"
+       strStepName = "Set value as : " & p_value & " for TE Field with ID name : " & p_fieldid & " and Description : " & desc &"."
+       on error resume next
+       err.clear
+       If  p_fieldid <> "" Then
+            Set RootTeWindowObject = TeWindow("short name:=" & p_TEWindowShortName_Value,"index:=0")
+            Set ParentObject = RootTeWindowObject.TeScreen("label:=.*")
+            'Set RootTeWindowObject = ObjectFactory("TeWindow", Nothing, "short name:=" & p_TEWindowShortName_Value)
+		    'Set ParentObject = ObjectFactory("TeScreen", RootTeWindowObject, "label:=.*")
+			sync ParentObject,0
+		    Set OBJ = ParentObject.TeField("field id:=" & p_fieldid)
+		   'Set OBJ = ObjectFactory("TeField", ParentObject, "field id:=" & p_fieldid)
+			If not OBJ Is Nothing then
+			 Call ReporterFunction(strLibraryFileName,"SetTEFieldBY_ID","2","Set TE Field by ID :","The following TE Field with ID name " & p_fieldid &"was set: " & desc &" and filled with the value: " &p_value &" .")	
+		     strStatus = "DONE"
+ 			 strMsg = "TE Field was set Successfully."
+'		     blnCaptureFlag = True
+'		     If blnCaptureFlag  or  blnCreateImageEachStep or blnCreateTrainingDoc Then
+'		   	    ImagePath=CaptureScreenshot(strStepName,OBJ_TE_Field,True,True,True)
+'		      End If	
+				OBJ.RefreshObject
+				OBJ.highlight
+    			OBJ.set p_value	
+             'blnCaptureFlag = True
+             If blnCaptureFlag  or  blnCreateImageEachStep or blnCreateTrainingDoc Then
+	            ImagePath=CaptureScreenshot(strStepName,OBJ_TE_Field,False,False,False)
+	       End If   
+            Else 
+			   Call ReporterFunction(strLibraryFileName,"SetTEFieldBY_ID","1","Set TE Field by ID","The TE Field with ID name " & p_fieldid &": " & desc & " was not set with the value: " &p_value &" .")	
+		       strStatus = "FAIL"
+			   blndefectFlag =True
+			   strMsg = "Set value for TE field was Unsuccessful."
+			End if
+			
+'			If  p_sendKey <> "" Then
+'				Call SendTEScreenKey (p_sendKey,p_TEWindowShortName_Value)
+'			End If
+
+			Else 
+			   Call ReporterFunction(strLibraryFileName,"SetTEFieldBY_ID","1","Set TE Field by ID","The TE Field is empty.")	
+		       strStatus = "FAIL"
+			   blndefectFlag =True
+			   strMsg = "The TE Field is empty."
+			End If
+	If  blnObjectError  Then
+		Environment.Value("blnFatalError")=True
+	End If
+	
+	If strStatus = "FAIL"  Then
+		SetTEFieldBY_ID = strMsg
+'		blnMainFailFlag = True
+'		ImagePath=CaptureScreenshot(strStepName,OBJ,True,False,False)
+	Else
+		SetTEFieldBY_ID = True
+	End If
+	
+	If blnDefault_eSwiftReporting Then  
+       Call UpdateResultHtml(strStepName,p_value,strMsg,strStatus,"")
+	End If	
+ End If
+End function
+'End Function SetTEFieldBY_ID(p_TEWindowShortName_Value,p_fieldid, p_value,p_sendKey, desc)  
+'***********************************************************************************
+
+'***********************************************************************************
+'Name of the Function   : 'TEWindow_MenuInteraction (p_TEWindowShortName_Value,p_menuItem)
+'Author		     						:
+'Description		    		 : Activate TE Window
+'     Input Parameters     : p_TEWindowShortName_Value,p_menuItem
+'p_TEWindowShortName_Value : Short Name and Value of Class Name (Ex:short name:=A)
+'p_menuItem : Value of Menu Item (Ex : %FX)
+'Creation Date : 
+'***********************************************************************************
+'TEWindow_MenuInteraction (p_TEWindowShortName_Value,p_menuItem)
+Public Function TEWindow_MenuInteraction (p_TEWindowShortName_Value,p_menuItem)
+    If Not (Environment.Value("blnFatalError") )Then ' Checking for the fatal error
+	If blnShowNotification Then BalloonTooltip.Show "TASE Automation","Executing Now : TEWindow_MenuInteraction"
+       strFuncName = "TEWindow_MenuInteraction"
+       strStepName = "TE Window Menu Interaction with Menu Item :" & p_menuItem & "."
+       on error resume next
+       err.clear
+	   Set ParentObject = ObjectFactory("TeWindow", Nothing, "short name:" & p_TEWindowShortName_Value)
+	   If not ParentObject is Nothing  Then
+    	   ParentObject.highlight
+	   Select Case UCASE(p_menuItem)
+		Case "EXIT"
+			Send_TE_Window_Key "%FX"
+		Case "SEND"
+			Send_TE_Window_Key "%A+S"
+		Case "RECIEVE"
+			Send_TE_Window_Key "%A+R"
+		Case else 
+			Call ReporterFunction(strLibraryFileName,"TEWindow_MenuInteraction","2","TE Window Menu Interaction:","The send key command was not recognized.")	
+            strStatus = "DONE"
+            strMsg = "TE Window Menu Interaction : The send key command was not recognized."              
+            blnCaptureFlag = True
+            If blnCaptureFlag  or  blnCreateImageEachStep or blnCreateTrainingDoc Then
+	           ImagePath=CaptureScreenshot(strStepName,ParentObject,True,True,True)
+	        End If
+	     End select
+
+	Else
+		    Call ReporterFunction(strLibraryFileName,"TEWindow_MenuInteraction","1","TE Window Menu Interaction:","The send key command was not recognized.")	
+		    strStatus = "FAIL"
+		    blndefectFlag =True
+		    strMsg = "TE Window Menu Interaction : The send key command was not recognized."
+   	End if
+	If  blnObjectError  Then
+		Environment.Value("blnFatalError")=True
+	End If
+	
+	If strStatus = "FAIL"  Then
+		TEWindow_MenuInteraction = strMsg
+		blnMainFailFlag = True
+		ImagePath=CaptureScreenshot(strStepName,ParentObject,True,False,False)
+	Else
+		TEWindow_MenuInteraction = True
+	End If
+	If blnDefault_eSwiftReporting Then  
+       Call UpdateResultHtml(strStepName,Content,strMsg,strStatus,"")
+	End If	
+ End If		
+End function
+'***********************************************************************************
+'Name of the Function   : 'Set_TE_Field_In_Table_By_Index(p_TEWindowShortName_Value,refIndex, refText, fieldCol, inVal)
+'Author		     						:
+'Description		    		 : Activate TE Window
+'     Input Parameters     : p_TEWindowShortName_Value,refIndex, refText, fieldCol, inVal
+'p_TEWindowShortName_Value : Short Name and Value of Class Name (Ex:short name:=A)
+'refIndex : 
+'refText : 
+'fieldCol :
+'inVal : 
+'Creation Date : 
+'***********************************************************************************
+'Set_TE_Field_In_Table_By_Index(p_TEWindowShortName_Value,refIndex, refText, fieldCol, inVal)
+Public Function SetTEField_InTable_ByIndex(p_TEWindowShortName_Value,refIndex, refText, fieldCol, inVal)
+    If Not (Environment.Value("blnFatalError") )Then ' Checking for the fatal error
+	If blnShowNotification Then BalloonTooltip.Show "TASE Automation","Executing Now : SetTEField_InTable_ByIndex"
+       strFuncName = "SetTEField_InTable_ByIndex"
+       strStepName = "TE Window Menu Interaction with Menu Item :" & p_menuItem & "."
+       on error resume next
+       err.clear
+	   If  refIndex <> "" Then
+	     Set RootTeWindowObject = ObjectFactory("TeWindow", Nothing, "short name:" & p_TEWindowShortName_Value)
+	     Set ParentObject = ObjectFactory("TeScreen", RootTeWindowObject, "label:=.*")
+	     Set refObj = ParentObject.TEField("text:=" & refText,"index:=" & refIndex)
+         If not refObj.exist = "False" then
+		    tempRow = refObj.GetROProperty("start row")
+		    Set inObj = ParentObject.TEField("start row:=" & tempRow,"start column:=" & fieldCol)
+			If not inObj.exist = "False" then
+               inObj.set inVal
+			   Call ReporterFunction(strLibraryFileName,"SetTEField_InTable_ByIndex","2","Set TE Field In Table By Reference :","The Terminal Emulator Field was set in Row: " & tempRow &" and filled with the value: " & inVal &" .")	
+               strStatus = "DONE"
+               strMsg = "Set TE Field In Table By Reference : The Terminal Emulator Field was set in Row: " & tempRow &" and filled with the value: " & inVal &" ."            
+               blnCaptureFlag = True
+               If blnCaptureFlag  or  blnCreateImageEachStep or blnCreateTrainingDoc Then
+	              ImagePath=CaptureScreenshot(strStepName,ParentObject,True,True,True)
+	           End If	  
+	       Else
+		    Call ReporterFunction(strLibraryFileName,"SetTEField_InTable_ByIndex","1","Set TE Field In Table By Reference :","The Terminal Emulator Field in Row: " & tempRow & " was not set with the value: " & p_value &" .")	
+		    strStatus = "FAIL"
+		    blndefectFlag =True
+		    strMsg = "Set TE Field In Table By Reference : The Terminal Emulator Field in Row: " & tempRow & " was not set with the value: " & p_value &" ."
+   	      End if
+   	    Else
+		  Set contObj = ObjectFactory("TeField", ParentObject, "text:=.*More.*")
+		  If not contObj Is Nothing then
+			Send_TE_Screen_Key "@v"
+			Set_TE_Field_In_Table_By_Index refIndex, refText, fieldCol, inVal
+		  Else
+			Call ReporterFunction(strLibraryFileName,"SetTEField_InTable_ByIndex","1","Set TE Field In Table By Reference :","The Reference Field in : " & refText & " was not found.")	
+		    strStatus = "FAIL"
+		    blndefectFlag =True
+		    strMsg = "Set TE Field In Table By Reference : The Reference Field in : " & refText & " was not found."
+		  End If
+	    End If
+   	Else
+   	    Call ReporterFunction(strLibraryFileName,"SetTEField_InTable_ByIndex","1","Set TE Field In Table By Reference :","The Reference Field name is empty.")	
+		strStatus = "FAIL"
+	    blndefectFlag =True
+	    strMsg = "Set TE Field In Table By Reference : The Reference Field name is empty."
+    End If	
+	If  blnObjectError  Then
+		Environment.Value("blnFatalError")=True
+	End If
+	
+	If strStatus = "FAIL"  Then
+		SetTEField_InTable_ByIndex = strMsg
+		blnMainFailFlag = True
+		ImagePath=CaptureScreenshot(strStepName,ParentObject,True,False,False)
+	Else
+		SetTEField_InTable_ByIndex = True
+	End If
+	If blnDefault_eSwiftReporting Then  
+       Call UpdateResultHtml(strStepName,Content,strMsg,strStatus,"")
+	End If	
+ End If		
+End function
+'***********************************************************************************
+'Name of the Function   : 'SetTEField_sec(p_TEWindowShortName_Value,p_fieldid, p_value)
+'Author		     						:
+'Description		    		 : Activate TE Window
+'     Input Parameters     : p_TEWindowShortName_Value,p_fieldid, p_value
+'p_TEWindowShortName_Value : Short Name and Value of Class Name (Ex:short name:=A)
+'p_fieldid : 
+'p_value : 
+'Creation Date : 
+'***********************************************************************************
+'SetTEField_sec(p_TEWindowShortName_Value,p_fieldid, p_value)
+Public Function SetTEField_sec(p_TEWindowShortName_Value,p_fieldid, p_value)
+    If Not (Environment.Value("blnFatalError") )Then ' Checking for the fatal error
+	If blnShowNotification Then BalloonTooltip.Show "TASE Automation","Executing Now : SetTEField_sec"
+       strFuncName = "SetTEField_sec"
+       strStepName = "TE Window Menu Interaction with Menu Item :" & p_menuItem & "."
+       on error resume next
+       err.clear
+	   If  p_fieldid <> "" Then
+		   Set RootTeWindowObject = ObjectFactory("TeWindow", Nothing, "short name:=" & p_TEWindowShortName_Value)
+	       Set ParentObject = ObjectFactory("TeScreen", RootTeWindowObject, "label:=.*")
+		   sync ParentObject,0
+		   Set OBJ = ObjectFactory("TeField", ParentObject, "attached text:=" & p_fieldid)
+		   If not OBJ Is Nothing then
+     		   OBJ.SetSecure p_value
+
+			   Call ReporterFunction(strLibraryFileName,"SetTEField_sec","2","Set Secure TE Field : ","The following Terminal Emulator Field was set: " & p_fieldid & " .")	
+               strStatus = "DONE"
+               strMsg = "Set Secure TE Field : The following Terminal Emulator Field was set: " & p_fieldid & " ."            
+               blnCaptureFlag = True
+               If blnCaptureFlag  or  blnCreateImageEachStep or blnCreateTrainingDoc Then
+	              ImagePath=CaptureScreenshot(strStepName,ParentObject,True,True,True)
+	           End If	  
+	       Else
+		    Call ReporterFunction(strLibraryFileName,"SetTEField_sec","1","Set Secure TE Field","The Terminal Emulator Field: " & p_fieldid & "was not found.")	
+		    strStatus = "FAIL"
+		    blndefectFlag =True
+		    strMsg = "Set Secure TE Field : The Terminal Emulator Field: " & p_fieldid & "was not found."
+   	      End if
+    Else
+		  Call ReporterFunction(strLibraryFileName,"SetTEField_sec","1","Set Secure TE Field","The Terminal Emulator Field is empty.")	
+		  strStatus = "FAIL"
+		  blndefectFlag =True
+	      strMsg = "Set Secure TE Field : The Terminal Emulator Field is empty."
+    End If	
+	If  blnObjectError  Then
+		Environment.Value("blnFatalError")=True
+	End If
+	
+	If strStatus = "FAIL"  Then
+		SetTEField_sec = strMsg
+		blnMainFailFlag = True
+		ImagePath=CaptureScreenshot(strStepName,ParentObject,True,False,False)
+	Else
+		SetTEField_sec = True
+	End If
+	If blnDefault_eSwiftReporting Then  
+       Call UpdateResultHtml(strStepName,Content,strMsg,strStatus,"")
+	End If	
+ End If		
+End function
+
+'***********************************************************************************
+'***********************************************************************************
+'Name of the Function   : 'Get_TEField_Value(p_TEWindowShortName_Value,p_field, p_column_name)
+'Author		     						:
+'Description		    		 : Activate TE Window
+'     Input Parameters     : p_TEWindowShortName_Value,p_field, p_column_name
+'p_TEWindowShortName_Value : Short Name and Value of Class Name (Ex:short name:=A)
+'p_field : 
+'p_column_name : 
+'Creation Date : 
+'***********************************************************************************
+'Get_TEField_Value(p_TEWindowShortName_Value,p_field, p_column_name)
+Public Function Get_TEField_Value(p_TEWindowShortName_Value,p_field, p_column_name)
+    If Not (Environment.Value("blnFatalError") )Then ' Checking for the fatal error
+	If blnShowNotification Then BalloonTooltip.Show "TASE Automation","Executing Now : Get_TEField_Value"
+       strFuncName = "Get_TEField_Value"
+       strStepName = "TE Window Menu Interaction with Menu Item :" & p_menuItem & "."
+       on error resume next
+       err.clear
+	    If  p_field <>  "" Then
+ 
+			Set RootTeWindowObject = ObjectFactory("TeWindow", Nothing, "short name:=" & p_TEWindowShortName_Value)
+			Set ParentObject = ObjectFactory("TeScreen", RootTeWindowObject, "label:=.*")
+			sync ParentObject,0
+			Set OBJ = ObjectFactory("TeField", ParentObject, "attached text:=" & p_field)
+			sync OBJ,0
+			OBJ.highlight
+			If not OBJ Is Nothing then
+				TempValue = OBJ.GetROProperty("text")
+				'DDL_DATASOURCE.setParameter p_column_name,TempValue...................................... Need to Check Set Parameter
+			    Call ReporterFunction(strLibraryFileName,"Get_TEField_Value","2","Get TE Field Value :","The expected value: " & p_value & " for the TEField [" & p_field &  "] was the same as the current value: " & trim(TempValue) & " .")	
+                strStatus = "DONE"
+                strMsg = "Get TE Field Value : Value: " &TempValue& "taken from " &p_field& "was stored in " & p_column_name & " ."          
+                blnCaptureFlag = True
+                If blnCaptureFlag  or  blnCreateImageEachStep or blnCreateTrainingDoc Then
+	               ImagePath=CaptureScreenshot(strStepName,ParentObject,True,True,True)
+                End If
+           Else
+		    Call ReporterFunction(strLibraryFileName,"Get_TEField_Value","2","Get TE Field Value :","The expected value: " & p_value & " for the TEField [" & p_field &  "] was the same as the current value: " & trim(TempValue) & " .")	
+            strStatus = "FAILED"
+            strMsg = "Get TE Field Value : Value: " &TempValue& "taken from " &p_field& "was NOT stored in " & p_column_name & " ."          
+           End if
+   Else
+       Call ReporterFunction(strLibraryFileName,"Get_TEField_Value","1","Get TE Field Value :","The Terminal Emulator Field is empty.")	
+       strStatus = "FAIL"
+       blndefectFlag =True
+       strMsg = "Get TE Field Value : The Terminal Emulator Field is empty."
+   End If    
+	If  blnObjectError  Then
+		Environment.Value("blnFatalError")=True
+	End If
+	
+	If strStatus = "FAIL"  Then
+		Get_TEField_Value = strMsg
+		blnMainFailFlag = True
+		ImagePath=CaptureScreenshot(strStepName,ParentObject,True,False,False)
+	Else
+		Get_TEField_Value = True
+	End If
+	If blnDefault_eSwiftReporting Then  
+       Call UpdateResultHtml(strStepName,Content,strMsg,strStatus,"")
+	End If	
+ End If		
+End function
+
+'***********************************************************************************
+'Name of the Function   : 'Get_TEFieldValue_byID(p_TEWindowShortName_Value,p_field_id,p_column_name,desc)
+'Author		     						:
+'Description		    		 : Activate TE Window
+'     Input Parameters     : p_TEWindowShortName_Value,p_field, p_column_name,desc
+'p_TEWindowShortName_Value : Short Name and Value of Class Name (Ex:short name:=A)
+'p_field : 
+'p_column_name : 
+'desc : 
+'Creation Date : 
+'' Get_TEField_Value(p_TEWindowShortName_Value, p_field, p_column_name)
+'Get_TEField_Value
+'***********************************************************************************
+'Get_TEField_Value(p_TEWindowShortName_Value,p_field, p_column_name)
+Public Function Get_TEFieldValue_byID(p_TEWindowShortName_Value,p_field_id,p_column_name,desc)
+    If Not (Environment.Value("blnFatalError") )Then ' Checking for the fatal error
+	If blnShowNotification Then BalloonTooltip.Show "TASE Automation","Executing Now : Get_TEFieldValue_byID"
+       strFuncName = "Get_TEFieldValue_byID"
+       strStepName = "Get value of TE field with ID name " & p_field_id & "."
+       'on error resume next
+       'err.clear
+	       If  p_field_id <> ""Then
+               Set RootTeWindowObject = TeWindow("short name:=" & p_TEWindowShortName_Value,"index:=0")
+               Set ParentObject = RootTeWindowObject.TeScreen("label:=.*","index:=0")
+			   sync ParentObject,0
+			   Set OBJ = ParentObject.TeField("field id:=" & p_field_id,"index:=0")
+			   OBJ.highlight
+			If not OBJ Is Nothing then
+				TempValue = OBJ.GetROProperty("text")
+			    strCapturedText=TempValue
+				strStatus="DONE"
+		        If blnWriteDataToOutputSheet Then
+	               strStepName = "Retrieve '"&strCapturedText&"' value from the TE Screen and store in '"&gstrOutputSheetName&"' sheet under column "& p_column_name
+									'stepName="Retrieve '"&strCapturedText&"' value from page "&browserName&" and store in "&gstrOutputSheetName&" sheet under column Webelement_"&webElementClassORhtmlId
+				   call WriteRunTimeDataToExcel (p_column_name,strCapturedText)
+										'call WriteRunTimeDataToExcel ("ID_"&webElementClassORhtmlId,strCapturedText)
+			    Else
+	                strStepName = "Retrieve '"&strCapturedText&"' value unsuccessful. "
+										
+		        End If 
+				Call ReporterFunction(strLibraryFileName,"Get_TEFieldValue_byID","2","Get TE Field Value :","The Value: " &TempValue& "taken from " &p_field& "was stored in " & p_column_name & " .")	
+                strStatus = "DONE"
+                strMsg = "The Value: " &TempValue& " taken from " &p_field& "was stored successfully in " & p_column_name & " ."          
+                blnCaptureFlag = True
+                If blnCaptureFlag  or  blnCreateImageEachStep or blnCreateTrainingDoc Then
+	               ImagePath=CaptureScreenshot(strStepName,ParentObject,True,True,True)
+                End If
+           Else
+		    Call ReporterFunction(strLibraryFileName,"Get_TEFieldValue_byID","2","Get TE Field Value by ID :","The Value: " &TempValue& "taken from " &p_field& "was not stored in " & p_column_name & " .")	
+            strStatus = "FAILED"
+            strMsg = "Get TE Field Value by ID : Value: " &TempValue& "taken from " &p_field& "was not stored in " & p_column_name & " ."          
+           End if
+   Else
+       Call ReporterFunction(strLibraryFileName,"Get_TEFieldValue_byID","1","Get TE Field Value by ID :","The Terminal Emulator Field is empty.")	
+       strStatus = "FAIL"
+       blndefectFlag =True
+       strMsg = "The Terminal Emulator Field is empty."
+   End If    
+	If  blnObjectError  Then
+		Environment.Value("blnFatalError")=True
+	End If
+	
+	If strStatus = "FAIL"  Then
+		Get_TEFieldValue_byID = strMsg
+		blnMainFailFlag = True
+		ImagePath=CaptureScreenshot(strStepName,ParentObject,True,False,False)
+	Else
+		Get_TEFieldValue_byID = True
+	End If
+	If blnDefault_eSwiftReporting Then  
+       Call UpdateResultHtml(strStepName,Content,strMsg,strStatus,TempValue)
+	End If	
+ End If		
+End function
+
+'***********************************************************************************
+'Name of the Function   : 'Get_TEField_InTable_ByIndex(p_TEWindowShortName_Value,refIndex, refText, fieldCol, dtCol)
+'Author		     						:
+'Description		    		 : Activate TE Window
+'     Input Parameters     : p_TEWindowShortName_Value,refIndex, refText, fieldCol, dtCol
+'p_TEWindowShortName_Value : Short Name and Value of Class Name (Ex:short name:=A)
+'refIndex : 
+'refText : 
+'fieldCol :
+'dtCol :
+'Creation Date : 
+'***********************************************************************************
+'Get_TEField_InTable_ByIndex(p_TEWindowShortName_Value,refIndex, refText, fieldCol, dtCol)
+Public Function Get_TEField_InTable_ByIndex(p_TEWindowShortName_Value,refIndex, refText, fieldCol, dtCol)
+    If Not (Environment.Value("blnFatalError") )Then ' Checking for the fatal error
+	If blnShowNotification Then BalloonTooltip.Show "TASE Automation","Executing Now : Get_TEField_InTable_ByIndex"
+       strFuncName = "Get_TEField_InTable_ByIndex"
+       strStepName = "TE Window Menu Interaction with Menu Item :" & p_menuItem & "."
+       on error resume next
+       err.clear
+	   Set RootTeWindowObject = ObjectFactory("TeWindow", Nothing, "short name:=" & p_TEWindowShortName_Value)
+	   Set ParentObject = ObjectFactory("TeScreen", RootTeWindowObject, "label:=.*")
+	   Set refObj = ParentObject.TEField("text:=" & refText,"index:=" & refIndex)
+       If not refObj.exist = "False" then
+		  tempRow = refObj.GetROProperty("start row")
+		  Set inObj = ParentObject.TEField("start row:=" & tempRow,"start column:=" & fieldCol)
+	
+		  If not inObj.exist = "False" then
+			inObj.Highlight
+			TempValue = inObj.GetROProperty("text")
+						'DDL_DATASOURCE.setParameter p_column_name,TempValue ..........................Need to check Set Parameter
+			Call ReporterFunction(strLibraryFileName,"Get_TEField_InTable_ByIndex","2","Get TE Field In Table By Reference :","The DataTable field: " & dtCol & " was filled with the value: " & inVal &" found in Row: " & tempRow &".")	
+            strStatus = "DONE"
+            strMsg = "Get TE Field Value : The DataTable field: " & dtCol & " was filled with the value: " & inVal &" found in Row: " & tempRow &"."          
+            blnCaptureFlag = True
+            If blnCaptureFlag  or  blnCreateImageEachStep or blnCreateTrainingDoc Then
+               ImagePath=CaptureScreenshot(strStepName,ParentObject,True,True,True)
+            End If
+           Else
+		    Call ReporterFunction(strLibraryFileName,"Get_TEField_InTable_ByIndex","2","Get TE Field In Table By Reference :","The DataTable field: " & dtCol & " was not filled with the value: " & inVal &" found in Row: " & tempRow &".")	
+            strStatus = "FAILED"
+            strMsg = "Get TE Field In Table By Reference : The DataTable field: " & dtCol & " was not filled with the value: " & inVal &" found in Row: " & tempRow &"."         
+           End if
+      Else
+          Set contObj = ObjectFactory("TeField", ParentObject, "text:=.*More.*")
+		  If not contObj Is Nothing then
+		     Call SendTEScreenKey (p_TEWindowShortName_Value,"@v") 
+		     Call Get_TEField_InTable_ByIndex(p_TEWindowShortName_Value,refIndex, refText, fieldCol, dtCol)
+		  Else
+            Call ReporterFunction(strLibraryFileName,"Get_TEField_InTable_ByIndex","1","Get TE Field In Table By Reference :","The Terminal Emulator Field is empty.")	
+            strStatus = "FAIL"
+            blndefectFlag =True
+            strMsg = "Get TE Field In Table By Reference : The Reference Field in : " & refText & " was not found."
+          End If 
+      End If    
+	If  blnObjectError  Then
+		Environment.Value("blnFatalError")=True
+	End If
+	
+	If strStatus = "FAIL"  Then
+		Get_TEField_InTable_ByIndex = strMsg
+		blnMainFailFlag = True
+		ImagePath=CaptureScreenshot(strStepName,ParentObject,True,False,False)
+	Else
+		Get_TEField_InTable_ByIndex = True
+	End If
+	If blnDefault_eSwiftReporting Then  
+       Call UpdateResultHtml(strStepName,Content,strMsg,strStatus,"")
+	End If	
+ End If		
+End function
+
+'***********************************************************************************
+'Name of the Function   : 'Set_TEScreen (p_TEWindowShortName_Value,p_row, p_column, p_value)
+'Author		     						:
+'Description		    		 : Activate TE Window
+'     Input Parameters     : p_TEWindowShortName_Value,p_row, p_column, p_value
+'p_TEWindowShortName_Value : Short Name and Value of Class Name (Ex:short name:=A)
+'p_row : 
+'p_column : 
+'p_value :
+'Creation Date : 
+'***********************************************************************************
+'Set_TEScreen (p_TEWindowShortName_Value,p_row, p_column, p_value)
+Public Function Set_TEScreen(p_TEWindowShortName_Value,p_row, p_column, p_value)
+    If Not (Environment.Value("blnFatalError") )Then ' Checking for the fatal error
+	If blnShowNotification Then BalloonTooltip.Show "TASE Automation","Executing Now : Set_TEScreen"
+       strFuncName = "Set_TEScreen"
+       strStepName = "TE Window Menu Interaction with Menu Item :" & p_menuItem & "."
+       on error resume next
+       err.clear
+	   If  p_row <> "" Then
+	     If  p_column<> ""Then
+			 Set ParentObject = ObjectFactory("TeWindow", Nothing, "short name:=" & p_TEWindowShortName_Value)
+			 Set OBJ = ObjectFactory("TeScreen", ParentObject, "label:=.*")
+			 sync OBJ,0
+			If not OBJ Is Nothing then
+			   OBJ.setText p_row, p_column, p_value
+			   Call ReporterFunction(strLibraryFileName,"Set_TEScreen","2","Set TE Screen :","The Terminal Emulator Field was set with the value: " &p_value &" .")	
+               strStatus = "DONE"
+               strMsg = "Set TE Screen : The Terminal Emulator Field was set with the value: " &p_value &" ."          
+               blnCaptureFlag = True
+              If blnCaptureFlag  or  blnCreateImageEachStep or blnCreateTrainingDoc Then
+                 ImagePath=CaptureScreenshot(strStepName,ParentObject,True,True,True)
+              End If
+            Else
+		       Call ReporterFunction(strLibraryFileName,"Set_TEScreen","2","Set TE Screen :","The Terminal Emulator Field was not set with the value: " &p_value &" .")	
+               strStatus = "FAILED"
+               strMsg = "Set TE Screen : The Terminal Emulator Field was set with the value: " &p_value &" ."        
+           End if
+      End If  
+    End If 
+	If  blnObjectError  Then
+		Environment.Value("blnFatalError")=True
+	End If
+	
+	If strStatus = "FAIL"  Then
+		Set_TEScreen = strMsg
+		blnMainFailFlag = True
+		ImagePath=CaptureScreenshot(strStepName,ParentObject,True,False,False)
+	Else
+		Set_TEScreen = True
+	End If
+	If blnDefault_eSwiftReporting Then  
+       Call UpdateResultHtml(strStepName,Content,strMsg,strStatus,"")
+	End If	
+ End If		
+End function
+
+'***********************************************************************************
+'Name of the Function   : 'Send_TE_Window_Key(p_TEWindowShortName_Value,p_key)
+'Author		     						:
+'Description		    		 : Activate TE Window
+'     Input Parameters     : p_TEWindowShortName_Value,p_row, p_column, p_value
+'p_TEWindowShortName_Value : Short Name and Value of Class Name (Ex:short name:=A)
+'p_key : 
+'Creation Date : 
+'***********************************************************************************
+'Send_TE_Window_Key(p_TEWindowShortName_Value,p_key)
+Public Function Send_TE_Window_Key(p_TEWindowShortName_Value,p_key)
+    If Not (Environment.Value("blnFatalError") )Then ' Checking for the fatal error
+	If blnShowNotification Then BalloonTooltip.Show "TASE Automation","Executing Now : Send_TE_Window_Key"
+       strFuncName = "Send_TE_Window_Key"
+       strStepName = "TE Window Menu Interaction with Menu Item :" & p_menuItem & "."
+       on error resume next
+       err.clear
+	   If p_key <> "" Then
+				Set ParentObject = ObjectFactory("TeWindow", Nothing, "short name:=" & p_TEWindowShortName_Value)
+				Set OBJ = ObjectFactory("TeScreen", ParentObject, "label:=.*")
+				sync OBJ,0
+				If not OBJ Is Nothing then
+					Dim mySendKeys
+					set mySendKeys = CreateObject("WScript.shell")
+					mySendKeys.SendKeys (p_key)
+			        Call ReporterFunction(strLibraryFileName,"Send_TE_Window_Key","2","Send TE Window Key :","The Sendkey " & p_key & " was sent and the action is performed.")	
+                    strStatus = "DONE"
+                    strMsg = "Send TE Window Key : The Sendkey " & p_key & " was sent and the action is performed."          
+                    blnCaptureFlag = True
+                    If blnCaptureFlag  or  blnCreateImageEachStep or blnCreateTrainingDoc Then
+                       ImagePath=CaptureScreenshot(strStepName,ParentObject,True,True,True)
+                    End If
+                Else
+		           Call ReporterFunction(strLibraryFileName,"Send_TE_Window_Key","2","Set TE Screen :","The Sendkey " & p_key & " was not sent.")	
+                   strStatus = "FAILED"
+                   strMsg = "Send TE Window Key: The Sendkey " & p_key & " was not sent."        
+                End if
+        Else
+		           
+		        Call ReporterFunction(strLibraryFileName,"Send_TE_Window_Key","2","Set TE Screen :","The Sendkey " & p_key & " was not sent.")	
+                strStatus = "FAILED"
+                strMsg = "Send TE Window Key: The Sendkey name is empty."  
+        End If  
+	If  blnObjectError  Then
+		Environment.Value("blnFatalError")=True
+	End If
+	
+	If strStatus = "FAIL"  Then
+		Send_TE_Window_Key = strMsg
+		blnMainFailFlag = True
+		ImagePath=CaptureScreenshot(strStepName,ParentObject,True,False,False)
+	Else
+		Send_TE_Window_Key = True
+	End If
+	If blnDefault_eSwiftReporting Then  
+       Call UpdateResultHtml(strStepName,Content,strMsg,strStatus,"")
+	End If	
+ End If		
+End function
+
+'Name of the Function   : 'Set_WinCheckBox (p_checkboxName, p_Value, p_parentName)
+'Author		     						:
+'Description		    		 : Activate TE Window
+'     Input Parameters     : p_checkboxName, p_Value, p_parentName
+'p_checkboxName : 
+'p_Value : 
+'p_parentName :
+'Creation Date : 
+'***********************************************************************************
+'Set_WinCheckBox (p_checkboxName, p_Value, p_parentName)
+Public Function Set_WinCheckBox(p_tabName, p_parentName)
+    If Not (Environment.Value("blnFatalError") )Then ' Checking for the fatal error
+	If blnShowNotification Then BalloonTooltip.Show "TASE Automation","Executing Now : Set_WinCheckBox"
+       SelectWinTab = "Set_WinCheckBox"
+       strStepName = "TE Window Menu Interaction with Menu Item :" & p_menuItem & "."
+       on error resume next
+       err.clear
+	   If p_parentName <> "" Then
+          Set ParentObject = ObjectFactory("Dialog", Nothing, "regexpwndtitle:=" & p_parentName)
+	      Set OBJ = ObjectFactory("WinCheckBox", ParentObject, "regexpwndtitle:=" & p_checkboxName)
+		  If not OBJ Is Nothing then
+			OBJ.set (p_Value)
+			wait(3)
+			TempValue = OBJ.GetROProperty("checked")
+	        If  TempValue <>  p_Value Then
+		        Call ReporterFunction(strLibraryFileName,"Set_WinCheckBox","2","Set Win Checkbox :","The checkbox " & p_checkboxName & " has NOT been set to the value " & p_Value)	
+                strStatus = "FAILED"
+                strMsg = "Set Win Checkbox: The checkbox " & p_checkboxName & " has NOT been set to the value " & p_Value
+                Else 
+                Call ReporterFunction(strLibraryFileName,"Set_WinCheckBox","2","Set Win Checkbox :","The checkbox " & p_checkboxName & " has been set to the value " & p_Value)
+                strStatus = "DONE"
+                strMsg = "Select Win Tab : The checkbox " & p_checkboxName & " has been set to the value " & p_Value          
+                blnCaptureFlag = True
+                If blnCaptureFlag  or  blnCreateImageEachStep or blnCreateTrainingDoc Then
+                   ImagePath=CaptureScreenshot(strStepName,ParentObject,True,True,True)
+                End If            
+            End if
+          Else
+             Call ReporterFunction(strLibraryFileName,"Set_WinCheckBox","2","Set Win Checkbox :","The WinCheckbox " & p_checkboxName & " has NOT been found.")	
+             strStatus = "FAILED"
+             strMsg = "Set Win Checkbox: The WinCheckbox " & p_checkboxName & " has NOT been found."  
+          End If 
+      Else
+        Call ReporterFunction(strLibraryFileName,"Set_WinCheckBox","2","Set Win Checkbox :","The WinCheckbox name is empty.")	
+        strStatus = "FAILED"
+        strMsg = "Set Win Checkbox: The WinCheckbox name is empty."  
+      End If 
+      
+
+	If  blnObjectError  Then
+		Environment.Value("blnFatalError")=True
+	End If
+	
+	If strStatus = "FAIL"  Then
+		Set_WinCheckBox = strMsg
+		blnMainFailFlag = True
+		ImagePath=CaptureScreenshot(strStepName,ParentObject,True,False,False)
+	Else
+		Set_WinCheckBox = True
+	End If
+	If blnDefault_eSwiftReporting Then  
+       Call UpdateResultHtml(strStepName,Content,strMsg,strStatus,"")
+	End If	
+ End If		
+End function
+
+
+'***********************************************************************************
+'Name of the Function   : 'GetROProperty_WinCheckBox (p_checkboxName, p_Property, p_dtColumn,  p_parentName)
+'Author		     						:
+'Description		    		 : Activate TE Window
+'     Input Parameters     : p_checkboxName, p_Property, p_dtColumn,  p_parentName
+'p_checkboxName : 
+'p_Property : 
+'p_dtColumn :
+'p_parentName :
+'Creation Date : 
+'***********************************************************************************
+'GetROProperty_WinCheckBox (p_checkboxName, p_Property, p_dtColumn,  p_parentName)
+Public Function GetROProperty_WinCheckBox(p_tabName, p_parentName)
+    If Not (Environment.Value("blnFatalError") )Then ' Checking for the fatal error
+	If blnShowNotification Then BalloonTooltip.Show "TASE Automation","Executing Now : GetROProperty_WinCheckBox"
+       SelectWinTab = "GetROProperty_WinCheckBox"
+       strStepName = "TE Window Menu Interaction with Menu Item :" & p_menuItem & "."
+       on error resume next
+       err.clear
+	   If p_checkboxName <> "" Then
+	      Set ParentObject = ObjectFactory("Dialog", Nothing, "regexpwndtitle:=" & p_parentName)
+	      Set OBJ = ObjectFactory("WinCheckBox", ParentObject, "regexpwndtitle:=" & p_checkboxName)
+		  If not OBJ Is Nothing then
+			 Value = OBJ.GetROProperty (p_Property)
+			 Call ReporterFunction(strLibraryFileName,"GetROProperty_WinCheckBox","2","Get WinCheckbox Property :","The property " & p_Property & " had the following value " & Value & ".")
+             strStatus = "DONE"
+             strMsg = "Get WinCheckbox Property : The property " & p_Property & " had the following value " & Value & "."
+             'DDL_DATASOURCE.setParameter p_dtColumn,Value..........................Need to Check
+             Call ReporterFunction(strLibraryFileName,"GetROProperty_WinCheckBox","2","Get WinCheckbox Property :","The value: " & Value & " was written to the DataTable Field: " & p_dtColumn)
+             strStatus = "DONE"
+             strMsg = "Get WinCheckbox Property : The value: " & Value & " was written to the DataTable Field: " & p_dtColumn         
+             blnCaptureFlag = True
+             If blnCaptureFlag  or  blnCreateImageEachStep or blnCreateTrainingDoc Then
+                ImagePath=CaptureScreenshot(strStepName,ParentObject,True,True,True)
+             End If
+           Else 
+                Call ReporterFunction(strLibraryFileName,"GetROProperty_WinCheckBox","2","Get WinCheckbox Property :","The WinCheckbox " & p_checkboxName & " has NOT been found.")
+                strStatus = "FAILED"
+                strMsg = "Get WinCheckbox Property : The WinCheckbox " & p_checkboxName & " has NOT been found"                   
+            End if
+          Else
+             Call ReporterFunction(strLibraryFileName,"GetROProperty_WinCheckBox","2","Get WinCheckbox Property ::","The WinCheckbox name is emptya.")	
+             strStatus = "FAILED"
+             strMsg = "Get WinCheckbox Property : The WinCheckbox name is empty."  
+          End If 
+      
+	If  blnObjectError  Then
+		Environment.Value("blnFatalError")=True
+	End If
+	
+	If strStatus = "FAIL"  Then
+		GetROProperty_WinCheckBox = strMsg
+		blnMainFailFlag = True
+		ImagePath=CaptureScreenshot(strStepName,ParentObject,True,False,False)
+	Else
+		GetROProperty_WinCheckBox = True
+	End If
+	If blnDefault_eSwiftReporting Then  
+       Call UpdateResultHtml(strStepName,Content,strMsg,strStatus,"")
+	End If	
+ End If		
+End function
+'***********************************************************************************
+
+
+'Name of the Function   : 'Set_WinRadioButton (p_radioButtonName,  p_parentName)
+'Author		     						:
+'Description		    		 : Activate TE Window
+'     Input Parameters     :p_radioButtonName, p_parentName
+'p_radioButtonName : 
+'p_parentName :
+'Creation Date : 
+'***********************************************************************************
+'Set_WinRadioButton (p_radioButtonName,  p_parentName)
+Public Function Set_WinRadioButton (p_radioButtonName,  p_parentName)
+    If Not (Environment.Value("blnFatalError") )Then ' Checking for the fatal error
+	If blnShowNotification Then BalloonTooltip.Show "TASE Automation","Executing Now : Set_WinRadioButton"
+       SelectWinTab = "Set_WinRadioButton"
+       strStepName = "TE Window Menu Interaction with Menu Item :" & p_menuItem & "."
+       on error resume next
+       err.clear
+     If  p_radioButtonName <> "" Then  
+	     Set ParentObject = ObjectFactory("Dialog", Nothing, "regexpwndtitle:=" & p_parentName)
+	     Set OBJ = ObjectFactory("WinRadioButton", ParentObject, "regexpwndtitle:=" & p_radioButtonName)
+		 If not OBJ Is Nothing then
+			OBJ.set 
+			wait(3)
+			TempValue = OBJ.GetROProperty("checked")
+	        If  TempValue <>  "ON" Then
+		    Call ReporterFunction(strLibraryFileName,"Set_WinRadioButton","2","Set Win Radiobutton :","The radiobutton " & p_radioButtonName & " has NOT been set to the value " & p_Value)
+            strStatus = "FAILED"
+            strMsg = "Set Win Radiobutton : The radiobutton " & p_radioButtonName & " has NOT been set to the value " & p_Value        
+          Else 
+                Call ReporterFunction(strLibraryFileName,"Set_WinRadioButton","2","Set Win Radiobutton :","The radiobutton " & p_radioButtonName & " has been set to the value " & p_Value)
+                strStatus = "PASSED"
+                strMsg = "Set Win Radiobutton : The radiobutton " & p_radioButtonName & " has been set to the value " & p_Value
+                blnCaptureFlag = True
+                If blnCaptureFlag  or  blnCreateImageEachStep or blnCreateTrainingDoc Then
+                   ImagePath=CaptureScreenshot(strStepName,ParentObject,True,True,True)
+                End If                
+            End if
+          Else
+             Call ReporterFunction(strLibraryFileName,"Set_WinRadioButton","2","Set Win Radiobutton :","The radiobutton " & p_radioButtonName & " has NOT been found.")	
+             strStatus = "FAILED"
+             strMsg = "Set Win Radiobutton :The radiobutton " & p_radioButtonName & " has NOT been found."  
+          End If
+       Else
+          Call ReporterFunction(strLibraryFileName,"Set_WinRadioButton","2","Set Win Radiobutton :","The radiobutton name is empty.")	
+          strStatus = "FAILED"
+          strMsg = "Set Win Radiobutton : The radiobutton name is empty."  
+       End If          
+      
+	If  blnObjectError  Then
+		Environment.Value("blnFatalError")=True
+	End If
+	
+	If strStatus = "FAIL"  Then
+		Set_WinRadioButton = strMsg
+		blnMainFailFlag = True
+		ImagePath=CaptureScreenshot(strStepName,ParentObject,True,False,False)
+	Else
+		Set_WinRadioButton = True
+	End If
+	If blnDefault_eSwiftReporting Then  
+       Call UpdateResultHtml(strStepName,Content,strMsg,strStatus,"")
+	End If	
+ End If	
+End function
+
+'***********************************************************************************
+
+'Name of the Function   : 'GetROPropery_WinRadioButton (p_radioButtonName, p_Property, p_dtColumn, p_parentName)
+'Author		     						:
+'Description		    		 : Activate TE Window
+'     Input Parameters     :p_radioButtonName, p_parentName,p_Property, p_dtColumn
+'p_radioButtonName : 
+'p_parentName :
+'p_Property :
+'p_dtColumn :
+'Creation Date : 
+'***********************************************************************************
+'GetROPropery_WinRadioButton (p_radioButtonName, p_Property, p_dtColumn, p_parentName)
+Public Function GetROPropery_WinRadioButton (p_radioButtonName, p_Property, p_dtColumn, p_parentName)
+    If Not (Environment.Value("blnFatalError") )Then ' Checking for the fatal error
+	If blnShowNotification Then BalloonTooltip.Show "TASE Automation","Executing Now : GetROPropery_WinRadioButton"
+       SelectWinTab = "GetROPropery_WinRadioButton"
+       strStepName = "TE Window Menu Interaction with Menu Item :" & p_menuItem & "."
+       on error resume next
+       err.clear
+	   If  p_radioButtonName <> ""Then
+           Set ParentObject = ObjectFactory("Dialog", Nothing, "regexpwndtitle:=" & p_parentName)
+	       Set OBJ = ObjectFactory("WinRadioButton", ParentObject, "regexpwndtitle:=" & p_radioButtonName)
+		   If not OBJ Is Nothing then
+			 TempValue = OBJ.GetROProperty (p_Property)
+			 Call ReporterFunction(strLibraryFileName,"GetROPropery_WinRadioButton","2","Get WinRadiobutton Property :","The property " & p_Property & " had the following value " & Value & ".")
+             strStatus = "DONE"
+             strMsg = "Get WinRadiobutton Property : The property " & p_Property & " had the following value " & Value & "."
+             'DDL_DATASOURCE.setParameter p_dtColumn,Value..........................Need to Check
+             Call ReporterFunction(strLibraryFileName,"GetROPropery_WinRadioButton","2","Get WinRadiobutton Property :","The value: " & Value & " was written to the DataTable Field: " & p_dtColumn)
+             strStatus = "DONE"
+             strMsg = "Get WinRadiobutton Property : The value: " & Value & " was written to the DataTable Field: " & p_dtColumn         
+             blnCaptureFlag = True
+             If blnCaptureFlag  or  blnCreateImageEachStep or blnCreateTrainingDoc Then
+                ImagePath=CaptureScreenshot(strStepName,ParentObject,True,True,True)
+             End If
+           Else 
+                Call ReporterFunction(strLibraryFileName,"GetROPropery_WinRadioButton","2","Get WinRadiobutton Property :","The radiobutton " & p_radioButtonName & " has NOT been found.")
+                strStatus = "FAILED"
+                strMsg = "Get WinRadiobutton Property : The radiobutton " & p_radioButtonName & " has NOT been found"                   
+            End if
+          Else
+             Call ReporterFunction(strLibraryFileName,"GetROPropery_WinRadioButton","2","Get WinRadiobutton Property :","The radiobutton name is empty.")	
+             strStatus = "FAILED"
+             strMsg = "Get WinRadiobutton Property : The radiobutton name is empty."  
+          End If 
+      
+	If  blnObjectError  Then
+		Environment.Value("blnFatalError")=True
+	End If
+	
+	If strStatus = "FAIL"  Then
+		GetROProperty_WinCheckBox = strMsg
+		blnMainFailFlag = True
+		ImagePath=CaptureScreenshot(strStepName,ParentObject,True,False,False)
+	Else
+		GetROProperty_WinCheckBox = True
+	End If
+	If blnDefault_eSwiftReporting Then  
+       Call UpdateResultHtml(strStepName,Content,strMsg,strStatus,"")
+	End If	
+ End If		
+End function
+
+'***********************************************************************************
+
+'Name of the Function   : 'Set_WinEdit (p_editField, p_Text,p_parentName)
+'Author		     						:
+'Description		    		 : Set the value for WinEdit field
+'     Input Parameters     :p_editField, p_Text,p_parentName
+'p_editField : 
+'p_Text :
+'p_parentName :
+'Creation Date : 
+'***********************************************************************************
+'GetROPropery_WinRadioButton (p_radioButtonName, p_Property, p_dtColumn, p_parentName)
+Public function Set_WinEdit (p_editField, p_Text,p_parentName)
+   If p_editFIeld <> "" Then
+   
+	Set ParentObject = ObjectFactory("Dialog", Nothing, "regexpwndtitle:=" & p_parentName)
+	Set OBJ = ObjectFactory("WinEdit", ParentObject, "attached text:=" & p_editField & ";regexpwndclass:=Edit")
+		If not OBJ Is Nothing then
+			OBJ.set (p_Text)
+			wait(3)
+			TempValue = OBJ.GetROProperty("text")
+	            If  TempValue <>  p_Text Then
+					createEventMessage "FAILED","Verify WinEdit Set","Set WinEdit","The Edit Field " & p_editField & " has NOT been set to the value " & p_Text,""
+					'Msgbox  "The expected given value: " & p_Text & " for the WinEdit: [" & p_editField &  "] is not the same as the current value: " &TempValue & " WindEdit is not set Correct."
+				Else
+					createEventMessage "INFO","Verify WinEdit Set","Set WinEdit","The Edit Field " & p_editField & " has been set to the value " & p_Text,""
+					'Msgbox  "The expected given value: " & p_Text & " for the WinEdit: [" & p_editField &  "] is the same as the current value: " &TempValue 
+				End If
+		Else
+			createEventMessage "FAILED","Set WinEdit","Set WinEdit","The WinEdit " & p_editField & " has NOT been found",""
+		End if	
+
+		Else
+			createEventMessage "FAILED","Set WinEdit","Set WinEdit","The WinEdit name is empty ",""
+		End If
+end function
+
+'***********************************************************************************
+
+
+'Name of the Function   : 'GetROProperty_WinEdit (p_editField, p_property, p_dtColumn,p_parentName)
+'Author		     						:
+'Description		    		 : Activate TE Window
+'     Input Parameters     :p_editField, p_parentName,p_Property, p_dtColumn
+'p_editField : 
+'p_parentName :
+'p_Property :
+'p_dtColumn :
+'Creation Date : 
+'***********************************************************************************
+'GetROProperty_WinEdit (p_editField, p_property, p_dtColumn,p_parentName)
+Public Function GetROProperty_WinEdit (p_editField, p_property, p_dtColumn,p_parentName)
+    If Not (Environment.Value("blnFatalError") )Then ' Checking for the fatal error
+	If blnShowNotification Then BalloonTooltip.Show "TASE Automation","Executing Now : GetROProperty_WinEdit"
+       SelectWinTab = "GetROProperty_WinEdit"
+       strStepName = "TE Window Menu Interaction with Menu Item :" & p_menuItem & "."
+       on error resume next
+       err.clear
+	   If  p_radioButtonName <> ""Then
+           Set ParentObject = ObjectFactory("Dialog", Nothing, "regexpwndtitle:=" & p_parentName)
+	       Set OBJ = ObjectFactory("WinRadioButton", ParentObject, "regexpwndtitle:=" & p_radioButtonName)
+		   If not OBJ Is Nothing then
+			 TempValue = OBJ.GetROProperty (p_Property)
+			 Call ReporterFunction(strLibraryFileName,"GetROProperty_WinEdit","2","Get WinEdit Property :","The property " & p_Property & " had the following value " & TempValue & ".")
+             strStatus = "DONE"
+             strMsg = "Get WinEdit Property : The property " & p_Property & " had the following value " & TempValue & "."
+             'DDL_DATASOURCE.setParameter p_dtColumn,Value..........................Need to Check
+             Call ReporterFunction(strLibraryFileName,"GetROProperty_WinEdit","2","Get WinEdit Property :","The value: " & TempValue & " was written to the DataTable Field: " & p_dtColumn)
+             strStatus = "DONE"
+             strMsg = "Get WinEdit Property : The value: " & TempValue & " was written to the DataTable Field: " & p_dtColumn      
+             blnCaptureFlag = True
+             If blnCaptureFlag  or  blnCreateImageEachStep or blnCreateTrainingDoc Then
+                ImagePath=CaptureScreenshot(strStepName,ParentObject,True,True,True)
+             End If
+           Else 
+                Call ReporterFunction(strLibraryFileName,"GetROProperty_WinEdit","2","Get WinEdit Property :","The WinEdit " & p_editField & " has NOT been found.")
+                strStatus = "FAILED"
+                strMsg = "Get WinEdit Property : The WinEdit " & p_editField & " has NOT been found."                   
+            End if
+          Else
+             Call ReporterFunction(strLibraryFileName,"GetROProperty_WinEdit","2","Get WinEdit Property :","The WinEdit name is empty.")	
+             strStatus = "FAILED"
+             strMsg = "Get WinEdit Property : The WinEdit name is empty."  
+          End If 
+      
+	If  blnObjectError  Then
+		Environment.Value("blnFatalError")=True
+	End If
+	
+	If strStatus = "FAIL"  Then
+		GetROProperty_WinEdit = strMsg
+		blnMainFailFlag = True
+		ImagePath=CaptureScreenshot(strStepName,ParentObject,True,False,False)
+	Else
+		GetROProperty_WinEdit = True
+	End If
+	If blnDefault_eSwiftReporting Then  
+       Call UpdateResultHtml(strStepName,Content,strMsg,strStatus,"")
+	End If	
+ End If		
+End function
+
+
+Public function Set_WinComboBox (p_comboBoxName, p_Value,p_WndId,p_parentName)
+   If p_WndId <> "" Then
+   
+	Set ParentObject = ObjectFactory("Dialog", Nothing, "regexpwndtitle:=" &p_parentName)
+	Set OBJ = ObjectFactory("WinComboBox", ParentObject, "window id:=" & p_WndId )
+		If not OBJ Is Nothing then
+			OBJ.Select (p_Value)
+			ParentObject.click
+			wait (3)
+			TempValue = OBJ.GetROProperty("text")
+	            If  TempValue <>  p_Value Then
+					createEventMessage "FAILED","Verify WinCombo Set","Set WinCombo","The Combobox " & p_comboBoxName & " has NOT been set to the value " & p_Value,""
+					'msgbox  "The expected given value: " & p_Value & " for the WinComboBox: [" & p_comboBoxName &  "] is not the same as the current value: " & TempValue & " WinComboBox is not set correct."
+				Else
+					createEventMessage "INFO","Verify WinCombo Set","Set WinCombo","The Combobox " & p_comboBoxName & " has been set to the value " & p_Value,""
+					'Msgbox  "The expected given value: " & p_Value & " for the WinComboBox: [" & p_comboBoxName &  "] is the same as the current value: " & TempValue 
+				End If
+		Else
+			createEventMessage "FAILED","Set WinCombo","Set WinCombo","The WinCombo " & p_comboBoxName & " has NOT been found",""
+		End if	
+
+		Else
+			createEventMessage "FAILED","Set WinCombo","Set WinCombo","The WinCombo name is empty" ,""
+		End If
+end function

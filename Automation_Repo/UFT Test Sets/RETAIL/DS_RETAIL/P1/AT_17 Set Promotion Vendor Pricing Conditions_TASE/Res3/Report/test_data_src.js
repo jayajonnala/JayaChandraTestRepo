@@ -1,0 +1,1 @@
+﻿var __testDataSource={items:[{dataFilePath:'Default.xlsx',dataFileFormat:'excel',dataFileFolder:'S:\\Automation_Repo\\UFT Test Sets\\RETAIL\\DS_RETAIL\\P1\\AT_17 Set Promotion Vendor Pricing Conditions_TASE\\Res3',namePairs:[]}]};

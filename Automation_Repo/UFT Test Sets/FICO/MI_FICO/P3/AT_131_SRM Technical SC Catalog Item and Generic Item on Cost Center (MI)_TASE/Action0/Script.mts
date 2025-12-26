@@ -1,0 +1,9 @@
+﻿RunAction "TC0_RunTimeResultFolder", oneIteration
+RunAction "TC1_Test_113", oneIteration
+RunAction "TC2_Test_159", oneIteration
+RunAction "TC3_Test_131", oneIteration
+RunAction "TC4_DT1_DataTransfer_One", oneIteration
+RunAction "TC5_Test_SRM_SC", oneIteration
+RunAction "TC6_Test_131_P1", oneIteration
+RunAction "TC7_Test_159", oneIteration
+RunAction "TC8_Test_113", oneIteration

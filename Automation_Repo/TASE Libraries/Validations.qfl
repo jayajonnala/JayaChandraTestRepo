@@ -1,0 +1,2994 @@
+﻿'''!----------------------------------------------------------------------!
+'! IP Name: TASE 		 		               !
+'!	   							       !
+'!                                                                      !
+'! Copyright © 2011 TCSL. All Rights Reserved              	       !
+'!----------------------------------------------------------------------!
+'!								       !
+'! Framework Owner: ASU-ERP & Niche Testing COE			       !
+'!								       !
+'! Summary: 							       !
+'! TASE is an intellectual Property of TCSL Which works as !
+'! an accelerator for Automation Testing in SAP	               !
+'! No part of this work may be reproduced, stored in a retrieval system,!
+'! adapted or transmitted in any form or by any means electronic,       !
+'! mechanical,photographic, optic recording or otherwise without the    !
+'! prior written permission of TCSL. 			       	       !
+'!								       !
+'!----------------------------------------------------------------------!
+
+
+On Error Resume Next
+
+'List of Validations  Functions
+'**********************************************************************************
+'1 Function InputValidation(inputValue)
+'2  Function VerifyStatusBar(Content)
+'3 Function ValidateStatusBarMsg()
+'4 Function CheckScreen(tcode,Content)
+'5 Function VerifyCheckBoxValue(checkboxName,expectedValue)
+'6 Function VerifyTableCellContent(tableRowNumber,tableColumnName,tableName,expectedValue)
+'7 Function VerifyTextBoxContent(textboxName,textboxAttachedText,textboxIndex,expectedValue)
+'8 Function VerifyTextBoxContentPopup(textboxName,attachedText,Index,ExpectedValue)
+'9 Function VerifyErrorInfoPopup()
+'10 Function VerifyRadioButton(objRadioButton)
+'11 Function VerifyObjectStatus(obj)  
+'12 Function VerifyCellStatus(objToBeVerified,strRowNumber,strColumnName)
+'13 Function VerfiyContentInTable(tableName,columnName,expectedValue)
+'14 Function VerifyTextAreaValue(expectedValue)
+'15 Function VerifyComboBoxValue(comboAttachedText ,expectedValue)
+'16 Function VerifyGridCellContent(gridTitle,gridRowNumber,gridColumnName,gridIndex,expectedValue)
+'17 Function VerifyifGuiLabelExists(Content)
+'18 Function VerifyTextPopup(expectedValue)
+'19 Function VerifyTableCellContentByRef(tableName,refColumnName,refCellValue,TableColumnName,expectedValue)
+'20 Function VerifyTableCellContentPopupByRef(tableName,refColumnName,refCellValue,TableColumnName,expectedValue)
+'21 Function VerifyGridCellContentbyName(gridName,gridRowNumber,gridColumnName,gridIndex,expectedValue)
+'22 Function VerifyTableCellContentPopup(tableRowNumber,tableColumnName,tableName,expectedValue)
+'23 Function VerifyColumnGuiGrid(gridName,gridIndex,columnName)
+'24 Function CheckifGuiLabelExists(content)
+
+'**********************************************************************************
+'Name of the Function   :  InputValidation(inputValue)
+'Author		     : Nishanth 
+'Description		     : Validates whether the input is from Excel sheet.
+'Input Parameters	     : Inputvalue -  Column Name (or) Raw input
+'Output Parameters        : If it is a Column Name , it will return the Exact value . Else it will return the Raw value itself
+'Creation Date : 26/10/2010
+'************************************************************************************
+'Function InputValidation(inputValue)
+'***********************************************************************************
+'Function InputValidation(inputValue)
+'   Const ForReading = 1, ForWriting = 2, ForAppending = 8
+'       Iterationrow = getEnvironmentVariable("ExcelIterationIndex")
+'	   dataPath1 = getEnvironmentVariable("inputExcelPath")
+'	   sheetName = getEnvironmentVariable("sheetNameEnv")
+'	   firstThree  = (LEFT(UCASE(inputValue),3))
+'	   If firstThree = "ID_" Then
+'	   		newArray=split(sheetName,"/",-1,1)
+'			for i=0 to Ubound(newArray)
+'				newsheetName=newsheetName+newArray(i)
+'			next
+'		   	Datatable.AddSheet newsheetName
+'		   	Datatable.AddSheet runTimeSheetName
+'		   	Datatable.ImportSheet dataPath1,runTimeSheetName,runTimeSheetName
+'		   	Datatable.SetCurrentRow (Iterationrow)
+'		   On Error Resume Next
+'		   If Datatable.GetSheet = newsheetName Then
+'			   	Datatable.SetCurrentRow (Iterationrow)	
+'		   else 
+'		   		Datatable.ImportSheet dataPath1,newsheetName,newsheetName
+'		   		Datatable.SetCurrentRow (Iterationrow)	
+'		   End If				  
+'			On error resume next
+'			InputValidation =  Datatable(inputValue,runTimeSheetName)
+'			If Err.Number = -2147220907  or Err.Number = -2147220908 Then
+'			  	InputValidation = Datatable(inputValue,newsheetName)
+'			End If
+'		else
+'			 InputValidation = inputValue
+'		End If
+' End Function
+
+ 
+Function InputValidation(inputValue)
+       Iterationrow = getEnvironmentVariable("ExcelIterationIndex")
+	   dataPath1 = getEnvironmentVariable("inputExcelPath")
+	   sheetName = getEnvironmentVariable("sheetNameEnv")
+			 firstThree  = (LEFT(UCASE(inputValue),3))
+			 If  firstThree = "ID_" Then
+			  On Error Resume Next
+			  InputValidation=getData(dataPath1,runTimeSheetName,Iterationrow,inputValue) 'getting data from the Runtime sheet 
+			  If  Err.Number=3265 or  Err.Number= -2147467259  Then 'validation for file /sheet /column exitance in the Runtime sheet 
+				   Err.Number=0 'resetting error
+				   InputValidation=getData(dataPath1,sheetName,Iterationrow,inputValue) 'getting data  from the t-code sheet
+				   If  Err.Number=3265 or  Err.Number= -2147467259 Then
+					   Msgbox "Column not found the sheet .Please check"
+						ExitTest
+				   End If
+		  	  End If
+			else
+				 InputValidation = inputValue   'returns the same input value if  it is not begining with "ID_"
+			End If
+			 If Instr(1,UCASE(InputValidation),"<RANDOM(",vbTextCompare)>0 or CSTR(UCASE(InputValidation))="<DATE>" or  Instr(1,CSTR(UCASE(InputValidation)),"<DATE-",vbTextCompare)=1 or  Instr(1,CSTR(UCASE(InputValidation)),"<DATE+",vbTextCompare)=1 Then
+			      InputValidation = processControlFlags(InputValidation)	
+			End If
+End Function
+ 
+Function processControlFlags(InputValidation)
+	 If Instr(1,UCASE(InputValidation),"<RANDOM(",vbTextCompare) Then
+	  				   posRandom =Instr(1,UCASE(InputValidation),"RANDOM(",vbTextCompare)
+	                  				posLength = posRandom+7
+	                  				charLength = MID(InputValidation,posLength,1)
+					  startPosition = 10^(charLength-1)
+                   					   RandomNum = RandomNumber (Cint(startPosition),10^charLength) 
+	                				  temp = Len(MID(InputValidation,posRandom-2))
+					  If IsEmpty(temp) Then
+                   						     processControlFlags=RandomNum
+					Else
+	               					   processControlFlags=MID(InputValidation,1,(LEN(InputValidation)-temp)) & RandomNum	
+					End If	
+     elseIf CSTR(UCASE(InputValidation))="<DATE>" or  Instr(1,CSTR(UCASE(InputValidation)),"<DATE-",vbTextCompare)=1 or  Instr(1,CSTR(UCASE(InputValidation)),"<DATE+",vbTextCompare)=1 Then
+	                Interval=MID(InputValidation,6)
+					  If Interval="" Then
+	                      Interval=0
+                     End If
+                    reqDate = DateAdd("d",Interval,Cstr(Date))
+					 varDay = DatePart("D",reqDate)
+                     varMonth = DatePart("M",reqDate)
+                     varYear = DatePart("YYYY",reqDate)
+					 processControlFlags =  varDay & "." &  varMonth & "." &  varYear					
+	End If
+End Function
+
+
+
+Function getData(dataPath1,sheetName,Iterationrow,inputValue)
+ Const adOpenStatic = 3
+ Const adLockOptimistic = 3
+   Set cn = CreateObject("ADODB.Connection")
+		cn.Open "Provider=Microsoft.ACE.OLEDB.12.0;Data Source=" & dataPath1 & _
+				";Extended Properties=Excel 8.0"
+		query = "Select * from ["&sheetName&"$]"
+		Set rs = CreateObject("ADODB.Recordset")
+		rs.Open query, cn, adOpenStatic, adLockOptimistic
+				 For x = 2 to Iterationrow
+				  rs.MoveNext
+				 Next
+		        getData=rs.Fields(inputValue)
+				rs.Close
+				cn.Close
+				Set rs=nothing
+				Set cn=nothing
+
+End Function
+'************************************************************************************
+'End Function - InputValidation
+'************************************************************************************
+
+
+''*********************************************************************************
+'Functions Definition
+'**********************************************************************************
+'Name of the Function   : VerifyStatusBar
+'Author		     :Niranjan S
+'Description		     : Verifies status bar content     
+'Input Parameters	     :  Content to be verfied
+'Output Parameters        : Null
+'Creation Date : 18/11/2010
+'***********************************************************************************
+'Function VerifyStatusBar(Content)
+'***********************************************************************************
+
+Function VerifyStatusBar(Content)
+ If Not (Environment.Value("blnFatalError") or Content= DS_SKIP) Then
+	If blnShowNotification Then BalloonTooltip.Show "TASE Automation","Executing Now : VerifyStatusBar"
+	
+	strStepName = "Verify Status Bar "
+	Set objStatusBar=SAPGuiSession(sessionObject).SapGuiWindow(windowobject).SAPGuiStatusBar(guiStatusBar)
+    objStatusBarText = SAPGuiSession(sessionObject).SapGuiWindow(windowobject).SAPGuiStatusBar(guiStatusBar).GetROProperty("text")
+	CompareType="CONTAIN"
+    If Content <>"" Then
+		Select Case UCASE(CompareType)
+			   Case "CONTAIN"
+				If instr(1, UCASE(objStatusBarText), UCASE(Content), vbTextCompare) Then
+				Call ReporterFunction(strLibraryFileName,"VerifyStatusBar","2"," Status bar Content","Actual Value is equal to the Expected Value")	
+				strStatus = "PASS"
+				strMsg = "Actual Value: " & "'" & objStatusBarText & "'" & " is equal to the Expected Value : " & "'" & Content& "'" &  " "
+				blnCaptureFlag = True				
+				If blnCaptureFlag  or  blnCreateImageEachStep or blnCreateTrainingDoc Then
+		   			ImagePath=CaptureScreenshot(strStepName,objStatusBar,True,True,True)
+				End If 
+				
+				Else
+				Call ReporterFunction(strLibraryFileName,"VerifyStatusBar","1"," Status bar Content","Actual Value is not equal to the Expected Value ")	
+				strStatus = "FAIL"
+				blndefectFlag =True
+				strMsg = "Actual Value: " & objStatusBarText & "  is not equal to the Expected Value: " & "'" & Content& "'" &  " "	
+				End If
+		End Select
+	Else
+    	Call ReporterFunction(strLibraryFileName,"VerifyStatusBar","1","StatusBar","Function Parameter Not Passed Properly. Check the --VerifyStatusBar-- Function Call")
+			strStatus = "FAIL" 
+			strMsg = "Function Parameter Not Passed Properly. Check the --VerifyStatusBar-- Function Call"
+	End if
+	
+		
+	If  blnObjectError  Then
+		Environment.Value("blnFatalError")=True
+	End If
+
+	If strStatus = "FAIL"  Then
+		VerifyStatusBar = strMsg
+		blnMainFailFlag = True
+		ImagePath=CaptureScreenshot(strStepName,objStatusBar,True,True,True)
+	Else
+		VerifyStatusBar = True
+	End If
+	If blnDefault_eSwiftReporting Then  
+		Call UpdateResultHtml(strStepName,Content,strMsg,strStatus,"")
+	End If
+	  ' //////////Word Document ///////////
+		'	If bDocFlag= 1 Then
+			'	Check=CheckStatus_Doc(status)
+			'	If Check=1 Then
+			'		imageDocPath=CaptureSAPObject_Doc(SAPWindowObject)
+			'		Call StoreSteps(strStepName)
+			'		Call storeCoordinates(objStatusBar)
+			'		call drawShapeImage(imageDocPath)
+             '       Call InsertImage(imageDocPath)
+			'		Call InsertStepsDoc()
+			'		oDicSteps.RemoveAll
+			'	End If
+			' End If
+			    ' //////////Word Document ///////////
+	Set objStatusBar=Nothing
+	End If
+End Function
+
+
+''************************************************************************************
+'End Function - VerifyStatusBar
+'************************************************************************************
+
+
+'**********************************************************************************
+'Functions Definition
+'**********************************************************************************
+'Name of the Function   :  ValidateStatusBarMsg()
+'Author		     : Ritu
+'Description		     : This function validates if the values entered in the text boxes are generating any SAP Error or Warning messages.
+'Input Parameters	     :  Null
+'Output Parameters        : Null
+'Creation Date : 25/11/2010
+'***********************************************************************************
+'Function  ValidateStatusBarMsg()
+'***********************************************************************************
+
+Public Function ValidateStatusBarMsg()
+
+ If Not (Environment.Value("blnFatalError") or Content= DS_SKIP) Then
+	If blnShowNotification Then BalloonTooltip.Show "TASE Automation","Executing Now : ValidateStatusBarMsg"
+	
+strStepName = "Verify Status Bar Message "
+Set objStatusBarText= SAPGuisession(sessionObject).sapguiwindow(windowObject).SAPGuiStatusBar(guiStatusBar) 
+
+If  objStatusBarText.Exist Then
+    Dim StatusBarMessageType
+    StatusBarMessageType =objStatusBarText.GetROProperty("messagetype")
+    
+    
+    If  UCASE (StatusBarMessageType) = "E" Then
+         Call ReporterFunction(strLibraryFileName,"ValidateStatusBarMsg","1"," Text Box ","Text Box Value Error")	
+         strStatus = "FAIL"
+		 blndefectFlag = True
+         strMsg = objStatusBarText.GetROProperty ("text")
+        ' strScreenshotName = CaptureSAPObject(SAPWindowObject)
+         blnObjectError=True
+		 'Call UpdateSummaryReportIntermediate()	
+          'ExitTestIteration
+           blnObjectError=True
+          
+   ElseIf  UCASE (StatusBarMessageType) = "W" Then
+          Do while  UCASE (StatusBarMessageType) = "W" 
+                  strMsg =  objStatusBarText.GetROProperty ("text")
+                  'strScreenshotName = CaptureSAPObject(SAPWindowObject)
+				   sapguisession(sessionObject).sapguiwindow(windowObject).SendKey ENTER
+                    Call ReporterFunction(strLibraryFileName,"ValidateStatusBarMsg","3"," Text Box ","Text Box Value Warning Message")
+                     strStatus = "DONE"
+                     endTime = Timer()
+                      timeConsumed =FormatNumber(endTime - startTime,2)
+                      If blnCaptureFlag  or  blnCreateImageEachStep or blnCreateTrainingDoc Then
+		   			ImagePath=CaptureScreenshot(strStepName,objStatusBarText,False,False,False)
+				End If 
+                      'Call update_Html(strStatus,val,strMsg,timeConsumed,strStepName,strScreenshotName)
+                      StatusBarMessageType =objStatusBarText.GetROProperty("messagetype")
+			   Loop
+			   
+			   
+			   
+    ElseIf  UCASE (StatusBarMessageType) = "S" Then
+             strMsg =  objStatusBarText.GetROProperty ("text")
+'             strScreenshotName = CaptureSAPObject(SAPWindowObject)
+			 strStatus = "PASS"
+			 blnCaptureFlag = True				
+				If blnCaptureFlag  or  blnCreateImageEachStep or blnCreateTrainingDoc Then
+		   			ImagePath=CaptureScreenshot(strStepName,objStatusBarText,False,False,False)
+				End If 
+			 blnObjectError=True
+	Else
+        strStatus = "Pass"
+        strMsg = " Validation Passed: No Error or Warning Message"
+         blnObjectError=True
+         blnCaptureFlag = True				
+				If blnCaptureFlag  or  blnCreateImageEachStep or blnCreateTrainingDoc Then
+		   			ImagePath=CaptureScreenshot(objStatusBarText,strStepName)
+				End If 
+   End If
+Else 
+    Call ReporterFunction(strLibraryFileName,"ValidateStatusBarMsg","1","Status Bar","Object Missing")
+    strStatus = "FAIL"
+    strMsg = " The Object is not Found, Please verify the Screen"
+    'strScreenshotName = CaptureSAPObject(SAPWindowObject)
+    blnObjectError=True
+End If
+
+
+If  blnObjectError  Then
+		Environment.Value("blnFatalError")=True
+	End If
+
+	If strStatus = "FAIL"  Then
+		ValidateStatusBarMsg = strMsg
+		blnMainFailFlag = True
+		ImagePath=CaptureScreenshot(objStatusBar,strStepName)
+	Else
+		ValidateStatusBarMsg = True
+	End If
+	If blnDefault_eSwiftReporting Then  
+		Call UpdateResultHtml(strStepName,Content,strMsg,strStatus,"")
+	End If
+''htmlFile.close
+End If
+End Function
+''************************************************************************************
+'End Function - ValidateStatusBarMsg
+'************************************************************************************
+
+'**********************************************************************************
+'Name of the Function   : CheckScreen
+'Author		     :Ritu
+'Description		     : Screen Validations			        
+'Input  Parameters	     : tcode - valid  SAP Transaction Code
+  '                                          Content - Text in theSAP Screen
+'Output Parameters        :
+'Creation Date : 26/10/2010
+'***********************************************************************************
+'Function CheckScreen(tcode,Content)
+'***********************************************************************************8
+Public Function CheckScreen(tcode,Content)
+
+  If Not (Environment.Value("blnFatalError")) Then
+	If blnShowNotification Then BalloonTooltip.Show "TASE Automation","Executing Now : CheckScreen"
+	
+ strStepName  = "Screen Validation for " & tcode
+SAPScreen_text = SAPGuiSession(sessionObject).SAPGuiWindow(windowObject).GetROProperty("text")
+ If instr(1, UCASE(SAPScreen_text ), UCASE(Content), vbTextCompare) Then
+	Call ReporterFunction(strLibraryFileName,"CheckScreen","0","SAP Screen ","Validation : Passed")
+    strStatus = "PASS" 
+	strMsg = "Click here : Expected screen"
+	blnCaptureFlag= True
+	 If blnCaptureFlag  or  blnCreateImageEachStep or blnCreateTrainingDoc Then
+		   ImagePath=CaptureScreenshot("<SKIPSTEP>",windowObject,False,False,False)
+'		   ImagePath = CaptureSAPObject_Doc(SAPWindowObject,False)
+	End If 
+ else 
+	Call ReporterFunction(strLibraryFileName,"CheckScreen","1","SAP Screen ","Validation : The screen did not pass the Validation")
+    strStatus = "FAIL" 
+	blndefectFlag =True
+	strMsg = "Validation : The screen did not pass the Validation"
+ end if 
+	     
+	     
+	  If  blnObjectError  Then
+		Environment.Value("blnFatalError")=True
+		
+	End If
+
+	If strStatus = "FAIL"  Then
+		CheckScreen = strMsg
+		blnMainFailFlag = True
+		ImagePath=CaptureScreenshot("<SKIPSTEP>",windowObject,False,False,False)
+'		ImagePath = CaptureSAPObject_Doc(SAPWindowObject,False)
+	Else
+		CheckScreen = True
+	End If
+	If blnDefault_eSwiftReporting Then  
+		Call UpdateResultHtml(strStepName,Content,strMsg,strStatus,"")
+	End If
+          
+ End If 
+End Function
+ '**********************************************************************************
+'End Function -  CheckScreen
+'***********************************************************************************
+
+'**********************************************************************************
+'Name of the Function   :  VerifyCheckBoxValue
+'Author		     : Ritu
+'Modified By : Tapaswinee
+'Description		     : Verifies  Check Box Value
+'			                           checkboxName :- name property of the checkbox to be selected	        
+'                                     expectedValue- Expected On or Off Status of  the checkbox to be selected	 
+'Input Parameters	     : checkboxName,expectedValue
+'Output Parameters        :Null
+'Example : Call VerifyCheckBoxValue("VBAK-AUTLF","yes")
+'Creation Date : 03/08/2011
+'Modification Date :12/12/2011 
+'***********************************************************************************
+'Function VerifyCheckBoxValue(checkboxName,expectedValue)
+'***********************************************************************************
+
+Public Function VerifyCheckBoxValue(checkboxName,expectedValue)
+ 
+  If Not (Environment.Value("blnFatalError") or expectedValue= DS_SKIP) Then
+	If blnShowNotification Then BalloonTooltip.Show "TASE Automation","Executing Now : VerifyCheckBoxValue"
+	
+  strStepName= "Verifies Check Box Value"
+   If checkboxName <> "" and expectedValue <> "" Then
+        Select Case lcase(expectedValue)
+           Case "true", "1", "yes", "y", "on", "check", "checked"
+            Check_val = "TRUE"
+        Case "false", "0", "no", "n", "off", "uncheck", "unchecked", "un-check", "un-checked", "un check", "un checked" 
+             Check_val = "FALSE"
+        End Select
+       Set objCheckbox=SAPGuisession(sessionObject).sapguiwindow(windowObject).SAPGuiCheckBox("guicomponenttype:=42","name:="&checkboxName)
+       If objCheckbox.Exist Then
+	         OnOffStatus = objCheckbox.GetROProperty("selected")
+			 If UCASE(OnOffStatus)=UCASE(Check_val) Then
+				   Call ReporterFunction(strLibraryFileName,"VerifyCheckBoxValue","0"," Check Box ","Actual Value of the Checkbox is equal to the Expected Value")
+                   strStatus="PASS"
+			       strMsg = "Actual Value of the Checkbox is equal to the Expected Value"
+			        blnCaptureFlag = True
+			      If blnCaptureFlag  or  blnCreateImageEachStep or blnCreateTrainingDoc Then
+		            ImagePath=CaptureScreenshot(strStepName,objCheckbox,False,False,False)
+	   End if
+			 Else 
+                    Call ReporterFunction(strLibraryFileName,"VerifyCheckBoxValue","1"," Check Box ","Actual Value of the Checkbox is not equal to the Expected Value")
+                    strStatus="FAIL"
+			        strMsg = "Actual Value of the Checkbox is not equal to the Expected Value"
+					
+			  End If        
+       Else 
+          Call ReporterFunction(strLibraryFileName,"VerifyCheckBoxValue","1","Check Box","Object Missing")
+	      strStatus="FAIL"
+	      strMsg = " The Object is not Found, Please verify the Screen"
+          blnObjectError=True
+       End If
+   Else 
+           Call ReporterFunction(strLibraryFileName,"VerifyCheckBoxValue","1","Check Box","Function Parameter Not Passed Properly. Check the --SelectCheckbox-- Function Call")
+		   strStatus="FAIL"
+		   strMsg = "Function Parameter Not Passed Properly. Check the --SelectCheckbox-- Function Call-Str err"
+   End If
+   
+   If  blnObjectError  Then
+		Environment.Value("blnFatalError")=True
+	End If
+
+	If strStatus = "FAIL"  Then
+		VerifyCheckBoxValue = strMsg
+		blnMainFailFlag = True
+		ImagePath=CaptureScreenshot(strStepName,objCheckbox,False,False,False)
+		Else
+		VerifyCheckBoxValue = True
+	End If
+	If blnDefault_eSwiftReporting Then  
+		Call UpdateResultHtml(strStepName,expectedValue,strMsg,strStatus,"")
+	End If
+  Set objCheckbox=Nothing
+End If
+End Function
+'************************************************************************************
+'End Function - VerifyCheckBoxValue
+'************************************************************************************
+
+
+''**********************************************************************************
+'Name of the Function   :  VerifyTableCellContent
+'Author		     : Madhurima
+'Description		     : Verifies the contents of cell of a Gui Table which is present in a normal window .
+'			                          tableRowNumber :- Row number of table from where value is to be checked
+'			                          tableColumnName :- Column name of table from where value is to be checked
+'			                          tableName :- Name of the Gui Table         
+'                                     expectedValue:- Value to be checked    
+'Input Parameters	     :  tableRowNumber,tableColumnName,tableName,expectedValue
+'Output Parameters        : Null
+'Creation Date : 05/08/2011
+'***********************************************************************************
+'Function  VerifyTableCellContent(tableRowNumber,tableColumnName,tableName,expectedValue)
+'***********************************************************************************
+Public Function VerifyTableCellContent(tableRowNumber,tableColumnName,tableName,expectedValue)
+
+If Not (Environment.Value("blnFatalError") or tableColumnName= DS_SKIP) Then
+	If blnShowNotification Then BalloonTooltip.Show "TASE Automation","Executing Now : VerifyTableCellContent"
+    strStepName = " Verify  Content in   " & tableColumnName & "  column in Gui Table"
+	
+If tableRowNumber<>"" and tableColumnName <> "" and tableName<>"" Then
+			Set objTable= SAPGuisession(sessionObject).sapguiwindow(windowObject).sapguitable(guiTable,"name:="&tableName)
+			
+			If objTable.Exist then					  
+			            
+					    strMsg= "Table cell content verified successfully"
+					    
+	
+					   On Error Resume Next
+						 strCellValueFetched = objTable.GetCellData (tableRowNumber,tableColumnName)
+						If Err.Number=-2147220983 Then
+						
+										  Call ReporterFunction(strLibraryFileName,"VerifyTableCellContent","1","Cell in Gui Table","Supplied Value :-"&expectedValue&"  "& vbNewLine&"   Matched with Contents of "& vbNewLine&"Cell With row Number:" & tableRowNumber &" column Name :"&tableColumnName&"in "& vbNewLine&"Gui Table with name"&tableName )
+										  strStatus = "FAIL"
+										
+									     Exit Function
+						End If
+						If expectedValue=UCASE(strCellValueFetched) or expectedValue=LCASE(strCellValueFetched)  or INSTR(1,strCellValueFetched,expectedValue,1) or expectedValue = Replace(strCellValueFetched," ","") Then
+							 Call ReporterFunction(strLibraryFileName,"VerifyTableCellContent","2","Cell in Gui Table","Supplied Value :-"&expectedValue&"  "& vbNewLine&"   Matched with Contents of "& vbNewLine&"Cell With row Number:" & tableRowNumber &" column Name :"&tableColumnName&"in "& vbNewLine&"Gui Table with name"&tableName )
+							  strStatus = "PASS"
+                              strMsg = " Actual value: "&strCellValueFetched&" in the table cell matches  with the expected value: "&expectedValue&""
+                              blnCaptureFlag = True
+			                 If blnCaptureFlag  or  blnCreateImageEachStep or blnCreateTrainingDoc Then
+		                     ImagePath=CaptureScreenshot(strStepName,objTable,False,False,False)
+		                     End If
+						 Else
+							  Call ReporterFunction(strLibraryFileName,"VerifyTableCellContent","1","Cell in Gui Table","Supplied Value :-"&expectedValue&"  "& vbNewLine&"     did not Match  with Contents of "& vbNewLine&" Cell With row Number:" & tableRowNumber &" column Name :"&tableColumnName&"in"& vbNewLine&" Gui Table with name"&tableName )
+							  strStatus = "FAIL"
+							  strMsg = " Actual value: "&strCellValueFetched&" in the table cell did not match with the expected value: "&expectedValue&""
+							  
+						 End If
+			Else 
+					   Call ReporterFunction(strLibraryFileName,"VerifyTableCellContent","1","Gui Table","Gui Table Object Missing")
+					   strStatus = "FAIL"
+					   strMsg = " Gui table Object Missing"
+					   blnObjectError=True
+			End If
+Else
+      Call ReporterFunction(strLibraryFileName,"VerifyTableCellContent","1","Cell in Gui Table","Function Parameter Not Passed Properly. Check the -- VerifyTableCellContent-- Function Call")
+	  strStatus="FAIL"
+	  strMsg = "Function Parameter Not Passed Properly. Check the - VerifyTableCellContent-- Function Call"
+End If
+
+If  blnObjectError  Then
+		Environment.Value("blnFatalError")=True
+	End If
+
+	If strStatus = "FAIL"  Then
+		VerifyTableCellContent = strMsg
+		blnMainFailFlag = True
+		ImagePath=CaptureScreenshot(strStepName,objTable,False,False,False)
+	Else
+		VerifyTableCellContent = True
+	End If
+	If blnDefault_eSwiftReporting Then  
+		Call UpdateResultHtml(strStepName,expectedValue,strMsg,strStatus,"")
+	End If
+Set objTable=Nothing
+End If
+End function
+
+'************************************************************************************
+'End Function -   VerifyTableCellContent
+'************************************************************************************
+
+
+'**********************************************************************************
+'Name of the Function   :  VerifyTextBoxContent
+'Description		     : Verifies the contents of Textbox which is present in a normal window .
+'                                                                    textboxName:- name property of the text box 
+'			                           textboxAttachedText :- attachedtext property of the textbox
+'			                      textboxIndex :- ordinal identifier(index) of the textbox    
+'                                      expectedValue :- Value to be checked    
+'												 blnIsItPopup-A  parameters whiich  checks if the SAP window is main window or a popup 
+'																			=Yes - if it is popup ;   No/"" =If it is main SAP  window  
+'Input Parameters	     :  textboxName,textboxAttachedText,textboxIndex,expectedValue
+'Output Parameters        : Null
+'***********************************************************************************
+'Function VerifyTextBoxContent(textboxName,textboxAttachedText,textboxIndex,expectedValue)
+'***********************************************************************************
+Public Function VerifyTextBoxContent(textboxAttachedText,textboxName,textboxIndex,expectedValue,blnIsItPopup)
+
+  If Not (Environment.Value("blnFatalError") or expectedValue= DS_SKIP) Then
+	If blnShowNotification Then BalloonTooltip.Show "TASE Automation","Executing Now : VerifyTextBoxContent"
+	
+Set objWindow= SetSAPwindowObj(blnIsItPopup)
+strStepName = " Verify Content of TextBox" &textboxAttachedText
+Set objTextboxComp31 = SAPGuisession(sessionObject).sapguiwindow(objWindow).sapguiedit("guicomponenttype:=31","name:="&textboxName,"attachedtext:="&textboxAttachedText,"Index:="&textboxIndex)
+Set objTextboxComp32 = SAPGuisession(sessionObject).sapguiwindow(objWindow).sapguiedit("guicomponenttype:=32","name:="&textboxName,"attachedtext:="&textboxAttachedText,"Index:="&textboxIndex)
+Set objTextbox=SetObj(objTextboxComp31,objTextboxComp32)
+If textboxName<> "" OR textboxAttachedText<>"" OR textboxIndex<>"" Then
+		 If objTextbox.Exist then
+					  textboxValue = Trim(objTextbox.getROProperty("value"))
+					  If expectedValue=UCASE(textboxValue) or expectedValue=LCASE(textboxValue) or INSTR(1,textboxValue,expectedValue,1)<>null or expectedValue = Replace(textboxValue," ","") OR expectedValue = textboxValue Then
+						
+						Call ReporterFunction(strLibraryFileName,"VerifyTextBoxContent","2","TextBox","Supplied Value :-"&expectedValue&"  "& vbNewLine&"   Matched with Contents of Text Box")
+						  strStatus = "PASS"
+						  strMsg = "Actual Value of the TextBox : " &textboxValue & "   is equal to the Expected Value: " &expectedValue&" "
+						  strStepName = " Verify Content of TextBox " &expectedValue
+						    blnCaptureFlag = True
+			              If blnCaptureFlag  or  blnCreateImageEachStep or blnCreateTrainingDoc Then
+		            	  ImagePath=CaptureScreenshot(strStepName,objTextbox,False,False,False)
+		            	  End If
+						 
+					  Else
+						  Call ReporterFunction(strLibraryFileName,"VerifyTextBoxContent","1","TextBox","Supplied Value :-"&expectedValue &"  "& vbNewLine&"     didnot Match  with Contents of Text Box" )
+						  strStatus = "FAIL"
+						  strMsg = "Actual Text Box Value : " &textboxValue & "  does not match with the expected Value: " &expectedValue&" "
+			              
+					 End If
+		 else 
+			   'strStepName = "TextBox: " &textboxAttachedText& "  -No Such Object Found"
+			   Call ReporterFunction(strLibraryFileName,"VerifyTextBoxContent","1","Text Box","Text Box Object Missing")
+			   strStatus = "FAIL"
+			   strMsg = "Text Box Object Missing"
+			   blnObjectError=True
+		 End If
+ else
+    	Call ReporterFunction(strLibraryFileName,"VerifyTextBoxContent","1","TextBox","Function Parameter Not Passed Properly. Check the --VerifyTextBoxContent-- Function Call")
+	   strStatus="FAIL"
+	   strMsg = "Function Parameter Not Passed Properly. Check the --VerifyTextBoxContent-- Function Call"
+ End If
+ 	
+ If  blnObjectError  Then
+		Environment.Value("blnFatalError")=True
+	End If
+
+	If strStatus = "FAIL"  Then
+		VerifyTextBoxContent = strMsg
+		blnMainFailFlag = True
+	    ImagePath=CaptureScreenshot(strStepName,objTextbox,False,False,False)
+	Else
+		VerifyTextBoxContent = True
+	End If
+	If blnDefault_eSwiftReporting Then  
+	
+		Call UpdateResultHtml(strStepName,expectedValue,strMsg,strStatus,"")
+	End If
+Set objTextboxComp31 =Nothing
+Set objTextboxComp32 =Nothing
+Set objTextbox=Nothing
+Set objWindow=Nothing
+End If
+End function
+'************************************************************************************
+'End Function -  VerifyTextBoxContent
+'************************************************************************************
+Public Function VerifyTextBoxContentIconName(textboxName,textboxIndex,expectedValue,blnIsItPopup)
+
+  If Not (Environment.Value("blnFatalError") or expectedValue= DS_SKIP) Then
+	If blnShowNotification Then BalloonTooltip.Show "TASE Automation","Executing Now : VerifyTextBoxContentIconName"
+	
+Set objWindow= SetSAPwindowObj(blnIsItPopup)
+strStepName = " Verify Content of TextBox"
+Set objTextboxComp31 = SAPGuisession(sessionObject).sapguiwindow(objWindow).sapguiedit("guicomponenttype:=31","name:="&textboxName,"Index:="&textboxIndex)
+Set objTextboxComp32 = SAPGuisession(sessionObject).sapguiwindow(objWindow).sapguiedit("guicomponenttype:=32","name:="&textboxName,"Index:="&textboxIndex)
+Set objTextbox=SetObj(objTextboxComp31,objTextboxComp32)
+If textboxName<> "" OR textboxIndex<>"" Then
+		 If objTextbox.Exist then
+					  textboxValue = objTextbox.getROProperty("iconname")
+					  If expectedValue=UCASE(textboxValue) or expectedValue=LCASE(textboxValue) or INSTR(1,textboxValue,expectedValue,1)<>null  Then
+						  Call ReporterFunction(strLibraryFileName,"VerifyTextBoxContentIconName","2","TextBox","Supplied Value :-"&expectedValue&"  "& vbNewLine&"   Matched with Contents of Text Box")
+						  strStatus = "PASS"
+						  strMsg = "Actual Value of the TextBox : " &textboxValue & "   is equal to the Expected Value: " &expectedValue&" "
+						    blnCaptureFlag = True
+			              If blnCaptureFlag  or  blnCreateImageEachStep or blnCreateTrainingDoc Then
+		            	  ImagePath=CaptureScreenshot(strStepName,objTextbox,False,False,False)
+		            	  End If
+						 
+					  Else
+						  Call ReporterFunction(strLibraryFileName,"VerifyTextBoxContentIconName","1","TextBox","Supplied Value :-"&expectedValue &"  "& vbNewLine&"     didnot Match  with Contents of Text Box" )
+						  strStatus = "FAIL"
+						  strMsg = "Actual Text Box Value : " &textboxValue & "  does not match with the expected Value: " &expectedValue&" "
+			              
+					 End If
+		 else 
+			   'strStepName = "TextBox: " &textboxName& "  -No Such Object Found"
+			   Call ReporterFunction(strLibraryFileName,"VerifyTextBoxContentIconName","1","Text Box","Text Box Object Missing")
+			   strStatus = "FAIL"
+			   strMsg = "Text Box Object Missing"
+			   blnObjectError=True
+		 End If
+ else
+    	Call ReporterFunction(strLibraryFileName,"VerifyTextBoxContentIconName","1","TextBox","Function Parameter Not Passed Properly. Check the --VerifyTextBoxContentIconName-- Function Call")
+	   strStatus="FAIL"
+	   strMsg = "Function Parameter Not Passed Properly. Check the --VerifyTextBoxContentIconName-- Function Call"
+ End If
+ 	
+ If  blnObjectError  Then
+		Environment.Value("blnFatalError")=True
+	End If
+
+	If strStatus = "FAIL"  Then
+		VerifyTextBoxContentIconName = strMsg
+		blnMainFailFlag = True
+	    ImagePath=CaptureScreenshot(strStepName,objTextbox,False,False,False)
+	Else
+		VerifyTextBoxContentIconName = True
+	End If
+	If blnDefault_eSwiftReporting Then  
+	
+		Call UpdateResultHtml(strStepName,expectedValue,strMsg,strStatus,"")
+	End If
+Set objTextboxComp31 =Nothing
+Set objTextboxComp32 =Nothing
+Set objTextbox=Nothing
+Set objWindow=Nothing
+End If
+End function
+
+'**********************************************************************************
+'Name of the Function   :  VerifyErrorPopup
+'Author		     : Ritu
+'Description		     : This function validates if the values entered in the text boxes are generating any SAP Error  Popups
+'Input Parameters	     : Null
+'Output Parameters        :Null
+'Creation Date : 09/22/2011
+'***********************************************************************************
+'Function VerifyErrorPopup()
+'***********************************************************************************
+
+Public Function VerifyErrorInfoPopup()
+If Not (Environment.Value("blnFatalError")) Then
+	If blnShowNotification Then BalloonTooltip.Show "TASE Automation","Executing Now : VerifyErrorInfoPopup"
+strLibraryFileName= VerifyErrorInfoPopup	
+strStepName = "Verify Error or Information Pop up "
+Set errWindow = SAPGuiSession(sessionObject).SAPGuiWindow("guicomponenttype:=22","text:=Error")
+Set infoWindow = SAPGuiSession(sessionObject).SAPGuiWindow("guicomponenttype:=22","text:=Information")
+Set errObj= SAPGuiSession(sessionObject).SAPGuiWindow(windowObject1).SAPGuiEdit("guicomponenttype:=31","attachedtext:=Error message")
+Set infoObj = SAPGuiSession(sessionObject).SAPGuiWindow(windowObject1).SAPGuiEdit("guicomponenttype:=31","attachedtext:=Information message")
+
+If  errWindow.Exist Then
+	strMsg = errObj.GetROProperty("value")
+	strScreenshotName = CaptureSAPObject(errObj)
+    SAPGuiSession(sessionObject).SAPGuiWindow(windowObject1).SAPGuiButton("guicomponenttype:=40","tooltip:=Confirm.*").Click
+    ImagePath=CaptureScreenshot(strStepName,errObj,False,False,False)
+    If SAPwindowObject1.Exist Then
+      SAPwindowObject1.Close
+   End If
+  Call ReporterFunction(strLibraryFileName,"VerifyErrorInfoPopup","1"," Error Popup","Value Entered is incorrect")	
+  strStatus = "FAIL"
+  blndefectFlag =True
+  
+  
+  	VerifyErrorInfoPopup = strMsg
+		blnMainFailFlag = True
+		ImagePath=CaptureScreenshot(strStepName,errObj,False,False,False)
+	
+	If blnDefault_eSwiftReporting Then  
+		Call UpdateResultHtml(strStepName,"",strMsg,strStatus,"")
+	End If
+  
+  
+   ExitTestIteration
+   'Call UpdateSummaryReportIntermediate()
+   
+   ElseIf infoWindow.Exist Then
+   Do While infoObj.Exist
+      strMsg = infoObj.GetROProperty("value")
+	 	ImagePath=CaptureScreenshot(strStepName,infoObj,False,False,False)
+	  sapguisession(sessionObject).sapguiwindow(windowObject1).SendKey ENTER
+	  Call ReporterFunction(strLibraryFileName,"VerifyErrorInfoPopup","3"," Text Box ","Text Box Value Information Pop-up")
+      strStatus = "DONE"
+      endTime = Timer()
+      timeConsumed =FormatNumber(endTime - startTime,2)
+     If blnDefault_eSwiftReporting Then  
+		Call UpdateResultHtml(strStepName,"",strMsg,strStatus,"")
+	End If
+   Loop      
+End If
+
+		VerifyErrorInfoPopup = True
+
+
+	
+'End If	
+'htmlFile.close
+Set errWindow = nothing
+Set infoWindow = nothing
+Set errObj = nothing
+Set infoObj =nothing
+
+End If
+End Function
+
+'************************************************************************************
+'End Function -  VerifyErrorInfoPopup
+'************************************************************************************
+
+
+'**********************************************************************************
+'Name of the Function   :  VerifyRadioButton
+'Author             : Madhurima
+'Description             : Verifies if the Radio Button is set or not .
+'Input Parameters         :  objRadioButton - the Radio Button object which is to be verified.
+'
+'Output Parameters       : Null
+'Creation Date :  21/11/2011
+'***********************************************************************************
+'Function VerifyRadioButton(objRadioButton)
+'***********************************************************************************
+Public Function VerifyRadioButton(objRadioButton)
+  
+	
+                   propRadioButtonSelectedValue=objRadioButton.getROProperty("Selected")
+                   If propRadioButtonSelectedValue=-1 Then
+                                    VerifyRadioButton=True
+                                    
+                   Else
+                                    VerifyRadioButton=False
+                   End If
+End Function
+'************************************************************************************
+'End Function - VerifyRadioButton
+'************************************************************************************
+
+'**************************************************************************************************************
+'Name of the Function   :  VerifyObjectStatus
+'Author		     : Nikhil
+'Date 			: 18/ Nov/2011	
+'Description		     :  This function verifies whether an SAP object (Textbox,Checkbox,RadioButton)  is Enabled or not.
+'                                       
+'Input Parameters	     :  ObjToBeVerified :-  An SAP object that needs to be verified
+'											                           		                                     		
+'Output Parameters        : Null
+'
+' Example					:     VerifyObjectStatus(obj)  
+'															
+'**************************************************************************************************************
+'Function VerifyObjectStatus(obj)  
+'**************************************************************************************************************
+Public Function VerifyObjectStatus(objToBeVerified)
+
+    If objToBeVerified.GetROProperty("enabled") Then
+		VerifyObjectStatus = true
+	Else
+		VerifyObjectStatus = false
+   	End If
+
+End Function
+
+'**************************************************************************************************************
+'End Function VerifyObjectStatus(obj)  
+'**************************************************************************************************************
+
+
+'**************************************************************************************************************
+'Name of the Function   :  VerifyCellStatus
+'Author		     : Nikhil
+'Date 			: 18/ Nov/2011	
+'Description		     :  This function verifies whether a cell in Table or Grid is Editable or not
+'                                       
+'Input Parameters	     :  ObjToBeVerified :-  object of GuiTable/GuiGrid that is to be verified
+'											  strRowNumber :- Row Number of the Cell    			                          		
+' 											 strColumnName :- Column name of the Cell
+'                                     		
+'Output Parameters        : Null
+'
+' Example					:     VerifyCellStatus(obj,rowNum,columnName)  
+'															
+'**************************************************************************************************************
+'Function VerifyCellStatus(objToBeVerified,strRowNumber,strColumnName)
+'**************************************************************************************************************
+
+Public Function VerifyCellStatus(objToBeVerified,strRowNumber,strColumnName)
+
+	Dim blnCellStatus
+
+	blnCellStatus = objToBeVerified.IsCellEditable(strRowNumber,strColumnName)
+	
+	If blnCellStatus Then
+		VerifyCellStatus = True
+		
+	Else
+		VerifyCellStatus = False
+		
+	End If
+
+End Function
+'**************************************************************************************************************
+' End Function VerifyCellStatus(objToBeVerified,strRowNumber,strColumnName)
+'**************************************************************************************************************
+
+'**********************************************************************************
+'Name of the Function   :  VerfiyContentInTable
+'Author		     : Madhurima
+'Description		     : Verifies if the cell data is present in the table or not and then selects the cell if present.
+'			                           tableName :- Name property of the table
+'                                     columnName:-Column in which the cell has to be found 
+'                                     expectedValue:-the cell data to be searched
+'Input Parameters	     :  tableName,columnName,expectedValue
+'Output Parameters        :Null
+'Creation Date : 27/12/2011
+'***********************************************************************************
+'Function VerfiyContentInTable(tableName,columnName,expectedValue)
+'***********************************************************************************
+Public Function VerifyContentInTable(tableName,columnName,expectedValue)
+
+  If Not (Environment.Value("blnFatalError") or textboxValue= DS_SKIP) Then
+	If blnShowNotification Then BalloonTooltip.Show "TASE Automation","Executing Now : VerifyContentInTable"
+	strStepName = "Verify if  " & expectedValue & " exists in Table"
+ Flag=0
+ If  tableName<>"" and columnName<>""  and expectedValue<>"" Then
+  
+   
+  Set objTable= SAPGuisession(sessionObject).sapguiwindow(windowObject).sapguitable(guiTable,"name:="&tableName)
+  If  objTable.Exist Then
+	  noOfRows=objTable.GetROProperty("rowcount")
+	  For i=1 to noOfRows
+		  On Error Resume Next
+          fetchedCellValue=objTable.GetCellData(i,columnName)
+          'msgbox Err.Number
+         If Err.Number=-2147220983 Then
+					Call ReporterFunction(strLibraryFileName,"VerifyContentInTable","1","Table Data Field","Column Not Found. Check the --columnName--Parameter of--VerfiyContentInTable-- Function Call")
+					strMsg = "Column Not Found. Check the --columnName--Parameter of --VerifyContentInTable-- Function Call"
+					strStatus = "FAIL"
+					'blnObjectError=True
+					 Flag=1
+					Exit For
+					
+		  End If
+		  Err.Clear
+		  If INSTR(1,fetchedCellValue,expectedValue,1)<>0 Then
+              objTable.SelectCell i,columnName
+			    Call StoreExcel(i,"ID_rowIndex")
+			  Call ReporterFunction(strLibraryFileName,"VerifyContentInTable","2","Table Cell","Table Cell is found")
+		     strMsg = "Actual Value "&fetchedCellValue&" is equal to the expected value : " & expectedValue
+		      strStatus = "Pass"
+			  Flag=1
+			   blnCaptureFlag = True
+			              If blnCaptureFlag  or  blnCreateImageEachStep or blnCreateTrainingDoc Then
+		            	  ImagePath=CaptureScreenshot(strStepName,objTable,False,False,False)
+		            	  End If
+			  Exit For
+		  End If
+	  Next
+	  If Flag=0 Then
+          Call ReporterFunction(strLibraryFileName,"VerifyContentInTable","1","Table Cell","Table Cell is not found")
+		      strMsg = "Table Cell is not found.Please verify the screen."
+		      strStatus = "FAIL"
+		     
+	  End If
+  Else
+		Call ReporterFunction(strLibraryFileName,"VerifyContentInTable","1","Table Data Field","Table Object Missing")
+		strMsg = "Table Not Found- Please Check the Screen"
+		strStatus = "FAIL"
+		blnObjectError=True
+End If
+Else
+	Call ReporterFunction(strLibraryFileName,"VerifyContentInTable","1","Table Data Field","Parameters Not Passed Properly.Check the--VerfiyContentInTable--Function Call")
+	strMsg = "Paramaters Not Passed Properly.Check the--VerfiyContentInTable--Function Call"
+	strStatus = "FAIL"
+End If
+
+   
+	If strStatus = "FAIL"  Then
+		VerifyContentInTable = strMsg
+		blnMainFailFlag = True
+		 ImagePath=CaptureScreenshot(strStepName,objTable,False,False,False)
+	Else
+		VerifyContentInTable = True
+	End If
+	If blnDefault_eSwiftReporting Then  
+		Call UpdateResultHtml(strStepName,expectedValue,strMsg,strStatus,"")
+	End If
+Set objTable=Nothing
+End If
+End Function
+'************************************************************************************
+'End Function - VerfiyContentInTable
+'************************************************************************************
+
+
+'**********************************************************************************
+'Name of the Function   :  VerifyTextAreaValue
+'Author		     :  Ritu
+'Description		     : Verifies Text in a  TextArea having gui component type as 203 in a normal window (gui component type as 21)
+'                                     expectedValue:- Value to be verified   
+'Input Parameters	     :  expectedValue
+'Output Parameters        :
+'Creation Date : 02/01/2011
+'***********************************************************************************
+'Function VerifyTextAreaValue(expectedValue)
+'***********************************************************************************
+Public Function VerifyTextAreaValue(expectedValue)
+
+ If Not (Environment.Value("blnFatalError") or expectedValue= DS_SKIP) Then
+	If blnShowNotification Then BalloonTooltip.Show "TASE Automation","Executing Now : VerifyTextAreaValue"
+	strStepName = " Verify " & "'" & expectedValue & "'" & " in Text Area"
+	
+  Set objTextArea = SAPGuisession(sessionObject).sapguiwindow(windowObject).SAPGuiTextArea("guicomponenttype:=203","name:=shell")
+   If objTextArea.Exist then
+		     textBoxtype= objTextArea.getROProperty("type")
+			 
+             
+	         strTextAreaText =objTextArea.GetROProperty("value")
+               If UCASE(expectedValue)=UCASE(strTextAreaText) Then
+							 Call ReporterFunction(strLibraryFileName,"VerifyTextAreaValue","2","TextArea","Expected Value :-"&expectedValue&"   Matched With Contents of Text Area ")
+							  strStatus = "PASS"
+							  strMsg = "Actual Value of the Text Area: "&strTextAreaText&" matches with the Expected Value: "&expectedValue&""
+							  blnCaptureFlag = True
+			              	If blnCaptureFlag  or  blnCreateImageEachStep or blnCreateTrainingDoc Then
+		            	  		ImagePath=CaptureScreenshot(strStepName,objTextArea,False,False,False)
+		            	  End If
+							   
+					 Else
+						     Call ReporterFunction(strLibraryFileName,"VerifyTextAreaValue","1","TextArea","Expected Value :-"&expectedValue &"   did not Match  With Contents of Text Area" )
+						      strMsg="Actual Value of the Text Area: "&strTextAreaText&" does not match with the Expected Value: "&expectedValue& "	"
+						      strStatus = "FAIL"
+						      
+					End If
+			Else 
+			   Call ReporterFunction(strLibraryFileName,"VerifyTextAreaValue","1","Text Area","TextArea Object Missing")
+			   strStatus = "FAIL"
+			   strMsg = "TextArea Object Missing"
+			   blnObjectError=True
+			End If
+
+If strStatus = "FAIL"  Then
+		VerifyTextAreaValue = strMsg
+		blnMainFailFlag = True
+		ImagePath=CaptureScreenshot(strStepName,objTextArea,False,False,False)
+	Else
+		VerifyTextAreaValue = True
+	End If
+	If blnDefault_eSwiftReporting Then  
+		Call UpdateResultHtml(strStepName,expectedValue,strMsg,strStatus,"")
+	End If
+			
+			
+			
+ Set objTextArea=Nothing
+ 
+End If
+End function
+'************************************************************************************
+'End Function - VerifyTextAreaValue
+'***************************************************************************************
+
+
+'**************************************************************************************************************
+'Name of the Function   :  VerifyComboBoxValue
+'Author		     : Nikhil
+'Date 			: 2/ Jan/2012	
+'Description		     :  This function verifies whether a cell in Table or Grid is Editable or not                                      
+'Input Parameters	     :  comboAttachedText :-  attachedtext property of combo box as seen in object spy
+'										     expectedValue :- value which is to be compared with runtime value                                  		
+'Output Parameters        : Null
+' Example					:     VerifyComboBoxValue(comboAttachedText ,expectedValue)  														
+'**************************************************************************************************************
+'Function VerifyComboBoxValue(comboAttachedText ,expectedValue)
+'**************************************************************************************************************
+Public Function VerifyComboBoxValue(comboAttachedText ,expectedValue)
+	
+	If Not (Environment.Value("blnFatalError") or expectedValue= DS_SKIP) Then
+	If blnShowNotification Then BalloonTooltip.Show "TASE Automation","Executing Now : VerifyComboBoxValue"
+	
+	Dim objCombo 
+	strStepName = "Verify Combo Box Value "
+	If comboAttachedText <>"" Then
+
+		''objCombo = SAPGuisession(sessionObject).sapguiwindow(windowObject).SAPGuiComboBox("guicomponenttype:=34","attachedtext:="&comboAttachedText)
+
+		Set objCombo = SAPGuisession(sessionObject).sapguiwindow(windowObject).SAPGuiComboBox("guicomponenttype:=34","attachedtext:="&comboAttachedText)
+		If objCombo.Exist Then
+			runtimeComboValue = objCombo.GetROProperty("selecteditem")
+			If UCASE(expectedValue)= UCASE(runtimeComboValue)Then
+				Call ReporterFunction(strLibraryFileName,"VerifyComboBoxValue","0"," Combo Box ","Actual Value of the Combo Box is equal to the Expected Value")
+                strStatus="PASS"
+			    strMsg = "Actual Value of the Combo Box: "&runtimeComboValue&" is equal to the Expected Value:  "&expectedValue&""
+			    blnCaptureFlag = True
+			              	If blnCaptureFlag  or  blnCreateImageEachStep or blnCreateTrainingDoc Then
+		            	  		ImagePath=CaptureScreenshot(strStepName,objCombo,False,False,False)
+		            	  End If
+							   
+				
+			Else
+				Call ReporterFunction(strLibraryFileName,"VerifyComboBoxValue","1"," Combo Box ","Actual Value of the Combo Box is not equal to the Expected Value")
+                strStatus="FAIL"
+			    strMsg = "Actual Value of the Combo Box: "&runtimeComboValue&" is not equal to the Expected Value:  "&expectedValue&""
+				
+			End If
+		Else 
+			Call ReporterFunction(strLibraryFileName,"VerifyComboBoxValue","1"," Combo Box ","Combo Box Not Found. Please Verify the Screen")
+            strStatus="FAIL"
+			strMsg = "Combo Box Not Found. Please Verify the Screen"
+			blnObjectError=True
+		
+		End If
+	Else
+		Call ReporterFunction(strLibraryFileName,"VerifyComboBoxValue","1","Check Box","Function Parameter Not Passed Properly. Check the --VerifyComboBoxValue-- Function Call")
+		strStatus="FAIL"
+		strMsg = "Function Parameter Not Passed Properly. Check the --VerifyComboBoxValue-- Function Call--"	
+	End If
+	
+	
+	
+	If strStatus = "FAIL"  Then
+		VerifyComboBoxValue = strMsg
+		blnMainFailFlag = True
+		ImagePath=CaptureScreenshot(strStepName,objCombo,False,False,False)
+	Else
+		VerifyComboBoxValue = True
+	End If
+	If blnDefault_eSwiftReporting Then  
+		Call UpdateResultHtml(strStepName,expectedValue,strMsg,strStatus,"")
+	End If
+	Set objCombo = Nothing
+End If
+End Function 
+'**************************************************************************************************************
+'End Function - VerifyComboBoxValue(comboAttachedText ,expectedValue)
+'**************************************************************************************************************
+
+''**********************************************************************************
+'Name of the Function   :  VerifyGridCellContent
+'Author		     : Ritu
+'Description		     : Verifies the contents of cell of a Gui Grid which is present in a normal window .
+'			                          gridRowNumber :- Row number of Grid from where value is to be checked
+'			                          gridColumnName :- Column name of Grid from where value is to be checked
+'			                          gridTitle:- Title of the Gui grid         
+'                                     expectedValue:- Value to be checked    
+'Input Parameters	     :  gridTitle,gridRowNumber,gridColumnName,expectedValue
+'Output Parameters        : Null
+'Creation Date : 08/05/2012
+'***********************************************************************************
+'Function  VerifyGridCellContent(gridRowNumber,gridColumnName,gridTitle,expectedValue)
+'***********************************************************************************
+Public Function VerifyGridCellContent(gridTitle,gridRowNumber,gridColumnName,gridIndex,expectedValue)
+  
+  If Not (Environment.Value("blnFatalError") or expectedValue= DS_SKIP) Then
+	If blnShowNotification Then BalloonTooltip.Show "TASE Automation","Executing Now : VerifyGridCellContent"
+	strStepName = " Verify  Content " & "'" & expectedValue & "'"  & " in GuiGrid"
+
+If gridRowNumber<>"" or  gridColumnName <> "" or  gridTitle<>"" or gridIndex <>"" Then
+Set objGuiGrid201=SAPGuisession(sessionObject).sapguiwindow(windowObject).SAPGuiGrid("guicomponenttype:=201","title:="&gridTitle,"index:="&gridIndex)
+Set objGuiGrid80=SAPGuisession(sessionObject).sapguiwindow(windowObject).SAPGuiGrid("guicomponenttype:=80","title:="&gridTitle,"index:="&gridIndex)
+Set objGuiGrid=SetObj(objGuiGrid201,objGuiGrid80) 
+
+			If objGuiGrid.Exist then
+					   On Error Resume Next
+						 strCellValueFetched = objGuiGrid.GetCellData(gridRowNumber,gridColumnName)
+						 
+						 		
+						
+						
+						If expectedValue=UCASE(strCellValueFetched) or expectedValue=LCASE(strCellValueFetched)  or INSTR(1,strCellValueFetched,expectedValue,1)<>0  Then
+							 Call ReporterFunction(strLibraryFileName,"VerifyGridCellContent","2","Cell in Gui Grid","Supplied Value :-"&expectedValue&"  "& vbNewLine&"   Matched with Contents of "& vbNewLine&"Cell With row Number:" & gridRowNumber &" column Name :"&gridColumnName&"in "& vbNewLine&"Gui Grid with Title"&gridTitle )
+							  strStatus = "PASS"
+							  strMsg = " Actual value in the Grid cell  :   "  & strCellValueFetched & " matches  with the expected value:   "  & expectedValue & ""
+							   blnCaptureFlag = True
+			              	If blnCaptureFlag  or  blnCreateImageEachStep or blnCreateTrainingDoc Then
+		            	  		ImagePath=CaptureScreenshot(strStepName,objGuiGrid,False,False,False)
+                              End If
+                              
+                            
+           	
+							
+						 Else
+							  Call ReporterFunction(strLibraryFileName,"VerifyGridCellContent","1","Cell in Gui Grid","Supplied Value :-"&expectedValue&"  "& vbNewLine&"     did not Match  with Contents of "& vbNewLine&" Cell With row Number:" & gridRowNumber &" column Name :"&gridColumnName&"in"& vbNewLine&" Gui Grid with Title"&gridTitle )
+							  strStatus = "FAIL"
+							  
+							  strMsg =  " Actual value in the Grid cell  :  "  & strCellValueFetched &   "  does not match with the expected value:    "   &  expectedValue & ""
+							  
+							  End If
+							  
+							  'msgbox Err.Number
+							  If Err.Number=-2147220983 or Err.Number = 13 Then
+										  Call ReporterFunction(strLibraryFileName,"VerifyGridCellContent","1","Column in Gui Grid"," column Name : "&gridColumnName&"  does not exist in"& vbNewLine&" Gui Grid with name   "&gridTitle )
+										  strStatus = "FAIL"
+										  strMsg =  " Column not found in the given grid"
+						 End If
+							 
+			Else 	   Call ReporterFunction(strLibraryFileName,"VerifyGridCellContent","1","Gui Grid","Gui Grid Object Missing")
+					   strStatus = "FAIL"
+					   strMsg = " Gui Grid Object Missing"
+					   blnObjectError=True
+					   
+			End If
+Else
+      Call ReporterFunction(strLibraryFileName,"VerifyGridCellContent","1","Cell in Gui Grid","Function Parameter Not Passed Properly. Check the -- VerifyGridCellContent-- Function Call")
+	  strStatus="FAIL"
+	  strMsg = "Function Parameter Not Passed Properly. Check the - VerifyGridCellContent-- Function Call"
+End If
+
+If strStatus = "FAIL"  Then
+		VerifyGridCellContent = strMsg
+		blnMainFailFlag = True
+		ImagePath=CaptureScreenshot(strStepName,objGuiGrid,False,False,False)
+	Else
+		VerifyGridCellContent = True
+	End If
+	If blnDefault_eSwiftReporting Then  
+		Call UpdateResultHtml(strStepName,expectedValue,strMsg,strStatus,"")
+	End If
+Set objGuiGrid=Nothing
+End If
+
+End function
+
+'************************************************************************************
+'End Function -   VerifyGridCellContent
+'************************************************************************************
+
+
+'
+
+''*********************************************************************************
+'Functions Definition
+'**********************************************************************************
+'Name of the Function   : VerifyifGuiLabelExists
+'Author		     :Shriya
+'Description		     : Verifies if Gui Label exiss   
+'Input Parameters	     :  Content to be verfied
+'Output Parameters        : Null
+'Creation Date : 09/05/2012
+'***********************************************************************************
+'Function VerifyifGuiLabelExists(Content)
+'***********************************************************************************
+
+Function VerifyifGuiLabelExists(Content)
+
+ If Not (Environment.Value("blnFatalError") or Content= DS_SKIP) Then
+	If blnShowNotification Then BalloonTooltip.Show "TASE Automation","Executing Now : VerifyifGuiLabelExists"
+	
+	strStepName = "Verify if Gui Label exists "
+
+    If Content <>"" Then
+     set   objLabel = SAPGuiSession(sessionObject).SapGuiWindow(windowobject).SAPGuiLabel("content:="&Content,"guicomponenttype:=30")
+               If objLabel.Exist Then
+					Call ReporterFunction(strLibraryFileName,"VerifyifGuiLabelExists","2",Content,"Gui Label with value "&Content &" exists in the screen")	
+					strStatus = "PASS"
+					strMsg = "Gui Label with value "&Content&" exists in the screen"	
+					blnCaptureFlag = True
+			              	If blnCaptureFlag  or  blnCreateImageEachStep or blnCreateTrainingDoc Then
+		            	  		ImagePath=CaptureScreenshot(strStepName,objLabel,False,False,False)
+                              End If
+					
+					Else
+					Call ReporterFunction(strLibraryFileName,"VerifyifGuiLabelExists","1"," Status bar Content","Gui Label with value "&Content &" doesn't exist  in the screen")	
+					strStatus = "FAIL"
+					blndefectFlag =True
+					strMsg = "Gui Label with value "&Content&" doesn't exist  in the screen"
+					blnObjectError=True
+				End If
+       	Else
+    	Call ReporterFunction(strLibraryFileName,"VerifyifGuiLabelExists","1","Gui Label","Function Parameter Not Passed Properly. Check the --VerifyifGuiLabelExists-- Function Call")
+			strStatus = "FAIL" 
+			strMsg = "Function Parameter Not Passed Properly. Check the --VerifyifGuiLabelExists-- Function Call-"
+	End if
+
+
+If strStatus = "FAIL"  Then
+		VerifyifGuiLabelExists = strMsg
+		blnMainFailFlag = True
+		ImagePath=CaptureScreenshot(strStepName,objLabel,False,False,False)
+    
+	Else
+		VerifyifGuiLabelExists = True
+	End If
+	If blnDefault_eSwiftReporting Then  
+		Call UpdateResultHtml(strStepName,Content,strMsg,strStatus,"")
+	End If
+
+End If
+End Function
+
+
+''************************************************************************************
+'End Function - VerifyStatusBar
+'************************************************************************************
+
+'**********************************************************************************
+'Name of the Function   :  VerifyTextPopup
+'Author		     :  Ritu
+'Description		     : Verifies Text in a  Popup Window
+'                                     expectedValue:- Value to be verified   
+'Input Parameters	     :  expectedValue
+'Output Parameters        :
+'Creation Date : 10/05/2012
+'***********************************************************************************
+'Function VerifyTextPopup(expectedValue)
+'***********************************************************************************
+Public Function VerifyTextPopup(expectedValue)
+  
+  If Not (Environment.Value("blnFatalError") or expectedValue= DS_SKIP) Then
+	If blnShowNotification Then BalloonTooltip.Show "TASE Automation","Executing Now : VerifyTextPopup"
+	 
+	 strStepName = " Verify " & "'" & expectedValue & "'" & " in Popup"
+	
+  Set objTextPopup = SAPGuisession(sessionObject).sapguiwindow(WindowObject1)
+   If objTextPopup.Exist then
+		     popupText= objTextPopup.getROProperty("text")
+            
+            If UCASE(expectedValue)=UCASE(popupText) Then
+							 Call ReporterFunction(strLibraryFileName,"VerifyTextPopup","2","Popup","Expected Value :-"&expectedValue&"   Matched With Contents of Popup ")
+							  strStatus = "PASS"
+							  strMsg = "Actual Text of the Popup: "&popupText&" is equal to the Expected Value: "&expectedValue&""
+							  blnCaptureFlag= True
+							   If blnCaptureFlag  or  blnCreateImageEachStep or blnCreateTrainingDoc Then
+		            	  		ImagePath=CaptureScreenshot(strStepName,objTextPopup,False,False,False)
+		            	  End If
+					
+						     Call ReporterFunction(strLibraryFileName,"VerifyTextPopup","1","Popup","Expected Value :-"&expectedValue &"   Did not Match  With Contents of Popup" )
+						      strMsg="Actual Text of the Popup: "&popupText&" is not equal to the Expected Value: "&expectedValue&""
+						      strStatus = "FAIL"
+			Else
+			
+			Call ReporterFunction(strLibraryFileName,"VerifyTextPopup","1","Popup","Function Parameter Not Passed Properly. Check the --VerifyTextPopup-- Function Call")
+			strStatus = "FAIL" 
+			strMsg = "Function Parameter Not Passed Properly. Check the --VerifyTextPopup-- Function Call-"
+				End If
+			  
+			Else 
+			   Call ReporterFunction(strLibraryFileName,"VerifyTextPopup","1","Popup","Popup Object Missing")
+			   strStatus = "FAIL"
+			   strMsg = "Popup Object Missing"
+			   blnObjectError=True
+			End If
+		
+
+
+If strStatus = "FAIL"  Then
+		VerifyTextPopup = strMsg
+		blnMainFailFlag = True
+		ImagePath=CaptureScreenshot(strStepName,objTextPopup,False,False,False)
+	Else
+		VerifyTextPopup = True
+	End If
+	If blnDefault_eSwiftReporting Then  
+		Call UpdateResultHtml(strStepName,expectedValue,strMsg,strStatus,"")
+	End If			
+ Set objTextPopup=Nothing
+End If
+End function
+'*************************************************************************************************************************************************
+'End Function - VerifyTextPopup
+'***********************************************************************************************************************************************
+
+'**********************************************************************************
+'Name of the Function   :  VerifyTableCellContentByRef
+'Author		     : Ranjith
+'Modified by : Santu
+'Description		     : Verifies the contents of cell of a Gui Table which is present in a normal window .
+'			                        TableColumnName :- Reference Column name of Table
+'									 refCellValue :-  Reference Column value
+'			                          tableColumnName :- Column name of Table from where value is to be checked
+'			                          tableName:- Name of the Gui Table        
+'                                     expectedValue:- Value to be checked    
+'Input Parameters	     :  tableName,refColumnName,TableColumnName,refCellValue,expectedValue
+'Output Parameters        : Null
+'Creation Date : 08/10/2012
+'***********************************************************************************
+'Function  VerifyTableCellContentByRef(tableName,refColumnName,refCellValue,TableColumnName,expectedValue)
+'***********************************************************************************
+Public Function VerifyTableCellContentByRef(tableName,refColumnName,refCellValue,TableColumnName,expectedValue)
+
+    If Not (Environment.Value("blnFatalError") or expectedValue= DS_SKIP) Then
+	If blnShowNotification Then BalloonTooltip.Show "TASE Automation","Executing Now : VerifyTableCellContentByRef"
+	
+If refColumnName<>"" or  TableColumnName <> "" or  tableName<>"" or refCellValue <>"" Then
+Set objGuiTable= SAPGuisession(sessionObject).sapguiwindow(windowObject).sapguitable(guiTable,"name:="&tableName)
+strStepName = " Verify  Content " & "'"  & expectedValue & "'"  & " in GuiTable"
+			If objGuiTable.Exist then
+					   On Error Resume Next
+					   strRowNum=objGuiTable.FindRowByCellContent(refColumnName,refCellValue)
+						If Err.Number = 0 Then
+							strRowVal=objGuiTable.GetCellData(strRowNum,TableColumnName)
+							strCellValueFetched = objGuiTable.GetCellData (strRowNum,TableColumnName)
+							If Err.Number=-2147220983 Then
+										  Call ReporterFunction(strLibraryFileName,"VerifyTableCellContentByRef","1","Column in Gui Table"," column Name : "&TableColumnName&"  does not exist in"& vbNewLine&" Gui Table with name   "&tableName )
+'										  strStatus = "FAIL"
+										  
+										  'Exit Function
+							End If
+							If UCASE(expectedValue)=UCASE(strCellValueFetched) or INSTR(1,strCellValueFetched,expectedValue,1)<>0  Then
+									Call ReporterFunction(strLibraryFileName,"VerifyTableCellContentByRef","2","Cell in Gui Table","Supplied Value :-"&expectedValue&"  "& vbNewLine&"   Matched with Contents of "& vbNewLine&"Cell With row Number:" & strRowNum &" column Name :"&TableColumnName&"in "& vbNewLine&"Gui Table with Title"&tableName )
+									strStatus = "PASS"
+									strMsg = " Actual value in the Table cell  : " & strCellValueFetched & " matches  with the expected value: "&expectedValue&""
+									blnCaptureFlag= True
+							   If blnCaptureFlag  or  blnCreateImageEachStep or blnCreateTrainingDoc Then
+		            	  		ImagePath=CaptureScreenshot(strStepName,objGuiTable,False,False,False)
+		            	  End If
+							Else
+									Call ReporterFunction(strLibraryFileName,"VerifyTableCellContentByRef","1","Cell in Gui Table","Supplied Value :-"&expectedValue&"  "& vbNewLine&"     did not Match  with Contents of "& vbNewLine&" Cell With row Number:" & strRowNum &" column Name :"&TableColumnName&"in"& vbNewLine&" Gui Table with Title"&tableName )
+									strStatus = "FAIL"
+									strMsg = " Actual value in the Table cell : " & strCellValueFetched & " did not match with the expected value: "&expectedValue&""
+									
+							End If
+						Elseif  Err.Number = -2147220983 Then	' Verifies whether column is present in the Table
+							Call ReporterFunction(strLibraryFileName,"VerifyTableCellContentByRef","1","Gui Table","Column Not Found Within Gui Table . Please Verify The Screen")
+							strStatus="FAIL"
+							strMsg =  "Column Not Found Within Gui Table . Please Verify Screen"
+							Err.Clear
+						end if
+						 
+			Else 
+					   Call ReporterFunction(strLibraryFileName,"VerifyTableCellContentByRef","1","Gui Table","Gui Table Object Missing")
+					   strStatus = "FAIL"
+					   strMsg = " Gui Table Object Missing"
+					   blnObjectError=True
+					   
+			End If
+Else
+      Call ReporterFunction(strLibraryFileName,"VerifyTableCellContentByRef","1","Cell in Gui Table","Function Parameter Not Passed Properly. Check the -- VerifyTableCellContentByRef-- Function Call")
+	  strStatus="FAIL"
+	  strMsg = "Function Parameter Not Passed Properly. Check the - VerifyTableCellContentByRef-- Function Call"
+End If
+
+If strStatus = "FAIL"  Then
+'		VerifyTableCellContentByRef = False
+		VerifyTableCellContentByRef = strMsg
+		blnMainFailFlag = True
+		ImagePath=CaptureScreenshot(strStepName,objGuiTable,False,False,False)
+	Else
+		VerifyTableCellContentByRef = True
+	End If
+	If blnDefault_eSwiftReporting Then  
+		Call UpdateResultHtml(strStepName,expectedValue,strMsg,strStatus,"")
+	End If
+Set objGuiTable=Nothing
+End If
+End function
+
+'************************************************************************************
+'End Function -   VerifyTableCellContentByRef
+'************************************************************************************
+
+''**********************************************************************************
+'Name of the Function   :  VerifyTableCellContentPopupByRef
+'Author		     : Ranjith
+'Description		     : Verifies the contents of cell of a Gui Table which is present in a normal window .
+'			                        TableColumnName :- Reference Column name of Table
+'									 refCellValue :-  Reference Column value
+'			                          tableColumnName :- Column name of Table from where value is to be checked
+'			                          tableName:- Name of the Gui Table        
+'                                     expectedValue:- Value to be checked    
+'Input Parameters	     :  tableName,refColumnName,TableColumnName,refCellValue,expectedValue
+'Output Parameters        : Null
+'Creation Date : 08/10/2012
+'***********************************************************************************
+'Function  VerifyTableCellContentPopupByRef(tableName,refColumnName,refCellValue,TableColumnName,expectedValue)
+'***********************************************************************************
+Public Function VerifyTableCellContentPopupByRef(tableName,refColumnName,refCellValue,TableColumnName,expectedValue)
+  If Not (Environment.Value("blnFatalError") or expectedValue= DS_SKIP) Then
+	If blnShowNotification Then BalloonTooltip.Show "TASE Automation","Executing Now : VerifyTableCellContentPopupByRef"
+	
+strStepName = " Verify  Content " & "'"  & expectedValue & "'"  & " in GuiTable"
+If refColumnName<>"" or  TableColumnName <> "" or  tableName<>"" or refCellValue <>"" Then
+Set objGuiTable= SAPGuisession(sessionObject).sapguiwindow(windowObject1).sapguitable(guiTable,"name:="&tableName)
+
+			If objGuiTable.Exist then
+					   On Error Resume Next
+					   strRowNum=objGuiTable.FindRowByCellContent(refColumnName,refCellValue)
+						If Err.Number = 0 Then
+							strRowVal=objGuiTable.GetCellData(strRowNum,TableColumnName)
+							strCellValueFetched = objGuiTable.GetCellData (strRowNum,TableColumnName)
+							If Err.Number=-2147220983 Then
+										  Call ReporterFunction(strLibraryFileName,"VerifyTableCellContentPopupByRef","1","Column in Gui Table"," column Name : "&TableColumnName&"  does not exist in"& vbNewLine&" Gui Table with name   "&tableName )
+										  strStatus = "FAIL"
+										  
+										  'Exit Function
+							End If
+							If UCASE(expectedValue)=UCASE(strCellValueFetched) or INSTR(1,strCellValueFetched,expectedValue,1)<>0  Then
+									Call ReporterFunction(strLibraryFileName,"VerifyTableCellContentPopupByRef","2","Cell in Gui Table","Supplied Value :-"&expectedValue&"  "& vbNewLine&"   Matched with Contents of "& vbNewLine&"Cell With row Number:" & strRowNum &" column Name :"&TableColumnName&"in "& vbNewLine&"Gui Table with Title"&tableName )
+									strStatus = "PASS"
+									strMsg = " Actual value in the Table cell  : " & strCellValueFetched & " matches  with the expected value: " & expectedValue &" "
+									blnCaptureFlag= True
+							   If blnCaptureFlag  or  blnCreateImageEachStep or blnCreateTrainingDoc Then
+		            	  		ImagePath=CaptureScreenshot(strStepName,objGuiTable,False,False,False)
+		            	  		End If
+							Else
+									Call ReporterFunction(strLibraryFileName,"VerifyTableCellContentPopupByRef","1","Cell in Gui Table","Supplied Value :-"&expectedValue&"  "& vbNewLine&"     did not Match  with Contents of "& vbNewLine&" Cell With row Number:" & strRowNum &" column Name :"&TableColumnName&"in"& vbNewLine&" Gui Table with Title"&tableName )
+									strStatus = "FAIL"
+									strMsg = " Actual value in the Table cell : " & strCellValueFetched & " did not match with the expected value: " & expectedValue &" "
+									
+							End If
+						Elseif  Err.Number = -2147220983 Then	' Verifies whether column is present in the Grid
+							Call ReporterFunction(strLibraryFileName,"VerifyTableCellContentPopupByRef","1","Gui Table","Column Not Found Within Gui Table . Please Verify The Screen")
+							strStatus="FAIL"
+							strMsg =  "Column Not Found Within Gui Table . Please Verify Screen"
+						
+							Err.Clear
+						end if
+						 
+			Else 
+					   Call ReporterFunction(strLibraryFileName,"VerifyTableCellContentPopupByRef","1","Gui Table","Gui Table Object Missing")
+					   strStatus = "FAIL"
+					   strMsg = " Gui Table Object Missing"
+
+					   blnObjectError=True
+			End If
+Else
+      Call ReporterFunction(strLibraryFileName,"VerifyTableCellContentPopupByRef","1","Cell in Gui Table","Function Parameter Not Passed Properly. Check the -- VerifyTableCellContentPopupByRef-- Function Call")
+	  strStatus="FAIL"
+	  strMsg = "Function Parameters Not Passed Properly. Check the - VerifyTableCellContentPopupByRef-- Function Call"
+End If
+
+
+If strStatus = "FAIL"  Then
+		VerifyTableCellContentPopupByRef = strMsg
+		blnMainFailFlag = True
+		ImagePath=CaptureScreenshot(strStepName,objGuiTable,False,False,False)
+	Else
+		VerifyTableCellContentPopupByRef = True
+	End If
+	If blnDefault_eSwiftReporting Then  
+		Call UpdateResultHtml(strStepName,expectedValue,strMsg,strStatus,"")
+	End If
+Set objGuiTable=Nothing
+End If
+End function
+
+'************************************************************************************
+'End Function -   VerifyTablePopupCellContentByRef
+'************************************************************************************
+
+
+''**********************************************************************************
+'Name of the Function   :  VerifyGridCellContentbyName
+'Author		     : Ritu
+'Description		     : Verifies the contents of cell of a Gui Grid which is present in a normal window .
+'                                     gridName: Name of the grid found by object spy
+'			                          gridRowNumber :- Row number of Grid from where value is to be checked
+'			                          gridColumnName :- Column name of Grid from where value is to be checked
+'			                          gridTitle:- Title of the Gui grid         
+'                                     expectedValue:- Value to be checked  
+'                                     gridIndex: Index of the grid  
+'Input Parameters	     :  gridTitle,gridRowNumber,gridColumnName,expectedValue
+'Output Parameters        : Null
+'Creation Date : 08/05/2012
+'***********************************************************************************
+'Function  VerifyGridCellContentbyName(gridName,gridRowNumber,gridColumnName,gridIndex,expectedValue)
+'***********************************************************************************
+Public Function VerifyGridCellContentbyName(gridName,gridRowNumber,gridColumnName,gridIndex,expectedValue)
+ 
+ If Not (Environment.Value("blnFatalError") or expectedValue= DS_SKIP) Then
+	If blnShowNotification Then BalloonTooltip.Show "TASE Automation","Executing Now : VerifyGridCellContentbyName"
+	strStepName = " Verify  Content " & "'"  & expectedValue & "'"  & " in column: " & "'"  & gridColumnName & "'"  & " in GuiGrid"
+If gridRowNumber<>"" or  gridColumnName <> "" Then
+Set objGuiGrid201=SAPGuisession(sessionObject).sapguiwindow(windowObject).SAPGuiGrid("guicomponenttype:=201","name:="&gridName,"index:="&gridIndex)
+Set objGuiGrid80=SAPGuisession(sessionObject).sapguiwindow(windowObject).SAPGuiGrid("guicomponenttype:=80","name:="&gridName,"index:="&gridIndex)
+Set objGuiGrid=SetObj(objGuiGrid201,objGuiGrid80) 
+'strStepName = " Verify  Content " & "'"  & expectedValue & "'"  & " in GuiGrid"
+			If objGuiGrid.Exist then
+					   On Error Resume Next
+					    strCellValueFetched = objGuiGrid.GetCellData(gridRowNumber,gridColumnName)
+						 
+						If expectedValue=UCASE(strCellValueFetched) or expectedValue=LCASE(strCellValueFetched)  or INSTR(1,strCellValueFetched,expectedValue,1)<>0  Then
+							 Call ReporterFunction(strLibraryFileName,"VerifyGridCellContentbyName","2","Cell in Gui Grid","Supplied Value :-"&expectedValue&"  "& vbNewLine&"   Matched with Contents of "& vbNewLine&"Cell With row Number:" & gridRowNumber &" column Name :"&gridColumnName&"in "& vbNewLine&"Gui Grid with Title"&gridTitle )
+							  strStatus = "PASS"
+                              strMsg = " Actual value in the Grid cell  : " & strCellValueFetched & " matches  with the expected value:  " & expectedValue & "" 
+                              blnCaptureFlag= True
+							   If blnCaptureFlag  or  blnCreateImageEachStep or blnCreateTrainingDoc Then
+		            	  		ImagePath=CaptureScreenshot(strStepName,objGuiGrid,False,False,False)
+		            	  		End If
+						 Else
+						
+							  Call ReporterFunction(strLibraryFileName,"VerifyGridCellContentbyName","1","Cell in Gui Grid","Supplied Value :-"&expectedValue&"  "& vbNewLine&"     did not Match  with Contents of "& vbNewLine&" Cell With row Number:" & gridRowNumber &" column Name :"&gridColumnName&"in"& vbNewLine&" Gui Grid with Title"&gridTitle )
+							  strStatus = "FAIL"
+							  strMsg = " Actual value in the Grid cell : " & strCellValueFetched & " did not match with the expected value: " & expectedValue & ""
+							 
+						 End If
+						 
+						
+						If Err.Number=-2147220983 Then
+										  Call ReporterFunction(strLibraryFileName,"VerifyGridCellContentbyName","1","Column in Gui Grid"," column Name : "&gridColumnName&"  does not exist in"& vbNewLine&" Gui Grid with name   "&gridTitle )
+										  strStatus = "FAIL"
+										  strMsg = " Column not found in the Gui Grid"
+										  
+						End If
+						
+			Else 
+					   Call ReporterFunction(strLibraryFileName,"VerifyGridCellContentbyName","1","Gui Grid","Gui Grid Object Missing")
+					   strStatus = "FAIL"
+					   strMsg = " Gui Grid Object Missing"
+					   
+			End If
+Else
+      Call ReporterFunction(strLibraryFileName,"VerifyGridCellContentbyName","1","Cell in Gui Grid","Function Parameter Not Passed Properly. Check the -- VerifyGridCellContentbyName-- Function Call")
+	  strStatus="FAIL"
+	  strMsg = "Function Parameter Not Passed Properly. Check the - VerifyGridCellContentbyName-- Function Call"
+End If
+
+
+If strStatus = "FAIL"  Then
+		VerifyGridCellContentbyName = strMsg
+		blnMainFailFlag = True
+		ImagePath=CaptureScreenshot(strStepName,objGuiGrid,False,False,False)
+	Else
+		VerifyGridCellContentbyName = True
+	End If
+	If blnDefault_eSwiftReporting Then  
+		Call UpdateResultHtml(strStepName,expectedValue,strMsg,strStatus,"")
+	End If
+Set objGuiGrid=Nothing
+End If
+End function
+
+'************************************************************************************
+'End Function -   VerifyGridCellContentbyName
+'************************************************************************************
+
+
+''**********************************************************************************
+'Name of the Function   :  VerifyTableCellContentPopup
+'Author		     : Munees
+'Description		     : Verifies the contents of cell of a Gui Table which is present in a Popup window .
+'			                           tableRowNumber :- Row number of table from where value is to be checked
+'			                           tableColumnName :- Column name of table from where value is to be checked
+'			                           tableName :- Name of the Gui Table         
+'                                      expectedValue:- Value to be checked    
+'Input Parameters	     :  tableRowNumber,tableColumnName,tableName,expectedValue
+'Output Parameters        : Null
+'Creation Date : 18/01/2013
+'***********************************************************************************
+'Function  VerifyTableCellContentPopup(tableRowNumber,tableColumnName,tableName,expectedValue)
+'***********************************************************************************
+Public Function VerifyTableCellContentPopup(tableRowNumber,tableColumnName,tableName,expectedValue)
+
+  If Not (Environment.Value("blnFatalError") or expectedValue= DS_SKIP) Then
+	If blnShowNotification Then BalloonTooltip.Show "TASE Automation","Executing Now : VerifyTableCellContentPopup"
+	
+	strStepName = " Verify  Content " & "'"  & expectedValue & "'"  & " in Gui Table"
+If tableRowNumber<>"" and tableColumnName <> "" and tableName<>"" Then
+			Set objTable= SAPGuisession(sessionObject).sapguiwindow(windowObject1).sapguitable(guiTable,"name:="&tableName)
+			If objTable.Exist then
+					   
+					   On Error Resume Next
+						 strCellValueFetched = objTable.GetCellData (tableRowNumber,tableColumnName)
+						If Err.Number=-2147220983 Then
+										  Call ReporterFunction(strLibraryFileName,"VerifyTableCellContentPopup","1","Column in Gui Table"," column Name : "&tableColumnName&"  does not exist in"& vbNewLine&" Gui Table with name   "&tableName )
+										  strStatus = "FAIL"
+										  
+										  Exit Function
+						End If
+						If expectedValue=UCASE(strCellValueFetched) or expectedValue=LCASE(strCellValueFetched)  or INSTR(1,strCellValueFetched,expectedValue,1)<>0  Then
+							 Call ReporterFunction(strLibraryFileName,"VerifyTableCellContentPopup","2","Cell in Gui Table","Supplied Value :-"&expectedValue&"  "& vbNewLine&"   Matched with Contents of "& vbNewLine&"Cell With row Number:" & tableRowNumber &" column Name :"&tableColumnName&"in "& vbNewLine&"Gui Table with name"&tableName )
+							  strStatus = "Pass"
+                              strMsg = " Actual value in the table cell: " &strCellValueFetched & " matches  with the expected value: " & expectedValue& ""
+                              blnCaptureFlag  =  True
+                              If blnCaptureFlag  or  blnCreateImageEachStep or blnCreateTrainingDoc Then
+		            	  		ImagePath=CaptureScreenshot(strStepName,objGuiGrid,false,false,False)
+		            	  		End If
+						 Else
+							  Call ReporterFunction(strLibraryFileName,"VerifyTableCellContentPopup","1","Cell in Gui Table","Supplied Value :-"&expectedValue&"  "& vbNewLine&"     did not Match  with Contents of "& vbNewLine&" Cell With row Number:" & tableRowNumber &" column Name :"&tableColumnName&"in"& vbNewLine&" Gui Table with name"&tableName )
+							  strStatus = "FAIL"
+							  strMsg = " Actual value in the table cell: " &strCellValueFetched & " did not match with the expected value: " & expectedValue& ""
+							  
+						 End If
+			Else 
+					   Call ReporterFunction(strLibraryFileName,"VerifyTableCellContentPopup","1","Gui Table","Gui Table Object Missing")
+					   strStatus = "FAIL"
+					   strMsg = " Gui table Object Missing"
+					   blnObjectError=True
+					   
+			End If
+Else
+      Call ReporterFunction(strLibraryFileName,"VerifyTableCellContentPopup","1","Cell in Gui Table","Function Parameter Not Passed Properly. Check the -- VerifyTableCellContentPopup-- Function Call")
+	  strStatus="FAIL"
+	  strMsg = "Function Parameters Not Passed Properly. Check the - VerifyTableCellContentPopup-- Function Call"
+End If
+
+If strStatus = "FAIL"  Then
+		VerifyTableCellContentPopup = strMsg
+		blnMainFailFlag = True
+		ImagePath=CaptureScreenshot(strStepName,objGuiGrid,false,false,False)
+	Else
+		VerifyTableCellContentPopup = True
+	End If
+	If blnDefault_eSwiftReporting Then  
+		Call UpdateResultHtml(strStepName,expectedValue,strMsg,strStatus,"")
+	End If
+
+
+
+Set objTable=Nothing
+End If
+End function
+
+'************************************************************************************
+'End Function -   VerifyTableCellContentPopup
+'************************************************************************************
+
+'********************************************************************************
+'Name of the Function   : VerifyColumnGuiGrid
+'Description		     : Verify if a column exists in GuiGrid
+'Input Parameters	     :  ColumnName
+'											gridIndex	
+'											gridName
+'Creation Date : 21/11/2012
+
+'***********************************************************************************
+'Function VerifyColumnGuiGrid(gridName,gridIndex,columnName)
+'***********************************************************************************
+
+Public Function VerifyColumnGuiGrid(gridName,gridIndex,columnName)
+	
+	If Not (Environment.Value("blnFatalError") or columnName= DS_SKIP) Then
+	If blnShowNotification Then BalloonTooltip.Show "TASE Automation","Executing Now : VerifyColumnGuiGrid"
+	
+	strStepName = "Verify if a column-  "& columnName& " exists in GuiGrid"
+	If  columnName <> "" then
+		Set objGridGuiComp80=sapguisession(sessionObject).sapguiwindow(windowObject).SAPGuiGrid("guicomponenttype:=80","name:="&gridName,"index:="&gridIndex)
+		Set objGridGuiComp201=sapguisession(sessionObject).sapguiwindow(windowObject).SAPGuiGrid("guicomponenttype:=201","Name:="&gridName,"index:="&gridIndex)
+		Set objGridGui = SetObj(objGridGuiComp80,objGridGuiComp201)
+			If objGridGui.Exist  Then
+				On Error Resume Next
+			objGridGui.SelectColumn columnName
+				If Err.Number = 0 Then
+        			  strStatus = "PASS"
+					  strMsg = "Grid contains the Column: "& columnName
+					   blnCaptureFlag = True
+			              	If blnCaptureFlag  or  blnCreateImageEachStep or blnCreateTrainingDoc Then
+		            	  		ImagePath=CaptureScreenshot(strStepName,objGridGui,False,False,False)
+		            	  		End If
+					  
+                ElseIf Err.Number = -2147220983 Then	' Verifies whether column is present in the Grid
+					Call ReporterFunction(strLibraryFileName,"VerifyColumnGuiGrid","1","Gui Grid","Column Not Found Within Gui Grid . Please Verify The Screen")
+					strStatus = "FAIL" 
+					strMsg =  "Column: "& columnName&" Not Found Within Gui Grid . Please Verify Screen"
+					
+					Err.Clear
+			   end if
+		  Else
+							Call ReporterFunction(strLibraryFileName,"VerifyColumnGuiGrid","1","Gui Grid","Grid Object Not Found. Check the --VerifyColumnGuiGrid-- Function Call")
+							strStatus = "FAIL" 
+							strMsg = "Grid Object Not Found. Check the --VerifyColumnGuiGrid-- Function Call"
+							blnObjectError=True
+							
+				End If
+        	Else
+		Call ReporterFunction(strLibraryFileName,"VerifyColumnGuiGrid","1","Gui Grid","Function Parameter Not Passed Properly. Check the --VerifyColumnGuiGrid-- Function Call")
+		strStatus = "FAIL" 
+		strMsg = "Function Parameter Not Passed Properly. Check the --VerifyColumnGuiGrid-- Function Call"
+	End If
+	
+	If strStatus = "FAIL"  Then
+		VerifyColumnGuiGrid = strMsg
+		blnMainFailFlag = True
+		ImagePath=CaptureScreenshot(strStepName,objGridGui,False,False,False)
+	
+	Else
+		VerifyColumnGuiGrid = True
+	End If
+	If blnDefault_eSwiftReporting Then  
+		Call UpdateResultHtml(strStepName,columnName,strMsg,strStatus,"")
+	End If
+	End If
+	Set objGridGuiGuiComp80=Nothing
+	Set objGridGuiComp201=Nothing
+	Set objGrid=Nothing
+End Function
+'******************************************************************************************
+'End Function VerifyColumnGuiGrid(gridName,gridIndex,columnName)
+'******************************************************************************************
+
+''*********************************************************************************
+'Functions Definition
+'**********************************************************************************
+'Name of the Function   : CheckifGuiLabelExists
+'Author		     : Sudha Arepalli
+'Description		     : checks if Gui Label exists and returns a boolean value
+'Input Parameters	     :  Content to be verfied
+'Output Parameters        : Boolean value
+'Creation Date : 09/05/2012
+'***********************************************************************************
+'Function CheckifGuiLabelExists(Content)
+'***********************************************************************************
+
+Function CheckifGuiLabelExists(Content)
+ 
+   If Not (Environment.Value("blnFatalError") or Content= DS_SKIP) Then
+	If blnShowNotification Then BalloonTooltip.Show "TASE Automation","Executing Now : CheckifGuiLabelExists"
+	
+	strStepName = "Check if Gui Label exists "
+
+    If Content <>"" Then
+	
+     set   objLabel = SAPGuiSession(sessionObject).SapGuiWindow(windowobject).SAPGuiLabel("content:="&Content,"guicomponenttype:=30")
+               If objLabel.Exist Then
+					Call ReporterFunction(strLibraryFileName,"CheckifGuiLabelExists","2",Content,"Gui Label with value "&Content &" exists in the screen")	
+					strMsg = "Gui Label with value "&Content&" exists in the screen"	
+					CheckifGuiLabelExists=true
+					strStatus = "PASS"
+					blnCaptureFlag= True
+							   If blnCaptureFlag  or  blnCreateImageEachStep or blnCreateTrainingDoc Then
+		            	  		ImagePath=CaptureScreenshot(strStepName,objLabel,False,False,False)
+		            	  		End If
+						 Else
+					strStatus = "FAIL" 
+					Call ReporterFunction(strLibraryFileName,"CheckifGuiLabelExists","1"," Status bar Content","Gui Label with value "&Content &" doesn't exist  in the screen")	
+					strMsg = "Gui Label with value "&Content&" doesn't exist  in the screen"
+					CheckifGuiLabelExists=false
+					blnObjectError=True
+				End If
+       	Else
+    	Call ReporterFunction(strLibraryFileName,"CheckifGuiLabelExists","1","Gui Label","Function Parameter Not Passed Properly. Check the --CheckifGuiLabelExists-- Function Call")
+			strStatus = "FAIL" 
+			strMsg = "Function Parameter Not Passed Properly. Check the --CheckifGuiLabelExists-- Function Call-"
+	End If
+	
+
+
+If strStatus = "FAIL"  Then
+		CheckifGuiLabelExists = strMsg
+		blnMainFailFlag = True
+		ImagePath=CaptureScreenshot(strStepName,objLabel,False,False,False)
+		
+	Else
+		CheckifGuiLabelExists = True
+	End If
+	If blnDefault_eSwiftReporting Then  
+		Call UpdateResultHtml(strStepName,Content,strMsg,strStatus,"")
+	End If
+	
+End If
+End Function
+
+
+''**************************************************************************************************************************************************************************************
+'End Function - CheckifGuiLabelExists
+'*************************************************************************************************************************************************************************************
+
+
+Public Function VerifyTableCellContentByRefForArgos(tableName,refColumnName,refCellValue,TableColumnName,expectedValue)
+
+    If Not (Environment.Value("blnFatalError") or expectedValue= DS_SKIP) Then
+	If blnShowNotification Then BalloonTooltip.Show "TASE Automation","Executing Now : VerifyTableCellContentByRefForArgos"
+	
+If refColumnName<>"" or  TableColumnName <> "" or  tableName<>"" or refCellValue <>"" Then
+Set objGuiTable= SAPGuisession(sessionObject).sapguiwindow(windowObject).sapguitable(guiTable,"name:="&tableName)
+strStepName = " Verify  Content " & "'"  & expectedValue & "'"  & " in GuiTable"
+			If objGuiTable.Exist then
+					   On Error Resume Next
+					   strRowNum=objGuiTable.FindRowByCellContent(refColumnName,refCellValue)
+						If Err.Number = 0 Then
+							strRowVal=objGuiTable.GetCellData(strRowNum,TableColumnName)
+							strCellValueFetched = objGuiTable.GetCellData (strRowNum,TableColumnName)
+							If Err.Number=-2147220983 Then
+										  Call ReporterFunction(strLibraryFileName,"VerifyTableCellContentByRefForArgos","1","Column in Gui Table"," column Name : "&TableColumnName&"  does not exist in"& vbNewLine&" Gui Table with name   "&tableName )
+'										  strStatus = "FAIL"
+										  
+										  'Exit Function
+							End If
+							If UCASE(expectedValue)=UCASE(strCellValueFetched) or INSTR(1,strCellValueFetched,expectedValue,1)<>0  Then
+									Call ReporterFunction(strLibraryFileName,"VerifyTableCellContentByRefForArgos","2","Cell in Gui Table","Supplied Value :-"&expectedValue&"  "& vbNewLine&"   Matched with Contents of "& vbNewLine&"Cell With row Number:" & strRowNum &" column Name :"&TableColumnName&"in "& vbNewLine&"Gui Table with Title"&tableName )
+									strStatus = "PASS"
+									strMsg = " Actual value in the Table cell  : " & strCellValueFetched & " matches  with the expected value: "&expectedValue&""
+									blnCaptureFlag= True
+							   If blnCaptureFlag  or  blnCreateImageEachStep or blnCreateTrainingDoc Then
+		            	  		ImagePath=CaptureScreenshot(strStepName,objGuiTable,False,False,False)
+		            	  End If
+							Else
+									Call ReporterFunction(strLibraryFileName,"VerifyTableCellContentByRefForArgos","2","Cell in Gui Table","Supplied Value :-"&expectedValue&"  "& vbNewLine&"     did not Match  with Contents of "& vbNewLine&" Cell With row Number:" & strRowNum &" column Name :"&TableColumnName&"in"& vbNewLine&" Gui Table with Title"&tableName )
+									'strStatus = "FAIL"
+									strMsg = " Actual value in the Table cell : " & strCellValueFetched & " did not match with the expected value: "&expectedValue&""
+									
+							End If
+						Elseif  Err.Number = -2147220983 Then	' Verifies whether column is present in the Table
+							Call ReporterFunction(strLibraryFileName,"VerifyTableCellContentByRefForArgos","1","Gui Table","Column Not Found Within Gui Table . Please Verify The Screen")
+							'strStatus="FAIL"
+							strMsg =  "Column Not Found Within Gui Table . Please Verify Screen"
+							Err.Clear
+						end if
+						 
+			Else 
+					   Call ReporterFunction(strLibraryFileName,"VerifyTableCellContentByRefForArgos","1","Gui Table","Gui Table Object Missing")
+					   strStatus = "FAIL"
+					   strMsg = " Gui Table Object Missing"
+					   blnObjectError=True
+					   
+			End If
+Else
+      Call ReporterFunction(strLibraryFileName,"VerifyTableCellContentByRefForArgos","1","Cell in Gui Table","Function Parameter Not Passed Properly. Check the -- VerifyTableCellContentByRefForArgos-- Function Call")
+	  strStatus="FAIL"
+	  strMsg = "Function Parameter Not Passed Properly. Check the - VerifyTableCellContentByRefForArgos-- Function Call"
+End If
+
+If strStatus <> "PASS"  Then
+'		VerifyTableCellContentByRefForArgos = False
+		VerifyTableCellContentByRefForArgos = strMsg
+		'blnMainFailFlag = True
+		ImagePath=CaptureScreenshot(strStepName,objGuiTable,False,False,False)
+	Else
+		VerifyTableCellContentByRefForArgos = True
+	End If
+	If blnDefault_eSwiftReporting Then  
+		Call UpdateResultHtml(strStepName,expectedValue,strMsg,strStatus,"")
+	End If
+Set objGuiTable=Nothing
+End If
+End function
+
+
+Public Function VerifyEmptyTextBoxContent(textboxAttachedText,textboxName,textboxIndex,expectedValue,blnIsItPopup)
+
+
+
+
+
+If Not (Environment.Value("blnFatalError")) Then
+    If blnShowNotification Then BalloonTooltip.Show "TASE Automation","Executing Now : VerifyEmptyTextBoxContent"
+    
+Set objWindow= SetSAPwindowObj(blnIsItPopup)
+strStepName = " Verify Content of TextBox"
+Set objTextboxComp31 = SAPGuisession(sessionObject).sapguiwindow(objWindow).sapguiedit("guicomponenttype:=31","name:="&textboxName,"attachedtext:="&textboxAttachedText,"Index:="&textboxIndex)
+Set objTextboxComp32 = SAPGuisession(sessionObject).sapguiwindow(objWindow).sapguiedit("guicomponenttype:=32","name:="&textboxName,"attachedtext:="&textboxAttachedText,"Index:="&textboxIndex)
+Set objTextbox=SetObj(objTextboxComp31,objTextboxComp32)
+If textboxName<> "" OR textboxAttachedText<>"" OR textboxIndex<>"" Then
+         If objTextbox.Exist then
+                      textboxValue = objTextbox.getROProperty("value")
+                      If expectedValue=UCASE(textboxValue) or expectedValue=LCASE(textboxValue) or INSTR(1,textboxValue,expectedValue,1)<>null  Then
+                          Call ReporterFunction(strLibraryFileName,"VerifyEmptyTextBoxContent","2","TextBox","Supplied Value :-"&expectedValue&"  "& vbNewLine&"   Matched with Contents of Text Box")
+                          strStatus = "PASS"
+                          strMsg = "Actual Value of the TextBox : " &textboxValue & "   is equal to the Expected Value: " &expectedValue&" "
+                            blnCaptureFlag = True
+                          If blnCaptureFlag  or  blnCreateImageEachStep or blnCreateTrainingDoc Then
+                          ImagePath=CaptureScreenshot(strStepName,objTextbox,False,False,False)
+                          End If
+                         
+                      Else
+                          Call ReporterFunction(strLibraryFileName,"VerifyEmptyTextBoxContent","1","TextBox","Supplied Value :-"&expectedValue &"  "& vbNewLine&"     didnot Match  with Contents of Text Box" )
+                          strStatus = "FAIL"
+                          strMsg = "Actual Text Box Value : " &textboxValue & "  does not match with the expected Value: " &expectedValue&" "
+                          
+                     End If
+         else
+               'strStepName = "TextBox: " &textboxAttachedText& "  -No Such Object Found"
+               Call ReporterFunction(strLibraryFileName,"VerifyEmptyTextBoxContent","1","Text Box","Text Box Object Missing")
+               strStatus = "FAIL"
+               strMsg = "Text Box Object Missing"
+               blnObjectError=True
+         End If
+else
+        Call ReporterFunction(strLibraryFileName,"VerifyEmptyTextBoxContent","1","TextBox","Function Parameter Not Passed Properly. Check the --VerifyEmptyTextBoxContent-- Function Call")
+       strStatus="FAIL"
+       strMsg = "Function Parameter Not Passed Properly. Check the --VerifyEmptyTextBoxContent-- Function Call"
+End If
+     
+If  blnObjectError  Then
+        Environment.Value("blnFatalError")=True
+    End If
+
+
+
+
+
+  If strStatus = "FAIL"  Then
+        VerifyEmptyTextBoxContent = strMsg
+        blnMainFailFlag = True
+        ImagePath=CaptureScreenshot(strStepName,objTextbox,False,False,False)
+    Else
+        VerifyEmptyTextBoxContent = True
+    End If
+    If blnDefault_eSwiftReporting Then  
+    
+        Call UpdateResultHtml(strStepName,expectedValue,strMsg,strStatus,"")
+    End If
+Set objTextboxComp31 =Nothing
+Set objTextboxComp32 =Nothing
+Set objTextbox=Nothing
+Set objWindow=Nothing
+End If
+End function
+
+
+Public Function IfTabExists(tabStripName,tabName,blnIsItPopup)
+	If Not (Environment.Value("blnFatalError")) Then
+	   If blnShowNotification Then BalloonTooltip.Show "TASE Automation","Executing Now : IfTabExists"
+	Dim objTabStrip,objWindow
+	Set objWindow= SetSAPwindowObj(blnIsItPopup)
+	strStepName = "Verify if tab exist: " & tabName 
+	If tabStripName <> "" and tabName <> "" Then
+     	Set objTabStrip1 = sapguisession(sessionObject).sapguiwindow(objWindow).SAPGuiTabStrip(guiTab,"name:="&tabStripName)
+		Set objTabStrip2 = sapguisession(sessionObject).sapguiwindow(objWindow).SAPGuiTabStrip("name:="&tabStripName) 'to identify child tabstrips
+		Set objTabStrip = SetObj(objTabStrip1,objTabStrip2)
+		If  objTabStrip.Exist   Then
+			strAllItems = objTabStrip.GetROProperty("allitems")
+			strAllItems = ";"&strAllItems
+			strTabNameAppended =";"&tabName&";" 
+			If instr(1,strAllItems,strTabNameAppended,1) Then
+				''objTabStrip.Select tabName
+				If blnCaptureFlag  or  blnCreateImageEachStep or blnCreateTrainingDoc Then
+				  ImagePath=CaptureScreenshot(strStepName,objTabStrip,False,False,True)
+	          End if
+				Call ReporterFunction(strLibraryFileName,"IfTabExists","2","Tab Field","Tab Exists :-"& vbNewLine &" Tab Name : "&tabName)
+				strStatus="DONE"
+				strMsg="Tab Exists"
+			Else
+				'Call ReporterFunction(strLibraryFileName,"IfTabExists","1","Tab Field","Tab Not Found Within The Tab Strip . Please Verify --IfTabExists-- Function Call")
+				strStatus = "FAIL"
+				strMsg = " Tab Not Found Within The Tab Strip. Please Verify --IfTabExists-- Function Call"
+				'blnObjectError=True	
+			End If
+		Else 
+			'Call ReporterFunction(strLibraryFileName,"IfTabExists","1","Tab Field","Tab Strip Not Found. Please Verify --IfTabExists-- Function Call")
+			strStatus = "FAIL"
+			 strMsg = " Tab Strip Not Found. Please Verify --IfTabExists-- Function Call"
+			 'blnObjectError=True
+		End If
+	Else 
+		'Call ReporterFunction(strLibraryFileName,"IfTabExists","1","Tab Field","Function Parameter Not Passed Properly. Check the --IfTabExists-- Function Call")
+		strStatus="FAIL"
+		strMsg = "Function Parameter Not Passed Properly. Check the --IfTabExists-- Function Call"
+	End If	
+	If  blnObjectError  Then
+		    Environment.Value("blnFatalError")=True
+	   End If
+
+	   If strStatus = "FAIL"  Then
+		    IfTabExists = strMsg
+'		    blnMainFailFlag = True
+'		    ImagePath=CaptureScreenshot(strStepName,objTabStrip,False,False,True)
+	   Else
+		    IfTabExists = True
+	   End If
+	strStatus="DONE"
+	   If blnDefault_eSwiftReporting Then  
+		   Call UpdateResultHtml(strStepName,"",strMsg,strStatus,"")
+	   End If
+	Set objTabStrip = nothing
+
+Set objTabStrip=Nothing
+Set objWindow=Nothing
+End If
+End Function
+
+Public Function IfTableCellContentExists(tableRowNumber,tableColumnName,tableName,expectedValue)
+
+If Not (Environment.Value("blnFatalError") or tableColumnName= DS_SKIP) Then
+	If blnShowNotification Then BalloonTooltip.Show "TASE Automation","Executing Now : IfTableCellContentExists"
+    strStepName = " Verify  Content in   " & tableColumnName & "  column in Gui Table"
+	
+If tableRowNumber<>"" and tableColumnName <> "" and tableName<>"" Then
+			Set objTable= SAPGuisession(sessionObject).sapguiwindow(windowObject).sapguitable(guiTable,"name:="&tableName)
+			
+			If objTable.Exist then					  
+			            
+					    strMsg= "Table cell content verified successfully"
+					    
+	
+					   On Error Resume Next
+						 strCellValueFetched = objTable.GetCellData (tableRowNumber,tableColumnName)
+						If Err.Number=-2147220983 Then
+						
+										  'Call ReporterFunction(strLibraryFileName,"IfTableCellContentExists","1","Cell in Gui Table","Supplied Value :-"&expectedValue&"  "& vbNewLine&"   Matched with Contents of "& vbNewLine&"Cell With row Number:" & tableRowNumber &" column Name :"&tableColumnName&"in "& vbNewLine&"Gui Table with name"&tableName )
+										  'strStatus = "FAIL"
+										
+									     Exit Function
+						End If
+						If expectedValue=UCASE(strCellValueFetched) or expectedValue=LCASE(strCellValueFetched)  or INSTR(1,strCellValueFetched,expectedValue,1)<>null Then
+							 Call ReporterFunction(strLibraryFileName,"IfTableCellContentExists","2","Cell in Gui Table","Supplied Value :-"&expectedValue&"  "& vbNewLine&"   Matched with Contents of "& vbNewLine&"Cell With row Number:" & tableRowNumber &" column Name :"&tableColumnName&"in "& vbNewLine&"Gui Table with name"&tableName )
+							  strStatus = "PASS"
+                              strMsg = " Actual value: "&strCellValueFetched&" in the table cell matches  with the expected value: "&expectedValue&""
+                              blnCaptureFlag = True
+			                 If blnCaptureFlag  or  blnCreateImageEachStep or blnCreateTrainingDoc Then
+		                     ImagePath=CaptureScreenshot(strStepName,objTable,False,False,False)
+		                     End If
+						 Else
+							  'Call ReporterFunction(strLibraryFileName,"IfTableCellContentExists","1","Cell in Gui Table","Supplied Value :-"&expectedValue&"  "& vbNewLine&"     did not Match  with Contents of "& vbNewLine&" Cell With row Number:" & tableRowNumber &" column Name :"&tableColumnName&"in"& vbNewLine&" Gui Table with name"&tableName )
+							  'strStatus = "FAIL"
+							  strMsg = " Actual value: "&strCellValueFetched&" in the table cell did not match with the expected value: "&expectedValue&""
+							  
+						 End If
+			Else 
+					   'Call ReporterFunction(strLibraryFileName,"IfTableCellContentExists","1","Gui Table","Gui Table Object Missing")
+					   'strStatus = "FAIL"
+					   strMsg = " Gui table Object Missing"
+					   blnObjectError=True
+			End If
+Else
+      'Call ReporterFunction(strLibraryFileName,"IfTableCellContentExists","1","Cell in Gui Table","Function Parameter Not Passed Properly. Check the -- IfTableCellContentExists-- Function Call")
+	  'strStatus="FAIL"
+	  strMsg = "Function Parameter Not Passed Properly. Check the - IfTableCellContentExists-- Function Call"
+End If
+
+If  blnObjectError  Then
+		Environment.Value("blnFatalError")=True
+	End If
+strStatus = "PASS"
+	If strStatus = "FAIL"  Then
+		IfTableCellContentExists = strMsg
+		blnMainFailFlag = True
+		ImagePath=CaptureScreenshot(strStepName,objTable,False,False,False)
+	Else
+		IfTableCellContentExists = True
+	End If
+	If blnDefault_eSwiftReporting Then  
+		Call UpdateResultHtml(strStepName,expectedValue,strMsg,strStatus,"")
+	End If
+Set objTable=Nothing
+End If
+End function
+
+
+Function VerifyStatusBarConditon(Content)
+ If Not (Environment.Value("blnFatalError") or Content= DS_SKIP) Then
+	If blnShowNotification Then BalloonTooltip.Show "TASE Automation","Executing Now : VerifyStatusBarConditon"
+	
+	strStepName = "Verify Status Bar "
+	Set objStatusBar=SAPGuiSession(sessionObject).SapGuiWindow(windowobject).SAPGuiStatusBar(guiStatusBar)
+    objStatusBarText = SAPGuiSession(sessionObject).SapGuiWindow(windowobject).SAPGuiStatusBar(guiStatusBar).GetROProperty("text")
+	CompareType="CONTAIN"
+    If Content <>"" Then
+		Select Case UCASE(CompareType)
+			   Case "CONTAIN"
+				If instr(1, UCASE(objStatusBarText), UCASE(Content), vbTextCompare) Then
+				Call ReporterFunction(strLibraryFileName,"VerifyStatusBarConditon","2"," Status bar Content","Actual Value is equal to the Expected Value")	
+				strStatus = "PASS"
+				strMsg = "Actual Value: " & "'" & objStatusBarText & "'" & " is equal to the Expected Value : " & "'" & Content& "'" &  " "
+				blnCaptureFlag = True				
+				If blnCaptureFlag  or  blnCreateImageEachStep or blnCreateTrainingDoc Then
+'		   			ImagePath=CaptureScreenshot(strStepName,objStatusBar,True,True,True)
+				End If 
+				
+				Else
+				Call ReporterFunction(strLibraryFileName,"VerifyStatusBarConditon","2"," Status bar Content","Actual Value is not equal to the Expected Value ")	
+				strStatus = "Done"
+				blndefectFlag =True
+				strMsg = "Actual Value: " & objStatusBarText & "  is not equal to the Expected Value: " & "'" & Content& "'" &  " "	
+				End If
+		End Select
+	Else
+    	Call ReporterFunction(strLibraryFileName,"VerifyStatusBarConditon","2","StatusBar","Function Parameter Not Passed Properly. Check the --VerifyStatusBarConditon-- Function Call")
+			strStatus = "Done" 
+			strMsg = "Function Parameter Not Passed Properly. Check the --VerifyStatusBarConditon-- Function Call"
+	End if
+	
+		
+	If  blnObjectError  Then
+		Environment.Value("blnFatalError")=True
+	End If
+
+	If strStatus = "Done"  Then
+		VerifyStatusBarConditon = strMsg
+		blnMainFailFlag = True
+'		ImagePath=CaptureScreenshot(strStepName,objStatusBar,True,True,True)
+	Else
+		VerifyStatusBarConditon = True
+	End If
+	If blnDefault_eSwiftReporting Then  
+'		Call UpdateResultHtml(strStepName,Content,strMsg,strStatus,"")
+	End If
+	  ' //////////Word Document ///////////
+		'	If bDocFlag= 1 Then
+			'	Check=CheckStatus_Doc(status)
+			'	If Check=1 Then
+			'		imageDocPath=CaptureSAPObject_Doc(SAPWindowObject)
+			'		Call StoreSteps(strStepName)
+			'		Call storeCoordinates(objStatusBar)
+			'		call drawShapeImage(imageDocPath)
+             '       Call InsertImage(imageDocPath)
+			'		Call InsertStepsDoc()
+			'		oDicSteps.RemoveAll
+			'	End If
+			' End If
+			    ' //////////Word Document ///////////
+	Set objStatusBar=Nothing
+	End If
+End Function
+''**********************************************************************************
+'Name of the Function   :  IfGuiGridExists
+'Author		     : 
+'Description		     : Verifies the GuiGrid is present in the SAP Screen .
+'			                      'gridTitle:- Title of the Gui grid         
+'                                            gridIndex - Index of the Gui Grid                                    
+'Input Parameters	     :  gridTitle,gridIndex
+'Output Parameters        : Null
+'Creation Date :
+'***********************************************************************************
+'Function  IfGuiGridExists(gridTitle,gridIndex)
+'***********************************************************************************
+Public Function IfGuiGridExists(gridTitle,gridIndex)
+  
+  If Not (Environment.Value("blnFatalError") or expectedValue= DS_SKIP) Then
+	If blnShowNotification Then BalloonTooltip.Show "TASE Automation","Executing Now : IfGuiGridExists"
+	strStepName = " Verify  GuiGrid " & "'" & gridTitle & "'"  & " Exists"
+
+If  gridTitle<>"" or gridIndex <>"" Then
+Set objGuiGrid201=SAPGuisession(sessionObject).sapguiwindow(windowObject).SAPGuiGrid("guicomponenttype:=201","title:="&gridTitle,"index:="&gridIndex)
+Set objGuiGrid80=SAPGuisession(sessionObject).sapguiwindow(windowObject).SAPGuiGrid("guicomponenttype:=80","title:="&gridTitle,"index:="&gridIndex)
+Set objGuiGrid=SetObj(objGuiGrid201,objGuiGrid80) 
+
+			If objGuiGrid.Exist then
+					   							  
+							  'msgbox Err.Number
+							  If Err.Number=-2147220983 or Err.Number = 13 Then
+										  Call ReporterFunction(strLibraryFileName,"IfGuiGridExists","1","Gui Grid"," Grid Title : "&gridTitle)
+										  strStatus = "FAIL"
+										  strMsg =  " Column not found in the given grid"
+						            End If
+							 
+			Else 	   Call ReporterFunction(strLibraryFileName,"IfGuiGridExists","1","Gui Grid","Gui Grid Object Missing")
+					   strStatus = "FAIL"
+					   strMsg = " Gui Grid Object Missing"
+					   blnObjectError=True
+					   
+			End If
+Else
+      Call ReporterFunction(strLibraryFileName,"IfGuiGridExists","1","Cell in Gui Grid","Function Parameter Not Passed Properly. Check the -- VerifyGridCellContent-- Function Call")
+	  strStatus="FAIL"
+	  strMsg = "Function Parameter Not Passed Properly. Check the - IfGuiGridExists-- Function Call"
+End If
+
+If strStatus = "FAIL"  Then
+		IfGuiGridExists = strMsg
+		blnMainFailFlag = True
+		ImagePath=CaptureScreenshot(strStepName,objGuiGrid,False,False,False)
+	Else
+		IfGuiGridExists = True
+	End If
+	If blnDefault_eSwiftReporting Then  
+		Call UpdateResultHtml(strStepName,expectedValue,strMsg,strStatus,"")
+	End If
+Set objGuiGrid=Nothing
+End If
+
+End function
+
+'************************************************************************************
+'End Function -   IfGuiGridExists
+'************************************************************************************
+Public Function VerifyGridMultiCellContent(gridTitle,gridNoOfRows,gridColumnName,gridIndex,expectedValue)
+  Dim Iterator
+  If Not (Environment.Value("blnFatalError") or expectedValue= DS_SKIP) Then
+	If blnShowNotification Then BalloonTooltip.Show "TASE Automation","Executing Now : VerifyGridMultiCellContent"
+	strStepName = " Verify  Content " & "'" & expectedValue & "'"  & " in All GuiGrid"
+
+If gridNoOfRows<>"" or  gridColumnName <> "" or  gridTitle<>"" or gridIndex <>"" Then
+Set objGuiGrid201=SAPGuisession(sessionObject).sapguiwindow(windowObject).SAPGuiGrid("guicomponenttype:=201","title:="&gridTitle,"index:="&gridIndex)
+Set objGuiGrid80=SAPGuisession(sessionObject).sapguiwindow(windowObject).SAPGuiGrid("guicomponenttype:=80","title:="&gridTitle,"index:="&gridIndex)
+Set objGuiGrid=SetObj(objGuiGrid201,objGuiGrid80) 
+
+			If objGuiGrid.Exist then
+					   On Error Resume Next
+				 For Iterator = 1 To gridNoOfRows
+							
+						     strCellValueFetched = objGuiGrid.GetCellData(Iterator,gridColumnName)
+						If expectedValue=UCASE(strCellValueFetched) or expectedValue=LCASE(strCellValueFetched)  or INSTR(1,strCellValueFetched,expectedValue,1)<>0  Then
+						      If Iterator >= gridNoOfRows Then
+						          Call ReporterFunction(strLibraryFileName,"VerifyGridCellContent","2","Cell in Gui Grid","Supplied Value :-"&expectedValue&"  "& vbNewLine&"   Matched with Contents of "& vbNewLine&"Cell With row Number:" & gridRowNumber &" column Name :"&gridColumnName&"in "& vbNewLine&"Gui Grid with Title"&gridTitle )
+							   strStatus = "PASS"
+							   strMsg = " Actual value in All the Grid cell  :   "  & strCellValueFetched & " matches  with the expected value:   "  & expectedValue & ""
+							   blnCaptureFlag = True
+			              	                  If blnCaptureFlag  or  blnCreateImageEachStep or blnCreateTrainingDoc Then
+		            	  		               ImagePath=CaptureScreenshot(strStepName,objGuiGrid,False,False,False)
+                                                        End If
+                                                 Exit For    
+						      End If                  
+                                             Else
+							  Call ReporterFunction(strLibraryFileName,"VerifyGridMultiCellContent","1","Cell in Gui Grid","Supplied Value :-"&expectedValue&"  "& vbNewLine&"     did not Match  with Contents of "& vbNewLine&" Cell With row Number:" & gridRowNumber &" column Name :"&gridColumnName&"in"& vbNewLine&" Gui Grid with Title"&gridTitle )
+							  strStatus = "FAIL"
+							  
+							  strMsg =  " Actual value in the Grid cell  :  "  & strCellValueFetched &   "  does not match with the expected value:    "   &  expectedValue & ""
+	                                    Exit For
+	                                      End If
+	                                   Next
+	                                   							  
+							  'msgbox Err.Number
+							  If Err.Number=-2147220983 or Err.Number = 13 Then
+										  Call ReporterFunction(strLibraryFileName,"VerifyGridMultiCellContent","1","Column in Gui Grid"," column Name : "&gridColumnName&"  does not exist in"& vbNewLine&" Gui Grid with name   "&gridTitle )
+										  strStatus = "FAIL"
+										  strMsg =  " Column not found in the given grid"
+						 End If
+							 
+			Else 	   Call ReporterFunction(strLibraryFileName,"VerifyGridMultiCellContent","1","Gui Grid","Gui Grid Object Missing")
+					   strStatus = "FAIL"
+					   strMsg = " Gui Grid Object Missing"
+					   blnObjectError=True
+					   
+			End If
+Else
+      Call ReporterFunction(strLibraryFileName,"VerifyGridMultiCellContent","1","Cell in Gui Grid","Function Parameter Not Passed Properly. Check the -- VerifyGridMultiCellContent-- Function Call")
+	  strStatus="FAIL"
+	  strMsg = "Function Parameter Not Passed Properly. Check the - VerifyGridMultiCellContent-- Function Call"
+End If
+
+If strStatus = "FAIL"  Then
+		VerifyGridMultiCellContent = strMsg
+		blnMainFailFlag = True
+		ImagePath=CaptureScreenshot(strStepName,objGuiGrid,False,False,False)
+	Else
+		VerifyGridMultiCellContent = True
+	End If
+	If blnDefault_eSwiftReporting Then  
+		Call UpdateResultHtml(strStepName,expectedValue,strMsg,strStatus,"")
+	End If
+Set objGuiGrid=Nothing
+End If
+
+End function
+
+'************************************************************************************
+'End Function -   VerifyGridMultiCellContent
+'************************************************************************************
+
+
+'******************************************************************************************************
+'Name of the Function   : VerifyIfGuiTreeExist
+'Description		     : Verify Existance of Gui Tree
+'Input Parameters	     :  treeIndex - Index of the tree in which the item is present
+'										
+'Output Parameters        : 
+'******************************************************************************************************
+'Function VerifyIfGuiTreeExist(treeIndex)
+'******************************************************************************************************
+Public Function VerifyIfGuiTreeExist(treeIndex)
+If Not (Environment.Value("blnFatalError")) Then
+	   If blnShowNotification Then BalloonTooltip.Show "TASE Automation","Executing Now : VerifyIfGuiTreeExist"
+	   strStepName="Validate that the Gui Tree Index: "  & itemText &  " Exists"
+If treeIndex <>"" Then
+
+Set objTree =  SAPGuiSession(sessionObject).sapguiwindow(windowObject).SAPGuiTree("guicomponenttype:=200","name:=shel.*","index:="&treeIndex)
+If objTree.Exist Then
+			  If blnCaptureFlag  or  blnCreateImageEachStep or blnCreateTrainingDoc Then
+				  ImagePath=CaptureScreenshot(strStepName,objTree,False,False,True)
+	          End if
+Call ReporterFunction(strLibraryFileName,"VerifyIfGuiTreeExist","2"," Activate Item in GuiTree","Item Activated:- "&itemText)
+strStatus = "DONE"
+strMsg="Validated successfully that Gui Tree exists."
+else
+		Call ReporterFunction(strLibraryFileName,"successfully","1","Item in GuiTree","Gui Tree Missing")
+		strStatus = "FAIL"
+		blnObjectError=True
+		strMsg = " The Tree Object is not Found, Please verify the Screen"
+		
+End If
+Else
+		Call ReporterFunction(strLibraryFileName,"VerifyIfGuiTreeExist","1"," Gui Tree Not Exist","Function Parameter Not Passed Properly. Check the --VerifyIfGuiTreeExist-- Function Call")
+		strStatus="FAIL"
+		strMsg = "Function Parameter Not Passed Properly. Check the --VerifyIfGuiTreeExist-- Function Call-"	
+End If
+Set  objTree =nothing
+Set normalObj=nothing
+If  blnObjectError  Then
+		    Environment.Value("blnFatalError")=True
+	   End If
+
+	   If strStatus = "FAIL"  Then
+		    VerifyIfGuiTreeExist = strMsg
+		    blnMainFailFlag = True
+		    ImagePath=CaptureScreenshot(strStepName,objTree,False,False,True)
+	   Else
+		    VerifyIfGuiTreeExist = strMsg
+	   End If
+	
+	   If blnDefault_eSwiftReporting Then  
+		   Call UpdateResultHtml(strStepName,itemPath&";"&itemText,strMsg,strStatus,"")
+	   End If
+	   If strStatus = "FAIL"  Then
+		    VerifyIfGuiTreeExist = False
+	   Else
+		    VerifyIfGuiTreeExist = True
+	   End If
+' //////////Word Document ///////////
+'				If blnCreateTrainingDoc Then
+'					Check=CheckStatus_Doc(strStatus)
+'					If Check=1 Then
+'						Call storeCoordinates(objTree)
+'						Call StoreSteps(strStepName)
+'					End If
+'				End If
+ ' //////////Word Document ///////////
+ End If
+End Function
+'*****************************************************************************************************
+'End Function - VerifyIfGuiTreeExist
+'*****************************************************************************************************************
+
+
+
+'===============================================================================
+' Function : FindFirstRow_ByColumnValue
+' Purpose  : Open Excel from path and return the FIRST row number where the given
+'            column equals targetValue.
+' Params   : excelPath   - Full path to Excel file
+'            sheetName   - Worksheet name
+'            colIndex    - Column number (A=1, B=2, ... I=9)
+'            targetValue - Value to match (string or number)
+'            hasHeader   - True to start scan from row 2; False to start from row 1
+'            compareMode - "exact" | "ci" | "numeric" | "contains"
+' Returns  : Long row number; 0 if not found or on error
+' Notes    : Uses Range.Find (positional args) for speed + loop fallback.
+'            DOES NOT close Excel/workbook; caller manages lifecycle.
+'===============================================================================
+Public Function FindFirstRow_ByColumnValue(excelPath, sheetName, colIndex, targetValue, hasHeader, compareMode)
+    On Error Resume Next
+strStepName = "Find Row number with reference of Article" &targetValue
+    Const xlValues = -4163
+    Const xlWhole  = 1
+    Const xlByRows = 1
+    Const xlNext   = 1
+    Const xlUp     = -4162
+
+    Dim fso, xlApp, wb, ws
+    Dim startRow, lastRow
+    Dim rngCol, foundCell
+    Dim resultRow, v
+
+    If IsEmpty(compareMode) Or compareMode = "" Then
+        compareMode = "exact"
+    End If
+
+    resultRow = 0
+
+    ' Validate file
+    Set fso = CreateObject("Scripting.FileSystemObject")
+    If Not fso.FileExists(excelPath) Then
+        Reporter.ReportEvent micFail, "FindFirstRow_ByColumnValue", "File not found: " & excelPath
+        FindFirstRow_ByColumnValue = 0
+        Exit Function
+    End If
+
+    ' Open Excel
+    Set xlApp = CreateObject("Excel.Application")
+    If Err.Number <> 0 Or xlApp Is Nothing Then
+        Reporter.ReportEvent micFail, "FindFirstRow_ByColumnValue", "Could not start Excel: " & Err.Description
+        Err.Clear
+        FindFirstRow_ByColumnValue = 0
+        Exit Function
+    End If
+    xlApp.Visible = False
+    xlApp.DisplayAlerts = False
+
+    Set wb = xlApp.Workbooks.Open(excelPath)
+    If Err.Number <> 0 Or wb Is Nothing Then
+        Reporter.ReportEvent micFail, "FindFirstRow_ByColumnValue", "Failed to open workbook: " & Err.Description
+        Err.Clear
+        FindFirstRow_ByColumnValue = 0
+        Exit Function
+    End If
+
+    Set ws = wb.Worksheets(sheetName)
+    If ws Is Nothing Then
+        Reporter.ReportEvent micFail, "FindFirstRow_ByColumnValue", "Worksheet not found: " & sheetName
+        FindFirstRow_ByColumnValue = 0
+        Exit Function
+    End If
+
+    If hasHeader Then
+        startRow = 2
+    Else
+        startRow = 1
+    End If
+
+    lastRow = ws.Cells(ws.Rows.Count, colIndex).End(xlUp).Row
+    If lastRow < startRow Then
+        FindFirstRow_ByColumnValue = 0
+        Exit Function
+    End If
+
+    Set rngCol = ws.Range(ws.Cells(startRow, colIndex), ws.Cells(lastRow, colIndex))
+
+    ' --- Fast path: Range.Find with positional args ---
+    If LCase(compareMode) = "exact" Or LCase(compareMode) = "numeric" Then
+        ' Exact match via Find (string/number). For numeric, What should be numeric if possible.
+        Dim findWhat
+        findWhat = targetValue
+        If LCase(compareMode) = "numeric" And IsNumeric(targetValue) Then
+            findWhat = CDbl(targetValue)
+        End If
+
+        Set foundCell = rngCol.Find(findWhat, rngCol.Cells(rngCol.Rows.Count, rngCol.Columns.Count), _
+                                    xlValues, xlWhole, xlByRows, xlNext, False, False, False)
+
+        If Not foundCell Is Nothing Then
+            v = foundCell.Value
+            If MatchesValue(v, targetValue, compareMode) Then
+                resultRow = foundCell.Row
+                Call ReporterFunction(strLibraryFileName,"Find Row Number","2","Find Row Number","" )
+			strStatus = "PASS"
+			 strMsg = " Row Number "  & resultRow & " found with the reference of article "
+			blnCaptureFlag = True
+			              	If blnCaptureFlag  or  blnCreateImageEachStep or blnCreateTrainingDoc Then
+		            	  			ImagePath=CaptureScreenshot(strStepName,objGuiGrid,False,False,False)
+                             		End If
+            End If
+        End If
+    End If
+
+    ' --- Fallback or other compare modes: loop ---
+    If resultRow = 0 Then
+        Dim r, cellVal
+        For r = startRow To lastRow
+            cellVal = ws.Cells(r, colIndex).Value
+            If MatchesValue(cellVal, targetValue, compareMode) Then
+                resultRow = r
+                Call ReporterFunction(strLibraryFileName,"Find Row Number","2","Find Row Number","" )
+			strStatus = "PASS"
+			 strMsg = " Row Number "  & resultRow & " found with the reference of article "
+			blnCaptureFlag = True
+			              	If blnCaptureFlag  or  blnCreateImageEachStep or blnCreateTrainingDoc Then
+		            	  			ImagePath=CaptureScreenshot(strStepName,objGuiGrid,False,False,False)
+                             		End If
+                Exit For
+            End If
+        Next
+    End If
+
+    FindFirstRow_ByColumnValue = resultRow  ' caller will close wb/xlApp
+    
+     If blnDefault_eSwiftReporting Then  
+		Call UpdateResultHtml(strStepName,resultRow,strMsg,strStatus,"")
+	End If
+	xlApp.Quit
+	Set wb = Nothing
+    Set xlApp = Nothing
+    Set fso = Nothing
+End Function
+
+
+
+'======================================================================================
+' Function : VerifyCell_ByRowCol
+' Purpose  : Verify the value in an Excel cell (row, column) against an expected value.
+' Params   : excelPath    - Full path to Excel file
+'            sheetName    - Worksheet name
+'            rowNum       - Row number (1-based)
+'            colNum       - Column number (1-based)
+'            expectedVal  - Expected value to compare against
+'            compareMode  - "exact" | "ci" | "contains" | "numeric" | "regex"
+' Returns  : True if verification passes; False otherwise
+' Notes    : DOES NOT close Excel/workbook. Caller must close them after use.
+'======================================================================================
+Public Function VerifyCell_ByRowCol(excelPath, sheetName, rowNum, colNum, expectedVal, compareMode)
+    On Error Resume Next
+strStepName = " Verify  Content " & "'" & expectedVal & "'"  & " in Excel in row number & ""'" & rowNum & "'"  & " and column number ""'" & rowNum & ""
+    Dim fso, xlApp, wb, ws, actualVal, result
+    result = False
+
+    ' Defaults
+    If IsEmpty(compareMode) Or compareMode = "" Then
+        compareMode = "exact"
+    End If
+
+    ' Validate file exists
+    Set fso = CreateObject("Scripting.FileSystemObject")
+    If Not fso.FileExists(excelPath) Then
+        Reporter.ReportEvent micFail, "VerifyCell_ByRowCol", "File not found: " & excelPath
+        VerifyCell_ByRowCol = False
+        Exit Function
+    End If
+
+    ' Open Excel
+    Set xlApp = CreateObject("Excel.Application")
+    If Err.Number <> 0 Or xlApp Is Nothing Then
+        Reporter.ReportEvent micFail, "VerifyCell_ByRowCol", "Could not start Excel: " & Err.Description
+        Err.Clear
+        VerifyCell_ByRowCol = False
+        Exit Function
+    End If
+
+    xlApp.Visible = False
+    xlApp.DisplayAlerts = False
+
+    Set wb = xlApp.Workbooks.Open(excelPath)
+    If Err.Number <> 0 Or wb Is Nothing Then
+        Reporter.ReportEvent micFail, "VerifyCell_ByRowCol", "Failed to open workbook: " & Err.Description
+        Err.Clear
+        VerifyCell_ByRowCol = False
+        Exit Function
+    End If
+
+    Set ws = wb.Worksheets(sheetName)
+    If ws Is Nothing Then
+        Reporter.ReportEvent micFail, "VerifyCell_ByRowCol", "Sheet not found: " & sheetName
+        VerifyCell_ByRowCol = False
+        Exit Function
+    End If
+
+    ' Read actual value
+    actualVal = ws.Cells(rowNum, colNum).Value
+
+    ' Compare based on mode
+    Select Case LCase(compareMode)
+        Case "exact"
+            ' Case-sensitive exact match
+            If CStr(actualVal) = CStr(expectedVal) Then
+                result = True
+            End If
+
+        Case "ci"
+            ' Case-insensitive exact match (trim both sides)
+            If LCase(Trim(CStr(actualVal))) = LCase(Trim(CStr(expectedVal))) Then
+                result = True
+            End If
+
+        Case "contains"
+            ' Contains (case-insensitive)
+            Dim hay, needle
+            hay = LCase(CStr(actualVal))
+            needle = LCase(CStr(expectedVal))
+            If InStr(1, hay, needle, vbTextCompare) > 0 Then
+                result = True
+            End If
+
+        Case "numeric"
+            ' Numeric equality (handles text "0" vs numeric 0)
+            Dim aNum, bNum
+            If IsNumeric(actualVal) And IsNumeric(expectedVal) Then
+                aNum = CDbl(actualVal)
+                bNum = CDbl(expectedVal)
+                If aNum = bNum Then
+                    result = True
+                End If
+            Else
+                ' Try to coerce strings that look like numbers
+                If IsNumeric(actualVal) And (Trim(CStr(expectedVal)) = "" Or Not IsNumeric(expectedVal)) Then
+                    bNum = CDbl(Val(CStr(expectedVal)))
+                    aNum = CDbl(actualVal)
+                    If aNum = bNum Then
+                        result = True
+                    End If
+                ElseIf IsNumeric(expectedVal) And (Trim(CStr(actualVal)) = "" Or Not IsNumeric(actualVal)) Then
+                    aNum = CDbl(Val(CStr(actualVal)))
+                    bNum = CDbl(expectedVal)
+                    If aNum = bNum Then
+                        result = True
+                    End If
+                Else
+                    ' Fallback: compare trimmed strings
+                    If Trim(CStr(actualVal)) = Trim(CStr(expectedVal)) Then
+                        result = True
+                    End If
+                End If
+            End If
+
+        Case "regex"
+            ' VBScript RegExp (case-insensitive by default unless changed)
+            Dim re
+            Set re = New RegExp
+            re.Pattern = CStr(expectedVal)
+            re.IgnoreCase = True
+            re.Global = False
+            If re.Test(CStr(actualVal)) Then
+                result = True
+            End If
+
+        Case Else
+            Reporter.ReportEvent micWarning, "VerifyCell_ByRowCol", "Unknown compareMode: " & compareMode & ". Using 'exact'."
+            If CStr(actualVal) = CStr(expectedVal) Then
+                result = True
+            End If
+    End Select
+    If result Then
+     VerifyCell_ByRowCol = result
+  			Call ReporterFunction(strLibraryFileName,"VerifyExcelCellContent","2","Cell in Excel","Supplied Value :-"&expectedVal&"  "& vbNewLine&"   Matched with Contents of "& vbNewLine&"Cell With row Number:" & rowNum )
+			strStatus = "PASS"
+			 strMsg = " Actual value in the Excel Cell  :   "  & actualVal & " matches  with the expected value:   "  & expectedVal & ""
+			blnCaptureFlag = True
+			              	If blnCaptureFlag  or  blnCreateImageEachStep or blnCreateTrainingDoc Then
+		            	  			ImagePath=CaptureScreenshot(strStepName,objGuiGrid,False,False,False)
+                             		End If
+    Else
+                VerifyCell_ByRowCol = result
+        Call ReporterFunction(strLibraryFileName,"VerifyExcelCellContent","1","Cell in Excel","Supplied Value :-"&expectedVal&"  "& vbNewLine&"   Matched with Contents of "& vbNewLine&"Cell With row Number:" & rowNum )
+			strStatus = "FAIL"
+			 strMsg = " Actual value in the Excel Cell  :   "  & actualVal & " didn't match  with the expected value:   "  & expectedVal & ""
+			blnCaptureFlag = True
+			              	If blnCaptureFlag  or  blnCreateImageEachStep or blnCreateTrainingDoc Then
+		            	  			ImagePath=CaptureScreenshot(strStepName,objGuiGrid,False,False,False)
+                             		End If
+    End If
+
+    VerifyCell_ByRowCol = result
+    
+    If blnDefault_eSwiftReporting Then  
+		Call UpdateResultHtml(strStepName,expectedVal,strMsg,strStatus,"")
+	End If
+	
+	   If blnCaptureFlag  or  blnCreateImageEachStep or blnCreateTrainingDoc Then
+				ImagePath=CaptureScreenshot(strMsg,"",True,False,False)
+			End if
+			
+	xlApp.Quit
+	Set wb = Nothing
+    Set xlApp = Nothing
+    Set fso = Nothing
+End Function
+
+
+Public Function GetValue_ByRowCol(excelPath, sheetName, rowNum, colNum)
+    On Error Resume Next
+strStepName = " Get Value By Row number from excel in column:" &colNum
+    Dim fso, xlApp, wb, ws, valueOut
+    valueOut = ""
+
+    ' Check file exists
+    Set fso = CreateObject("Scripting.FileSystemObject")
+    If Not fso.FileExists(excelPath) Then
+        Reporter.ReportEvent micFail, "GetValue_ByRowCol", "File not found: " & excelPath
+ 					
+        GetValue_ByRowCol = ""
+        						strStatus = "FAIL"
+							strMsg = "File not found: """&excelPath&""""
+							Call ReporterFunction(strLibraryFileName,"GetValue_ByRowCol","1","File not found: ", strMsg)
+        Exit Function
+    End If
+
+    ' Open Excel
+    Set xlApp = CreateObject("Excel.Application")
+    xlApp.Visible = False
+    xlApp.DisplayAlerts = False
+
+    Set wb = xlApp.Workbooks.Open(excelPath)
+    Set ws = wb.Worksheets(sheetName)
+
+    If ws Is Nothing Then
+        Reporter.ReportEvent micFail, "GetValue_ByRowCol", "Sheet not found: " & sheetName
+        GetValue_ByRowCol = ""
+        						strStatus = "FAIL"
+							strMsg = "Sheet not found: """&excelPath&""""
+							Call ReporterFunction(strLibraryFileName,"GetValue_ByRowCol","1","Sheet not found: ", strMsg)
+        Exit Function
+    End If
+
+    ' Read cell value
+    valueOut = ws.Cells(rowNum, colNum).Value
+							strStatus = "Pass"
+							strMsg = "Value retrived from the Col & Row: """&valueOut&""""
+							Call ReporterFunction(strLibraryFileName,"GetValue_ByRowCol","2","Value retrived from the Excel with Row  & Col  as reference: ", strMsg)
+    GetValue_ByRowCol = valueOut
+    
+    If blnDefault_eSwiftReporting Then  
+		   Call UpdateResultHtml(strStepName,valueOut,strMsg,strStatus,"")
+		   
+		      If blnCaptureFlag  or  blnCreateImageEachStep or blnCreateTrainingDoc Then
+				ImagePath=CaptureScreenshot(strMsg,"",True,False,False)
+			End if
+	   End If
+    xlApp.Quit
+    Set wb = Nothing
+    Set xlApp = Nothing
+    Set fso = Nothing
+End Function
+
+Public Function FindFirstRow_Zero_ByPath_NoCleanup(excelPath, sheetName, colIndex, hasHeader)
+    On Error Resume Next
+
+    Const xlValues = -4163
+    Const xlWhole  = 1
+    Const xlByRows = 1
+    Const xlNext   = 1
+    Const xlUp     = -4162
+
+    Dim fso, xlApp, wb, ws
+    Dim startRow, lastRow
+    Dim rngCol, foundCell
+    Dim resultRow, v
+
+    resultRow = 0
+	strStepName = "Finding the Row number with value Zero"
+    Set fso = CreateObject("Scripting.FileSystemObject")
+    If Not fso.FileExists(excelPath) Then
+        Reporter.ReportEvent micFail, "FindFirstRow_Zero", "File not found: " & excelPath
+        						strStatus = "FAIL"
+							strMsg = "File not found: """&excelPath&""""
+							Call ReporterFunction(strLibraryFileName,"FindFirstRow_Zero","1","File not found: ", strMsg)
+        FindFirstRow_Zero_ByPath_NoCleanup = 0
+        Exit Function
+    End If
+
+    Set xlApp = CreateObject("Excel.Application")
+    If Err.Number <> 0 Or xlApp Is Nothing Then
+        Reporter.ReportEvent micFail, "FindFirstRow_Zero", "Could not start Excel: " & Err.Description
+       						strStatus = "FAIL"
+							strMsg = "Could not start Excel: """&excelPath&""""
+							Call ReporterFunction(strLibraryFileName,"FindFirstRow_Zero","1","Could not start Excel: ", strMsg)
+        Err.Clear
+        FindFirstRow_Zero_ByPath_NoCleanup = 0
+        Exit Function
+    End If
+
+    xlApp.Visible = False
+    xlApp.DisplayAlerts = False
+
+    Set wb = xlApp.Workbooks.Open(excelPath)
+    If Err.Number <> 0 Or wb Is Nothing Then
+        Reporter.ReportEvent micFail, "FindFirstRow_Zero", "Failed to open workbook: " & Err.Description
+       						 strStatus = "FAIL"
+							strMsg = "Failed to open workbook: """&excelPath&""""
+							Call ReporterFunction(strLibraryFileName,"FindFirstRow_Zero","1","Failed to open workbook: ", strMsg)
+        Err.Clear
+        FindFirstRow_Zero_ByPath_NoCleanup = 0
+        Exit Function
+    End If
+
+    Set ws = wb.Worksheets(sheetName)
+    If ws Is Nothing Then
+        Reporter.ReportEvent micFail, "FindFirstRow_Zero", "Worksheet not found: " & sheetName
+         strStatus = "FAIL"
+							strMsg = "Worksheet not found: """&excelPath&""""
+							Call ReporterFunction(strLibraryFileName,"FindFirstRow_Zero","1","Worksheet not found: ", strMsg)
+        FindFirstRow_Zero_ByPath_NoCleanup = 0
+        Exit Function
+    End If
+
+    If hasHeader Then
+        startRow = 2
+    Else
+        startRow = 1
+    End If
+
+    lastRow = ws.Cells(ws.Rows.Count, colIndex).End(xlUp).Row
+    If lastRow < startRow Then
+        FindFirstRow_Zero_ByPath_NoCleanup = 0
+        Exit Function
+    End If
+
+    Set rngCol = ws.Range(ws.Cells(startRow, colIndex), ws.Cells(lastRow, colIndex))
+
+    ' Fast path: positional arguments (VBScript-safe)
+    Set foundCell = rngCol.Find(0, rngCol.Cells(rngCol.Rows.Count, rngCol.Columns.Count), _
+                                xlValues, xlWhole, xlByRows, xlNext, False, False, False)
+    If Not foundCell Is Nothing Then
+        v = foundCell.Value
+        If IsNumeric(v) Then
+            If CDbl(v) = 0 Then
+                resultRow = foundCell.Row
+                					  strStatus = "Pass"
+							strMsg = "Row with Zero value found: """&excelPath&""""
+							Call ReporterFunction(strLibraryFileName,"FindFirstRow_Zero","2","Row with Zero value found: ", strMsg)
+            End If
+        Else
+            If Trim(CStr(v)) = "0" Then
+                resultRow = foundCell.Row
+                					 strStatus = "Pass"
+							strMsg = "Row with Zero value found: """&excelPath&""""
+							Call ReporterFunction(strLibraryFileName,"FindFirstRow_Zero","2","Row with Zero value found: ", strMsg)
+            End If
+        End If
+    End If
+
+    ' Fallback: loop through rows if Find didn't locate exact zero
+    If resultRow = 0 Then
+        Dim r, cellVal
+        For r = startRow To lastRow
+            cellVal = ws.Cells(r, colIndex).Value
+            If IsNumeric(cellVal) Then
+                If CDbl(cellVal) = 0 Then
+                    resultRow = r
+                   					  strStatus = "Pass"
+							strMsg = "Row with Zero value found: """&excelPath&""""
+							Call ReporterFunction(strLibraryFileName,"FindFirstRow_Zero","2","Row with Zero value found: ", strMsg)
+                    Exit For
+                End If
+            Else
+                If Trim(CStr(cellVal)) = "0" Then
+                    resultRow = r
+                     				strStatus = "Pass"
+							strMsg = "Row with Zero value found: """&excelPath&""""
+							Call ReporterFunction(strLibraryFileName,"FindFirstRow_Zero","2","Row with Zero value found: ", strMsg)
+                    Exit For
+                End If
+            End If
+        Next
+    End If
+    
+    FindFirstRow_Zero_ByPath_NoCleanup = resultRow ' caller will close wb/xlApp
+    
+  	
+       If blnDefault_eSwiftReporting Then  
+		   Call UpdateResultHtml(strStepName,resultRow,strMsg,strStatus,"")
+	   End If
+	   
+	      If blnCaptureFlag  or  blnCreateImageEachStep or blnCreateTrainingDoc Then
+				ImagePath=CaptureScreenshot(strMsg,"",True,False,False)
+			End if
+  xlApp.Quit
+ Set wb = Nothing
+    Set xlApp = Nothing
+    Set fso = Nothing
+	   
+End Function
+
+Public Function SaveXmlAsXlsx(xmlPath, xlsxPath)
+    Dim xlApp, wb, fso, bOK
+    bOK = False
+strStepName = "Conversion of XML file in to Excel file"
+    On Error Resume Next
+
+    ' Validate input files/paths
+    Set fso = CreateObject("Scripting.FileSystemObject")
+    If Not fso.FileExists(xmlPath) Then
+        Reporter.ReportEvent micFail, "SaveXmlAsXlsx", "Source XML not found: " & xmlPath
+        SaveXmlAsXlsx = False
+        						strStatus = "FAIL"
+							strMsg = "Conversion of XML to EXCEL: """&xmlPath&""" to the location: """&xlsxPath&""""
+							Call ReporterFunction(strLibraryFileName,"Conversion of XML to EXCEL","1","Conversion of XML to EXCEL not copleted", strMsg)
+        Exit Function
+    End If
+
+    ' Ensure target folder exists
+    Dim targetFolder
+    targetFolder = fso.GetParentFolderName(xlsxPath)
+    If Len(targetFolder) > 0 And Not fso.FolderExists(targetFolder) Then
+        fso.CreateFolder targetFolder
+    End If
+
+    ' Launch or bind to Excel
+    Set xlApp = CreateObject("Excel.Application")
+    If Err.Number <> 0 Or IsEmpty(xlApp) Or xlApp Is Nothing Then
+        Reporter.ReportEvent micFail, "SaveXmlAsXlsx", "Could not create Excel.Application. Error: " & Err.Description
+        strStatus = "FAIL"
+							strMsg = "Conversion of XML to EXCEL: """&xmlPath&""" to the location: """&xlsxPath&""""
+							Call ReporterFunction(strLibraryFileName,"Conversion of XML to EXCEL","1","Conversion of XML to EXCEL not copleted", strMsg)
+        Err.Clear
+        SaveXmlAsXlsx = False
+        Exit Function
+    End If
+
+    ' Optional: keep Excel hidden for speed
+    xlApp.Visible = False
+    xlApp.DisplayAlerts = False
+
+    ' Open XML file - Excel can open SpreadsheetML 2003 .xml directly
+    Set wb = xlApp.Workbooks.Open(xmlPath)
+    If Err.Number <> 0 Or wb Is Nothing Then
+        Reporter.ReportEvent micFail, "SaveXmlAsXlsx", "Failed to open XML in Excel. Error: " & Err.Description
+        						strStatus = "FAIL"
+							strMsg = "Conversion of XML to EXCEL: """&xmlPath&""" to the location: """&xlsxPath&""""
+							Call ReporterFunction(strLibraryFileName,"Conversion of XML to EXCEL","1","Conversion of XML to EXCEL not copleted", strMsg)
+        Err.Clear
+        
+    End If
+
+    ' Define FileFormat constants for late binding
+    ' xlOpenXMLWorkbook = 51 (.xlsx)
+    Const xlOpenXMLWorkbook = 51
+    ' Optional alternatives:
+    ' xlWorkbookDefault = 51
+    ' xlOpenXMLWorkbookMacroEnabled = 52 (.xlsm)
+
+    ' If target exists, delete to avoid SaveAs prompt issues
+    If fso.FileExists(xlsxPath) Then
+        On Error Resume Next
+        fso.DeleteFile xlsxPath, True
+        On Error GoTo 0
+    End If
+
+    ' Save as .xlsx
+    wb.SaveAs xlsxPath, xlOpenXMLWorkbook
+   							 strStatus = "Pass"
+							strMsg = "Conversion of XML to EXCEL: """&xmlPath&""" to the location: """&xlsxPath&""""
+							Call ReporterFunction(strLibraryFileName,"Conversion of XML to EXCEL","2","Conversion of XML to EXCEL copleted", strMsg)
+    If Err.Number <> 0 Then
+        Reporter.ReportEvent micFail, "SaveXmlAsXlsx", "SaveAs failed. Error: " & Err.Description
+        
+        strStatus = "FAIL"
+							strMsg = "Conversion of XML to EXCEL: """&xmlPath&""" to the location: """&xlsxPath&""""
+							Call ReporterFunction(strLibraryFileName,"Conversion of XML to EXCEL","1","Conversion of XML to EXCEL not copleted", strMsg)
+        Err.Clear
+        
+    End If
+
+    bOK = True
+    Reporter.ReportEvent micDone, "SaveXmlAsXlsx", "Saved successfully: " & xlsxPath
+  If blnDefault_eSwiftReporting Then  
+		   Call UpdateResultHtml(strStepName,xlsxPath,strMsg,strStatus,"")
+	   End If
+	   
+	   If blnCaptureFlag  or  blnCreateImageEachStep or blnCreateTrainingDoc Then
+				ImagePath=CaptureScreenshot(strMsg,"",True,False,False)
+			End if
+    ' Close workbook and Excel
+    On Error Resume Next
+    If Not wb Is Nothing Then wb.Close False
+    If Not xlApp Is Nothing Then
+        xlApp.DisplayAlerts = True
+        xlApp.Quit
+    End If
+    Set wb = Nothing
+    Set xlApp = Nothing
+    Set fso = Nothing
+    On Error GoTo 0
+
+    SaveXmlAsXlsx = bOK
+End Function
+

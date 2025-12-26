@@ -1,0 +1,946 @@
+﻿',!----------------------------------------------------------------------!
+'! IP Name: TASE 		 		               !
+'!	   							       !
+'!                                                                      !
+'! Copyright © 2011 TCSL. All Rights Reserved              	       !
+'!----------------------------------------------------------------------!
+'!								       !
+'! Framework Owner: ASU-ERP & Niche Testing COE			       !
+'!								       !
+'! Summary: 							       !
+'! TASE is an intellectual Property of TCSL Which works as !
+'! an accelerator for Automation Testing in PeopleSoft.	               !
+'! No part of this work may be reproduced, stored in a retrieval system,!
+'! adapted or transmitted in any form or by any means electronic,       !
+'! mechanical,photographic, optic recording or otherwise without the    !
+'! prior written permission of TCSL. 			       	       !
+'!								       !
+'!----------------------------------------------------------------------!
+
+'Jaya added this line 
+
+'List of Button click Functions
+'**********************************************************************************
+'1 Function ClickButton(tooltipOrButtonName,blnIsItPopup)
+'2 Function ClickLabel(labelContent,labelIndex,blnIsItPopup)
+'3 Function ClickContextButtonToolBar(buttonName,toolbarIndex)
+'4 Function ClickLinkGuiTree(treePath,treeAttachedText,treeIndex,blnIsItPopup)
+'5 Function ClickButtonToolBar(buttonName,toolbarIndex)
+'6 Function ClickCellGuiGrid(gridTitle,gridIndex,columnName,rowNumber,columnNameRef,gridValRef,blnIsItPopup)
+'7 Function ClickCellTable(tableName,columnName,rowNumber,columnNameRef,tableValRef,blnIsItPopup)
+'8 Function DoubleClick()
+'9 Function ClickButtonIfExist(tooltipOrButtonName,blnIsItPopup)
+'10 Function  DoubleClickGuiGridCell(gridTitle,gridIndex,rowNumber,columnName,blnIsItPopup)
+
+'**********************************************************************************
+
+'**********************************************************************************
+'Name of the Function    :  ClickButton
+'Description		              : Clicks on buttons like "save","execute","copy","post goods issue","post goods receipt","complete data".
+'			                           			tooltipOrButtonName :- either value of tooltip property  or name property  of button
+'					 							blnIsItPopup:- A  parameter which  checks if the SAP window is main window or a popup 
+'												=Yes - if it is popup ;   No/""=If it is main SAP  window
+'Input Parameters	     :  tooltipOrButtonName,blnIsItPopup
+'Output Parameters        :Null
+'***********************************************************************************
+'Function ClickButton(tooltipOrButtonName,blnIsItPopup)
+'***********************************************************************************
+Function ClickButton(tooltipOrButtonName,blnIsItPopup)
+
+If Not Environment.Value("blnFatalError") Then
+
+
+	If blnShowNotification Then BalloonTooltip.Show "TASE Automation","Executing Now : ClickButton"
+	strFuncName = "ClickButton"
+	'Val = "<b>Button Component :</b>" & tooltipOrButtonName
+	strStepName = "Click " & "'" & Replace(tooltipOrButtonName,"\","") & "'" & " Button"
+    
+    Dim objButton,objWindow
+    Set objWindow= SetSAPwindowObj(blnIsItPopup)
+				If  tooltipOrButtonName <>"" Then
+							
+							 If SAPGuiSession(sessionObject).sapguiwindow(objWindow).SAPGuiButton("guicomponenttype:=40","tooltip:="& tooltipOrButtonName).Exist(2) Then
+									 Set objButton=SAPGuiSession(sessionObject).sapguiwindow(objWindow).SAPGuiButton("guicomponenttype:=40","tooltip:="& tooltipOrButtonName)
+									 blnObjectFound = True
+							 ElseIf SAPGuiSession(sessionObject).sapguiwindow(objWindow).SAPGuiButton("guicomponenttype:=40","name:="&tooltipOrButtonName).Exist(2) Then
+									 Set objButton=SAPGuiSession(sessionObject).sapguiwindow(objWindow).SAPGuiButton("guicomponenttype:=40","name:="&tooltipOrButtonName)
+									 blnObjectFound = True
+							 End If				
+                                 If  blnObjectFound = True Then
+	
+
+											If  objButton.Exist  Then 	
+														blnObjectFound = True
+														
+																	If blnCaptureFlag = True  or  blnCreateImageEachStep = True or blnCreateTrainingDoc Then
+																				ImagePath=CaptureScreenshot(strStepName,objButton,True,True,True)
+																	End If	
+																	objButton.Click
+																	strStatus = "DONE"
+																	strMsg = "Button with :-"& vbNewLine & "tooltipOrButtonName:"& Replace(tooltipOrButtonName,"\","") &" has been clicked  successfully"
+																	Call ReporterFunction(strLibraryFileName,strFuncName,"2",strStepName,strMsg)
+																	
+											Else 
+														strStatus = "FAIL"
+														strMsg = "The button: "& Replace(tooltipOrButtonName,"\","") & "is not found"
+														blnObjectError=True
+														Call ReporterFunction(strLibraryFileName,strFuncName,"1",strStepName,strMsg)
+
+										    End If			
+									
+						
+			   Else 
+							blnObjectError=True
+							strStatus = "FAIL"
+							strMsg = "The button:: "& tooltipOrButtonName & " is not Found--Check the Screen Properly"
+							Call ReporterFunction(strLibraryFileName,strFuncName,"1",strStepName,strMsg)
+                
+			   End If
+							
+
+ 	Else
+				strStatus = "FAIL"
+				strMsg = "Function Parameter Not Passed Properly. Check the --ClickButton-- Function Call--"
+				Call ReporterFunction(strLibraryFileName,strFuncName,"1",strStepName,strMsg)
+    End If
+
+							If  blnObjectError  Then
+								Environment.Value("blnFatalError")=True
+							End If
+
+							If strStatus = "FAIL"  Then
+								ClickButton = strMsg
+								blnMainFailFlag = True
+								ImagePath=CaptureScreenshot(strStepName,objButton,True,True,True)
+							Else
+								ClickButton = True
+							End If
+
+							If blnDefault_eSwiftReporting Then  
+									Call UpdateResultHtml (strStepName,Val,strMsg,strStatus,"")
+							End If
+
+						Set objButton = Nothing
+						Set objWindow= Nothing
+End If
+
+End Function
+'************************************************************************************
+'End Function - ClickButton
+'************************************************************************************
+
+'**********************************************************************************
+'Name of the Function   :  ClickLabel
+'Description		  		     : Click a label object in a sap window. 
+'Input Parameters	       : labelContent
+'											:labelIndex-Index of thr label content to be clicked
+'											 blnIsItPopup-A  parameters whiich  checks if the SAP window is main window or a popup 
+'												=Yes - if it is popup ;   No/""=If it is main SAP  window
+'Output Parameters        :Null
+'***********************************************************************************
+'Function ClickLabel(labelContent,labelIndex,blnIsItPopup)
+'***********************************************************************************
+Function ClickLabel(labelContent,labelIndex,blnIsItPopup)
+
+If Not Environment.Value("blnFatalError") Then
+			If blnShowNotification Then BalloonTooltip.Show "TASE Automation","Executing Now : ClickLabel"
+			strFuncName = "ClickLabel"
+			Val = "<b>Label  Content :</b>" & labelContent
+			strStepName = "Click Label : " & "'" &labelContent
+				
+			Dim objLabel,objWindow
+			Set objWindow= SetSAPwindowObj(blnIsItPopup)
+					   If  labelContent <>"" Then
+										
+										Set objLabel=SAPGuisession(sessionObject).sapguiwindow(objWindow).SAPGuiLabel ("guicomponenttype:=30","content:="&labelContent,"index:="&labelIndex)
+											If objLabel.Exist then
+													If blnCaptureFlag  or  blnCreateImageEachStep or blnCreateTrainingDoc Then
+														ImagePath=CaptureScreenshot(strStepName,objLabel,False,True,True)
+													End If
+																objLabel.SetFocus
+																SAPGuiSession(sessionObject).SAPGuiWindow(objWindow).SendKey F2
+																'objLabel.SendKey F2
+																strStatus = "DONE"
+																strMsg = "Label :"&labelContent & " with  index:" &labelIndex&" Label clicked  successfully"
+																Call ReporterFunction(strLibraryFileName,strFuncName,"2",strStepName,strMsg)
+																
+												  Else 
+														strStatus = "FAIL"
+														strMsg = "The label:: " &labelContent & " does not exist"
+														blnObjectError=True
+														Call ReporterFunction(strLibraryFileName,strFuncName,"1",strStepName,strMsg)
+												  End If
+						Else
+								strStatus = "FAIL"
+								strMsg = "Function Parameter Not Passed Properly. Check the --ClickLabel-- Function Call--"
+								Call ReporterFunction(strLibraryFileName,strFuncName,"1",strStepName,strMsg)
+						End If
+											 
+											If  blnObjectError  Then
+												Environment.Value("blnFatalError")=True
+											End If
+				
+											If strStatus = "FAIL"  Then
+												ClickLabel = strMsg
+												blnMainFailFlag = True
+												ImagePath=CaptureScreenshot(strStepName,objLabel,False,True,True)
+											Else
+												ClickLabel = True
+											End If
+				
+											If blnDefault_eSwiftReporting Then  
+													Call UpdateResultHtml (strStepName,Val,strMsg,strStatus,"")
+											End If
+											Set objLabel=Nothing
+											Set objWindow=Nothing
+								
+End If
+				
+   
+End function
+'************************************************************************************
+'End Function -ClickLabel
+'************************************************************************************
+
+'**********************************************************************************
+'Name of the Function   : ClickContextButtonToolBar
+'Description		     : Clicks a specified context  button on the SAP ToolBar     
+'Input Parameters	     :  buttonName - The Name of the button that we are getting at the time of recording
+'												example : SAPGuiSession("Session").SAPGuiWindow("Organization and Staffing").SAPGuiToolbar("ToolBarControl").PressContextButton "JUMP"
+'                                                Here JUMP is the Button Name.              
+'                                            toolbarIndex -  The Index of The Toolbar.
+'Output Parameters        :Null
+'***********************************************************************************
+ 'Function ClickContextButtonToolBar(buttonName,toolbarIndex)
+'***********************************************************************************
+Function ClickContextButtonToolBar(buttonName,toolbarIndex)
+
+If Not Environment.Value("blnFatalError") Then
+						If blnShowNotification Then BalloonTooltip.Show "TASE Automation","Executing Now : ClickContextButtonToolBar"
+						strFuncName = "ClickContextButtonToolBar"
+						Val = "<b>Context Button ToolBar  Component :</b>" & buttonName
+						strStepName="Click " & "'" &  buttonName & " in ToolBar"
+						Set objWindow= SetSAPwindowObj(blnIsItPopup)
+											
+			If buttonName<>""  Then
+
+						Set objToolbarGuiComp202=SAPGuisession(sessionObject).sapguiwindow(windowObject).SAPGuiToolbar("guicomponenttype:=202","name:=shell.*","index:="&toolbarIndex)
+						Set objToolbarGuiComp204=SAPGuisession(sessionObject).sapguiwindow(windowObject).SAPGuiToolbar("guicomponenttype:=204","name:=shell.*","index:="&toolbarIndex)
+						Set objToolbar=SetObj(objToolbarGuiComp202,objToolbarGuiComp204)
+						On Error Resume Next
+				
+								If objToolbar.Exist Then
+													If VerifyObjectStatus(objToolbar) Then
+															Call storeCoordinates(objToolbar)
+															If blnCaptureFlag or  blnCreateImageEachStep  or blnCreateTrainingDoc Then
+																						ImagePath=CaptureScreenshot(strStepName,objToolbar,True,True,True)
+															End If
+															objToolbar.PressContextButton buttonName
+															'msgbox Err.Number
+															If Err.Number=0 Then
+																
+															
+															
+															strStatus = "DONE"
+															strMsg = "Button with :-"& vbNewLine & "ButtonName:"&buttonName&" has been  clicked  successfully"
+															Call ReporterFunction(strLibraryFileName,strFuncName,"2",strStepName,strMsg)
+																				
+													ElseIf Err.Number = 424 Then
+															strStatus = "FAIL"
+															strMsg = "The context button: "&buttonName& "is not found"
+															blnObjectError=True
+															Call ReporterFunction(strLibraryFileName,strFuncName,"1",strStepName,strMsg)
+													End If
+													End If
+								Else
+											 strStatus = "FAIL"
+											 strMsg = "Toolbar Not Found. Please Verify the Screen"
+											 blnObjectError=True
+											 Call ReporterFunction(strLibraryFileName,strFuncName,"1",strStepName,strMsg)
+								End If
+				
+			Else
+						  strStatus = "FAIL"
+						  strMsg = "Parameters are not passed properly.Check the Function Call"
+						  Call ReporterFunction(strLibraryFileName,strFuncName,"1",strStepName,strMsg)
+			End If
+			If  blnObjectError  Then
+											Environment.Value("blnFatalError")=True
+										End If		
+										If strStatus = "FAIL"  Then
+											ClickContextButtonToolBar = strMsg
+											blnMainFailFlag = True
+											ImagePath=CaptureScreenshot(strStepName,objToolbar,True,True,True)
+										Else
+											ClickContextButtonToolBar = True
+										End If		
+										If blnDefault_eSwiftReporting Then  
+												Call UpdateResultHtml (strStepName,Val,strMsg,strStatus,"")
+										End If
+
+										objToolbar=Nothing
+										objToolbarGuiComp202=Nothing
+										objToolbarGuiComp204=Nothing
+										objWindow = Nothing
+End If
+
+End Function
+'***********************************************************************************
+'End Function -  ClickContextButtonToolBar
+'************************************************************************************
+
+'***********************************************************************************
+'Name of the Function   : ClickLinkGuiTree
+'Description		     : Clicks  a link in SAP GUI Tree .It will work for both SAP ColumnTree and SAPListTree.
+'Input Parameters	     : treePath,treeAttachedText,treeIndex   
+'											 blnIsItPopup-A  parameters whiich  checks if the SAP window is main window or a popup 
+'												=Yes - if it is popup ;   No/""=If it is main SAP  window                                  
+'Example :              Call ClickLinkGuiTree("#1","Organizational unit","0")
+'Output Parameters        :Null
+'***********************************************************************************
+'Function  ClickLinkGuiTree(treePath,selectednode,treeIndex,blnIsItPopup)
+'************************************************************************************
+Function ClickLinkGuiTree(treePath,selectednode,treeIndex,blnIsItPopup)
+If Not Environment.Value("blnFatalError") Then 
+								If blnShowNotification Then BalloonTooltip.Show "TASE Automation","Executing Now : ClickLinkGUITree"
+								strFuncName = "ClickLinkGUITree"
+								Val = "<b>Tree Path :</b>" & treePath &"<br><b>Tree Selected Node : </b>"& selectednode
+								strStepName = "Click Link: " &selectednode & " in a Gui Tree" 
+								Dim objWindow,objTree
+								Set objWindow= SetSAPwindowObj(blnIsItPopup)
+								If treePath <>"" or selectednode<>"" or treeIndex<>""Then
+								   
+									Set objTree =  SAPGuiSession(sessionObject).sapguiwindow(objWindow).SAPGuiTree("guicomponenttype:=200","name:=shel.*","index:="&treeIndex)
+									If objTree.Exist Then
+
+									blnObjectFound = True
+									Call storeCoordinates(objTree)
+									If blnCaptureFlag  or  blnCreateImageEachStep or blnCreateTrainingDoc Then
+										ImagePath=CaptureScreenshot(strStepName,objTree,True,False,True)
+									End If
+
+									On Error Resume Next
+							       objTree.ClickLink treePath,selectednode
+							       'msgbox Err.Number
+							       If  Err.Number = 0 Then
+							       
+									'objTree.ClickLink treePath
+									strStatus = "DONE"
+									strMsg = "Tree with :-"& vbNewLine & "Tree path:"&treePath&"  has been  clicked  successfully"
+									Call ReporterFunction(strLibraryFileName,strFuncName,"2",strStepName,strMsg)
+									
+									Else 
+									
+									strStatus = "FAIL"
+									strMsg = "Tree with :-"& vbNewLine & "Tree path:"&treePath&"  has not been found"
+									Call ReporterFunction(strLibraryFileName,strFuncName,"2",strStepName,strMsg)
+									
+									End If 
+													
+							Else
+									strStatus = "FAIL"
+									strMsg = " The Link Object is not Found, Please verify the Screen"
+									blnObjectError=True
+									Call ReporterFunction(strLibraryFileName,strFuncName,"1",strStepName,strMsg)
+							End If
+			Else
+						strStatus = "FAIL"
+						strMsg ="Function Parameter Not Passed Properly. Check the --ClickLinkGuiTree-- Function Call-"	
+						Call ReporterFunction(strLibraryFileName,strFuncName,"1",strStepName,strMsg)
+			End If
+	If  blnObjectError  Then
+	Environment.Value("blnFatalError")=True
+	End If
+										
+	If strStatus = "FAIL"  Then
+	ClickLinkGuiTree = strMsg
+	blnMainFailFlag = True
+	ImagePath=CaptureScreenshot(strStepName,objTree,True,False,True)
+	Else
+	ClickLinkGuiTree = True
+	End If
+	If blnDefault_eSwiftReporting Then  
+	Call UpdateResultHtml (strStepName,Val,strMsg,strStatus,"")
+	End If
+	Set  objTree =nothing
+	Set objWindow=Nothing
+End If																	
+
+End Function
+'**************************************************************************************************************
+'End Function - ClickLinkGuiTree
+'**************************************************************************************************************
+
+
+ ''**********************************************************************************
+'Name of the Function   : ClickButtonToolBar
+'Description		     : Clicks a specified button on the SAP ToolBar
+'Input Parameters	     :  buttonName,toolbarIndex
+'Example :                Call ClickButtonToolBar("CREATE_RELATION","3")
+'Output Parameters        :Null
+
+'***********************************************************************************
+ 'Function  ClickButtonToolBar(buttonName,toolbarIndex)
+'***********************************************************************************
+
+Function ClickButtonToolBar(buttonName,toolbarIndex)
+     If Not Environment.Value("blnFatalError") Then
+					
+				
+					If blnShowNotification Then BalloonTooltip.Show "TASE Automation","Executing Now : ClickButtonToolBar"
+					strFuncName = "ClickButtonToolBar"
+					Val = "<b>Button Name  :</b>" & buttonName 
+					strStepName="Click Button " & "'" &buttonName&"'" &"in Tool bar"
+					Set objWindow= SetSAPwindowObj(blnIsItPopup)
+							  If buttonName <> ""  Then
+											Set objToolbar202=SAPGuisession(sessionObject).sapguiwindow(windowObject).SAPGuiToolbar("guicomponenttype:=202","name:=shel.*","index:="&toolbarIndex)
+											Set objToolbar204=SAPGuisession(sessionObject).sapguiwindow(windowObject).SAPGuiToolbar("guicomponenttype:=204","name:=shel.*","index:="&toolbarIndex)
+											Set objToolbar=SetObj(objToolbar202,objToolbar204)
+															If objToolbar.Exist Then
+																			
+																		   On Error Resume Next
+																							  If VerifyObjectStatus(objToolbar) Then
+																												Call storeCoordinates(objToolbar)
+																												If blnCaptureFlag  or  blnCreateImageEachStep or blnCreateTrainingDoc Then
+																																ImagePath=CaptureScreenshot(strStepName,objToolbar,True,True,True)
+																												End If
+'																												msgbox Err.Number
+																												If Err.Number =0 Then
+																													
+																											
+																												objToolbar.PressButton buttonName
+																											
+																												strStatus = "DONE"
+																												strMsg = "Button Name "&buttonName&" Pressed "
+																												Call ReporterFunction(strLibraryFileName,strFuncName,"2",strStepName,strMsg)
+																												
+																							  ElseIf Err.Number = 424 Then
+																							  					strStatus = "FAIL"
+																												strMsg = "The Button "&buttonName&" in the toolbar  is not Found."
+																												blnObjectError=True
+																												Call ReporterFunction(strLibraryFileName,strFuncName,"1",strStepName,strMsg)
+																							  
+																							  Else
+																												strStatus = "FAIL"
+																												strMsg = "Toolbar is Disabled, So Button can't be clicked"
+																												blnObjectError=True
+																												Call ReporterFunction(strLibraryFileName,strFuncName,"1",strStepName,strMsg)
+																							  End If
+																							  	End If
+																Else
+																			strStatus = "FAIL"
+																			strMsg = " The  toolbar is not Found, Please verify the Screen"
+																			blnObjectError=True
+																			Call ReporterFunction(strLibraryFileName,strFuncName,"1",strStepName,strMsg)
+																			
+																 End If
+								Else
+											strStatus = "FAIL"
+											strMsg = "Function Parameter Not Passed Properly. Check the --ClickButtonToolBar-- Function Call"                                         				
+											Call ReporterFunction(strLibraryFileName,strFuncName,"1",strStepName,strMsg)
+
+								End If	
+								If  blnObjectError  Then
+																		Environment.Value("blnFatalError")=True
+																	End If
+										
+																	If strStatus = "FAIL"  Then
+																		ClickButtonToolBar = strMsg
+																		blnMainFailFlag = True
+																		ImagePath=CaptureScreenshot(strStepName,objToolbar,True,True,True)
+																	Else
+																		ClickButtonToolBar = True
+																	End If
+										
+																	If blnDefault_eSwiftReporting Then  
+																			Call UpdateResultHtml (strStepName,Val,strMsg,strStatus,"")																	
+																	End If
+																	Set objToolbar=nothing
+																	Set objToolbar204=nothing
+																	Set objToolbar202=nothing
+					
+     End If
+		
+
+End Function
+'************************************************************************************
+'End Function - ClickButtonToolBar
+'************************************************************************************
+
+''********************************************************************************
+'Name of the Function   :  ClickCellGuiGrid
+'Description		     : Clicks a button in a GuiGrid Cell.
+'Input Parameters: 
+'                                    gridTitle:-Title of the grid to uniquely identify it
+'			                          columnName:- ColumnName to be clicked
+' 										rowNumber:- Row number to be clicked
+'										columnNameRef - Name of the reference column which will be used for calculating row number if row number is unknown
+'										gridValRef - value within the reference column corrosponding to desired row if the row number is unknown 
+'										blnIsItPopup-Parameter whiich  checks if the SAP window is main window or a popup 
+'																			=Yes - if it is popup ;   No/"" =If it is main SAP  window
+'Output Parameters        :Null
+'***********************************************************************************
+' Function ClickCellGuiGrid(gridTitle,gridIndex,columnName,rowNumber,columnNameRef,gridValRef,blnIsItPopup)
+'***********************************************************************************
+Function ClickCellGuiGrid(gridTitle,gridIndex,columnName,rowNumber,columnNameRef,gridValRef,blnIsItPopup)
+  
+If Not Environment.Value("blnFatalError") Then
+					
+					    Dim objWindow,objGridGuiComp80,objGridGuiComp201,objGrid
+						If blnShowNotification Then BalloonTooltip.Show "TASE Automation","Executing Now : ClickCellGuiGrid"
+						strFuncName = "ClickCellGuiGrid"
+						Val = "<b>Grid Title :</b>" & gridTitle &"<br><b>Column Name : </b>"& columnName&"<br><b> Row Number: </b>"&rowNumber&"<br><b>Column Name Ref: </b>"&columnNameRef&" <br><b> Grid Value Ref:</b> "&gridValRef
+						strStepName = "Click Cell In Gui Grid with Column Name: " & columnName & " and row number: " & rowNumber    
+						Set objWindow= SetSAPwindowObj(blnIsItPopup)
+			If  gridTitle <>"" or columnName <>"" or columnNameRef <>"" or gridValRef <>""  Then
+			
+										rowNumber = Cint(rowNumber)
+										Set objGridGuiComp80=sapguisession(sessionObject).sapguiwindow(objWindow).SAPGuiGrid("guicomponenttype:=80","title:="&gridTitle,"index:="&gridIndex)
+										Set objGridGuiComp201=sapguisession(sessionObject).sapguiwindow(objWindow).SAPGuiGrid("guicomponenttype:=201","title:="&gridTitle,"index:="&gridIndex)
+										Set objGrid = SetObj(objGridGuiComp80,objGridGuiComp201)
+							If  objGrid.Exist   Then
+													
+																	On Error Resume Next
+																	If  rowNumber="" Then
+																		strRowNumber = objGrid.FindRowByCellContent (columnNameRef,gridValRef)
+																		
+																	Else 
+																		strRowNumber=rowNumber
+																	End If
+																	  err.clear
+																	On Error Resume Next
+
+																	If blnCaptureFlag  or  blnCreateImageEachStep  or blnCreateTrainingDoc Then
+																							ImagePath=CaptureScreenshot(strStepName,objGrid,False,False,True)
+																	  End If
+                                                                                  
+																	  objGrid.ClickCell  strRowNumber,columnName
+																	If Err.Number = 0 Then
+																					strStatus = "DONE"	
+																					strMsg = "GuiGrid Cell Clicked"
+																					Call ReporterFunction(strLibraryFileName,strFuncName,"2",strStepName,strMsg)
+																					
+																	ElseIf Err.Number = -2147220983 Then ' Verifies whether   column is present in the Grid
+																					strStatus="FAIL"
+																					strMsg =  "Column Not Found Within Gui Grid or Column is not clickable  . Please Verify Screen"
+																					blnObjectError = True
+																					Call ReporterFunction(strLibraryFileName,strFuncName,"1",strStepName,strMsg)
+																	ElseIf Err.Number = -2147287039 Then 'Verifies whether Button is present within the cell
+																					strStatus="FAIL"
+																					strMsg =  "Button Not Found Within Cell .Please Verify The Screen"
+																					blnObjectError = True
+																					Call ReporterFunction(strLibraryFileName,strFuncName,"1",strStepName,strMsg)
+																	ElseIf objGrid.GetROProperty("rowcount")<strRowNumber Then
+																					strStatus="FAIL"
+																					strMsg = "Row Not Found.Please Check the --rowNumber--Parameter of --ClickCellGuiGrid-- Function Call"
+																					blnObjectError = True
+																					Call ReporterFunction(strLibraryFileName,strFuncName,"1",strStepName,strMsg)
+																	End If
+						Else
+									strStatus="FAIL"
+									blnObjectError = True
+									strMsg =  "Grid Object Not Found"
+									Call ReporterFunction(strLibraryFileName,strFuncName,"1",strStepName,strMsg)
+
+						End If
+			Else
+						strStatus="FAIL"
+						strMsg =  "Function Parameters not passed properly, Please Verify --gridTitle--Parameter Of--ClickCellGuiGrid--Function Call"
+						Call ReporterFunction(strLibraryFileName,strFuncName,"1",strStepName,strMsg)
+
+			End If
+   
+										  If  blnObjectError  Then
+														Environment.Value("blnFatalError")=True
+										  End If
+
+										  If strStatus = "FAIL"  Then
+													ClickCellGuiGrid = strMsg
+													blnMainFailFlag = True
+													ImagePath=CaptureScreenshot(strStepName,objGrid,False,False,True)
+										 Else
+													ClickCellGuiGrid = True
+										 End If
+										
+										  If blnDefault_eSwiftReporting Then  
+												Call UpdateResultHtml (strStepName,Val,strMsg,strStatus,"")																	
+										  End If
+			
+         											
+								   Set objGrid = nothing
+								   Set objGridGuiComp80= nothing
+								   Set objGridGuiComp201 = nothing
+								   Set objWindow=Nothing
+End If
+End Function
+'************************************************************************************
+'End Function - ClickCellGuiGrid
+'************************************************************************************
+
+''*********************************************************************
+'Name of the Function   :  ClickCellTable
+'Description		     :    Clicks a button inside a table cell.
+'										tableName : - Name of table whose cell has to be clicked
+'			                           rowNumber :- Row number of table where value is to be entered
+'			                          columnName :- Column name of table where value is to be entered
+'                                      columnNameRef :- The reference column name with respect to which the row number is derived.if row number is unknown
+'                                      tableValRef - The value in the reference column w.r.t which we find the value in the original column name if row number is unknown
+'										blnIsItPopup-Parameter which  checks if the SAP window is main window or a popup 
+'																			=Yes - if it is popup ;   No/"" =If it is main SAP  window
+'Input Parameters	     :  tableName,columnName,rowNumber,columnNameRef,tableValRef,blnIsItPopup
+'Output Parameters        :Null
+'***********************************************************************************
+'Function ClickCellTable(tableName,columnName,rowNumber,columnNameRef,tableValRef,blnIsItPopup)
+'***********************************************************************************
+
+Function ClickCellTable(tableName,columnName,rowNumber,columnNameRef,tableValRef,blnIsItPopup)
+   If Not Environment.Value("blnFatalError") Then
+					Dim objWindow, objTable
+					If blnShowNotification Then BalloonTooltip.Show "TASE Automation","Executing Now : ClickLinkGUITree"
+					strFuncName = "ClickLinkGUITree"
+					Val = "<b>Table Name :</b>" & tableName &"<br><b>Column Name : </b>"& columnName&"<br><b> Row Number: </b>"&rowNumber&"<br><b>Column Name Ref: </b>"&columnNameRef&" Table Value Ref:"&tableValRef
+					strStepName = "Click Cell  In Table with Column Name: " & columnName & " and row number: " & rowNumber
+					Set objWindow= SetSAPwindowObj(blnIsItPopup)
+
+			If  tableName <>"" And columnName <>"" And rowNumber <>"" And columnNameRef <>""  And tableValRef <>"" Then
+
+					Set objTable = SAPGuiSession(sessionObject).SAPGuiWindow(objWindow).SAPGuiTable(guiTable,"name:="&tableName)
+							   If objTable.Exist Then
+								    
+									On Error Resume Next
+												If  rowNumber ="" Then
+													strRowNumber = objGrid.FindRowByCellContent (columnNameRef,tableValRef)
+												   else 
+													strRowNumber=rowNumber
+												End If
+														 If blnCaptureFlag = True  or  blnCreateImageEachStep = True or blnCreateTrainingDoc = True  Then
+																							ImagePath=CaptureScreenshot(strStepName,objTable,False,False,True)
+														End If
+														objTable.ClickCell strRowNumber,columnName
+'														msgbox err.number
+'														msgbox(strRowNumber)
+'														msgbox(objTable.ValidRow(strRowNumber))
+																If Err.Number = -2147220983 Then															' Verifies whether column is present in the table
+																					strStatus="FAIL"
+																					strMsg =  "Column Not Found Within Gui Table . Please Verify Screen"
+																					blnObjectError = True
+																					Call ReporterFunction(strLibraryFileName,strFuncName,"1",strStepName,strMsg)
+																					Err.Clear	
+																ElseIf Not objTable.ValidRow(strRowNumber) Then
+																					strStatus="FAIL"
+																					strMsg = " Row Not Valid.Please Check the --rowNumber--Parameter of --ClickCellTable-- Function Call"
+																					blnObjectError = True
+																					Call ReporterFunction(strLibraryFileName,strFuncName,"1",strStepName,strMsg)
+																					Err.Clear
+																ElseIf Err.Number = -2147220986 or Err.Number = -2147220975 Then								'Verifies whether Button is present within the cell
+																					strStatus="FAIL"
+																					strMsg = "Button Not Found Within Cell .Check the--ClickCellTable-- Function Call"	
+																					blnObjectError = True															
+																					Call ReporterFunction(strLibraryFileName,strFuncName,"1",strStepName,strMsg)
+																					Err.Clear
+																ElseIf Err.Number = 0 or Err.Number = 424 Then	'Error 424 Object Required.Object losing visibility intermittently				
+																					strStatus = "DONE"																
+																					strMsg = "Table Cell Clicked"
+																					Call ReporterFunction(strLibraryFileName,strFuncName,"2",strStepName,strMsg)
+                                                                                   
+																	
+																End If
+								Else
+												strStatus="FAIL"
+												blnObjectError = True
+												strMsg = "Table Object Not Found . Please Check the--ClickCellTable-- Function Call"
+												Call ReporterFunction(strLibraryFileName,strFuncName,"1",strStepName,strMsg)
+												
+								End If
+		      Else
+						strStatus="FAIL"
+						strMsg =  "Parameters not passed properly, Please Verify --gridTitle--Parameter Of--ClickCellTable--Function Call"
+						Call ReporterFunction(strLibraryFileName,strFuncName,"1",strStepName,strMsg)
+
+			   End If
+																	If  blnObjectError  Then
+																		Environment.Value("blnFatalError")=True
+																	End If
+										
+																	If strStatus = "FAIL"  Then
+																		ClickCellTable = strMsg
+																		blnMainFailFlag = True
+																		ImagePath=CaptureScreenshot(strStepName,objTable,False,False,True)
+																	Else
+																		ClickCellTable = True
+																	End If
+										
+																	If blnDefault_eSwiftReporting Then  
+																			Call UpdateResultHtml (strStepName,Val,strMsg,strStatus,"")																	
+																	End If
+			
+
+										Set objTable=nothing
+										Set objWindow=nothing
+
+End If
+End Function
+
+'************************************************************************************
+'End Function - ClickCellTable
+'************************************************************************************
+
+
+
+
+'**********************************************************************************
+'Name of the Function   : DoubleClick
+'Description		     : Clicks  twice
+'Input Parameters	     : Null
+'Output Parameters        :Null
+'Creation Date : 26/10/2010
+'***********************************************************************************
+Function DoubleClick()
+
+	If Not Environment.Value("blnFatalError") Then
+					
+					If blnShowNotification Then BalloonTooltip.Show "TASE Automation","Executing Now : DoubleClick"
+					strFuncName = "DoubleClick"
+					strStepName = "Performing double click operation on the focused object exisiting in the SAP Window: "
+					set objPopupWindow=sapguisession("guicomponenttype:=12").sapguiwindow("guicomponenttype:=22")
+				    set objNormalWindow=sapguisession("guicomponenttype:=12").sapguiwindow("guicomponenttype:=21")
+					set objWindow=SetObj(objPopupWindow,objNormalWindow)
+				    
+					 If objWindow.Exist Then
+						             If blnCaptureFlag  or  blnCreateImageEachStep or blnCreateTrainingDoc  Then
+														ImagePath=CaptureScreenshot(strStepName,objWindow,True,False,False)
+								    End If
+								    objWindow.SendKey F2
+									strStatus = "DONE"																
+									strMsg = "Focused object has been double clicked"
+									Call ReporterFunction(strLibraryFileName,strFuncName,"2",strStepName,strMsg)
+
+					 Else 
+									 strStatus = "FAIL"
+									 strMsg = " The Object is not Found, Please verify the Screen"
+									 blnObjectError =True
+									 Call ReporterFunction(strLibraryFileName,strFuncName,"1",strStepName,strMsg)
+									 
+					 End If
+									
+																	 If  blnObjectError  Then
+																		Environment.Value("blnFatalError")=True
+																	End If
+										
+																	If strStatus = "FAIL"  Then
+																		DoubleClick = strMsg
+																		blnMainFailFlag = True
+																		ImagePath=CaptureScreenshot(strStepName,objWindow,True,False,False)
+																	Else
+																		DoubleClick = True
+																	End If
+										
+																	If blnDefault_eSwiftReporting Then  
+																			Call UpdateResultHtml (strStepName,Val,strMsg,strStatus,"")																	
+																	End If
+
+
+
+End If
+
+End Function
+'**********************************************************************************
+'End Function - DoubleClick
+'***********************************************************************************
+
+'**********************************************************************************
+'Name of the Function   :  ClickButtonIfExist
+'Description		     : Checks for the existence and Clicks on buttons like "save","execute","copy","post goods issue","post goods receipt","complete data".
+'			                           tooltipOrButtonName :- either value of tooltip property  or name property  of button
+'					 					blnIsItPopup-A  parameters which  checks if the SAP window is main window or a popup 
+'												=Yes - if it is popup ;   No/""=If it is main SAP  window
+'Input Parameters	     :  tooltipOrButtonName,blnIsItPopup
+'Output Parameters        :Null
+'***********************************************************************************
+'Function ClickButtonIfExist(tooltipOrButtonName,blnIsItPopup)
+'***********************************************************************************
+Function ClickButtonIfExist(tooltipOrButtonName,blnIsItPopup)
+			
+If Not Environment.Value("blnFatalError") Then
+
+				Dim objButton,objWindow
+				If blnShowNotification Then BalloonTooltip.Show "TASE Automation","Executing Now : ClickButtonIfExist"
+				strFuncName = "ClickButtonIfExist"
+				Val = "<b>Button Component :</b>" & tooltipOrButtonName
+				strStepName = "Click " & "'" & Replace(tooltipOrButtonName,"\","") & "'" & " Button"
+				Set objWindow= SetSAPwindowObj(blnIsItPopup) 
+		If  tooltipOrButtonName <>"" Then
+								If SAPGuiSession(sessionObject).sapguiwindow(objWindow).SAPGuiButton("guicomponenttype:=40","tooltip:="&tooltipOrButtonName).Exist(2) Then
+										Set objButton=SAPGuiSession(sessionObject).sapguiwindow(objWindow).SAPGuiButton("guicomponenttype:=40","tooltip:="&tooltipOrButtonName)
+								ElseIf SAPGuiSession(sessionObject).sapguiwindow(objWindow).SAPGuiButton("guicomponenttype:=40","name:="&tooltipOrButtonName).Exist(2) Then
+										Set objButton=SAPGuiSession(sessionObject).sapguiwindow(objWindow).SAPGuiButton("guicomponenttype:=40","name:="&tooltipOrButtonName)
+								End if
+							If sapguisession(sessionObject).sapguiwindow(objWindow).Exist Then
+							             On Error Resume Next
+										If  objButton.Exist  then 
+													 blnObjectFound = True
+													
+													   If blnCaptureFlag = True  or  blnCreateImageEachStep = True or blnCreateTrainingDoc Then
+														ImagePath=CaptureScreenshot(strStepName,objButton,True,True,True)
+														End If
+														If Err.Number =0 Then
+																			
+							    						objButton.Click
+														strStatus = "DONE"
+														strMsg = "Button with :-"& vbNewLine & "tooltipOrButtonName:"&tooltipOrButtonName &" has been clicked  successfully"
+														Call ReporterFunction(strLibraryFileName,strFuncName,"2",strStepName,strMsg)
+														
+														End If
+																								
+													End If
+													
+													
+													
+							  End If
+		  Else
+					strStatus = "FAIL"
+					strMsg = " Function parameters not passed properly.Please Verify-ClickButtonIfExist--Function Call"
+					Call ReporterFunction(strLibraryFileName,strFuncName,"1",strStepName,strMsg)
+		 End If
+						
+							If  blnObjectError  Then
+								Environment.Value("blnFatalError")=True
+							End If
+
+							If strStatus = "FAIL"  Then
+								ClickButtonIfExist = strMsg
+								blnMainFailFlag = True
+								ImagePath=CaptureScreenshot(strStepName,objButton,True,True,True)
+							Else
+								ClickButtonIfExist = True
+							End If
+
+							If blnDefault_eSwiftReporting Then  
+									Call UpdateResultHtml (strStepName,Val,strMsg,strStatus,"")
+							End If
+
+						Set objWindow = Nothing
+						Set objButton=nothing
+End If
+End Function
+'************************************************************************************
+'End Function - ClickButtonIfExist
+'************************************************************************************
+
+'**********************************************************************************
+'Name of the Function   :  DoubleClickGuiGridCell(gridTitle,gridIndex,rowNumber,columnName,blnIsItPopup)
+'Description		     : Double clicks a particular cell in a Gui Grid.
+'Input Parameters	     :  
+'			                         		 gridTitle: Title of the Gui Grid. 
+'											gridIndex: index of the grid
+'			                          		rowNumber: Row number of the Gui Grid. 
+'                                       	 columnName:Column name of the Gui Grid.    
+'										blnIsItPopup-A  parameters whiich  checks if the SAP window is main window or a popup 
+'																			=Yes - if it is popup ;   No/"" =If it is main SAP  window
+'Output Parameters        : Null
+
+'***********************************************************************************
+'Function DoubleClickGuiGridCell(gridTitle,gridIndex,rowNumber,columnName,blnIsItPopup)
+'***********************************************************************************
+public Function  DoubleClickGuiGridCell(gridTitle,gridIndex,rowNumber,columnName,blnIsItPopup)
+
+  If Not Environment.Value("blnFatalError") Then
+					
+					    Dim objWindow,objGridGuiComp80,objGridGuiComp201,objGrid
+						If blnShowNotification Then BalloonTooltip.Show "TASE Automation","Executing Now : DoubleClickGuiGridCell"
+						strFuncName = "DoubleClickGuiGridCell"
+						Val = "<b>Grid Title :</b>" & gridTitle &"<br><b>Column Name : </b>"& columnName&"<br><b> Row Number: </b>"&rowNumber
+					    strStepName = "Double Click Cell in GuiGrid with Column Name: " &columnName & " and row number: " & rowNumber
+
+						Set objWindow= SetSAPwindowObj(blnIsItPopup)
+			If  gridTitle <>"" or columnName <>""  or rowNumber <>"" Then
+								 strRowNumber = CInt(rowNumber)
+								 Set objGuiGrid1=sapguisession(sessionObject).sapguiwindow(objWindow).SAPGuiGrid("guicomponenttype:=80","title:="&gridtitle,"index:="&gridIndex)
+								 Set objGuiGrid2=sapguisession(sessionObject).sapguiwindow(objWindow).SAPGuiGrid("guicomponenttype:=201","title:="&gridtitle,"index:="&gridIndex)
+								 Set  objGuiGrid= SetObj(objGuiGrid1,objGuiGrid2)	
+								  If  objGuiGrid.Exist   Then
+														 On Error Resume Next
+														 Call storeCoordinates(objGuiGrid)
+														 If blnCaptureFlag  or  blnCreateImageEachStep  or blnCreateTrainingDoc Then
+																							ImagePath=CaptureScreenshot(strStepName,objGuiGrid,False,False,True)
+														 End If
+														 'msgbox Err.Number
+														 objGuiGrid.SelectCell strRowNumber,columnName
+														 objGuiGrid.ActivateCell strRowNumber,columnName
+											 	
+														 'msgbox Err.Number
+														If Err.Number = 0 or Err.Number = 424 Then 'Error 424 Object Required.Object losing visibility intermittently
+																		  strStatus = "DONE"	
+																		  strMsg ="Cell Activated :-"& vbNewLine &"Gui Grid Title: "&gridtitle& " RowNumber : "&rowNumber& vbNewLine &"ColumnName : "&columnName
+																		  
+																		  Call ReporterFunction(strLibraryFileName,strFuncName,"2",strStepName,strMsg)
+																		  
+														ElseIf Err.Number = -2147220983 Then																																				' Verifies whether column is present in the Grid
+																		  strStatus="FAIL"
+																		  strMsg =  "Column Not Found Within Gui Grid . Please Verify Screen"
+																		  blnObjectError = True
+																		  Call ReporterFunction(strLibraryFileName,strFuncName,"1",strStepName,strMsg)
+																		  Err.Clear
+									
+														 ElseIf objGuiGrid.GetROProperty("rowcount")<strRowNumber Then
+																		 strStatus="FAIL"
+																		 strMsg = "Row Not Found.Please Check the --rowNumber--Parameter of --DoubleClickGuiGridCell-- Function Call"
+																		 blnObjectError = True
+																		 Call ReporterFunction(strLibraryFileName,strFuncName,"1",strStepName,strMsg)
+																		 Err.Clear
+														 End If
+								  Else 
+												 blnObjectError = True
+												 strStatus="FAIL"
+												 strMsg =  "Grid Object Not Found"
+												 Call ReporterFunction(strLibraryFileName,strFuncName,"1",strStepName,strMsg)
+												
+								 End If
+            Else
+						strStatus="FAIL"
+						strMsg =  "Function Parameters not passed properly. Please Verify --DoubleClickGuiGridCell--Function Call"
+						Call ReporterFunction(strLibraryFileName,strFuncName,"1",strStepName,strMsg)
+
+			End If
+									      If  blnObjectError  Then
+														Environment.Value("blnFatalError")=True
+										  End If
+
+										  If strStatus = "FAIL"  Then
+													DoubleClickGuiGridCell = strMsg
+													blnMainFailFlag = True
+													ImagePath=CaptureScreenshot(strStepName,objGuiGrid,False,False,True)
+										 Else
+													DoubleClickGuiGridCell = True
+										 End If
+										
+										  If blnDefault_eSwiftReporting Then  
+												Call UpdateResultHtml (strStepName,Val,strMsg,strStatus,"")																	
+										  End If
+
+   
+																			   Set objGuiGrid1=Nothing
+																			   Set objGuiGrid2=Nothing
+																			   Set objGuiGrid=Nothing
+																			   Set objWindow=Nothing
+
+
+End If
+End Function
+'************************************************************************************
+
+'************************************************************************************
+'End Function - DoubleClickGuiGridCell
+'************************************************************************************
+Public Function storeCoordinates(obj)
+   On error resume next
+	oDicAbsX.Add oDicAbsX.count+1,obj.getroproperty("abs_x")
+	'msgbox obj.getroproperty("abs_x")
+	oDicAbsY.Add oDicAbsY.count+1,obj.getroproperty("abs_y")
+'msgbox obj.getroproperty("abs_y")
+	oDicHeight.Add oDicHeight.count+1,obj.getroproperty("height")
+	'msgbox obj.getroproperty("height")
+   	oDicWidth.Add oDicWidth.count+1,obj.getroproperty("width")
+'msgbox obj.getroproperty("width")
+   End Function
+

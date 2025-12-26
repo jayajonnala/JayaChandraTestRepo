@@ -1,0 +1,1 @@
+﻿var __testDataSource={items:[{dataFilePath:'Default.xlsx',dataFileFormat:'excel',dataFileFolder:'S:\\Automation_Repo\\UFT Test Sets\\FICO\\MI_FICO\\P1\\AT_AA060\\Report',namePairs:[]}]};

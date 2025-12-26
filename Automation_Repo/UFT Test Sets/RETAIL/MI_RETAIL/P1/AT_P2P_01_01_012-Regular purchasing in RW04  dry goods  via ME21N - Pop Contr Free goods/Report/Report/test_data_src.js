@@ -1,0 +1,1 @@
+﻿var __testDataSource={items:[{dataFilePath:'Default.xlsx',dataFileFormat:'excel',dataFileFolder:'S:\\14_Jira_Migration\\Automation_Repo\\UFT Test Sets\\RETAIL\\MI_RETAIL\\P1\\AT_P2P_01_01_012-Regular purchasing in RW04  dry goods  via ME21N - Pop Contr Free goods\\Report',namePairs:[]}]};

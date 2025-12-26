@@ -1,0 +1,1 @@
+﻿var __testDataSource={items:[{dataFilePath:'Default.xlsx',dataFileFormat:'excel',dataFileFolder:'C:\\Users\\JJONN\\Documents\\UFT One\\Test_116_SRM Standard SC Limit Item on Cost Center (all opcos)_P1\\Res2',namePairs:[]}]};

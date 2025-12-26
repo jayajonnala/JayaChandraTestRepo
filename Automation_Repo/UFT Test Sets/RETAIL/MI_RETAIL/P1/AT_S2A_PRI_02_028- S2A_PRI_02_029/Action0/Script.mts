@@ -1,0 +1,10 @@
+﻿RunAction "TC0_RunTimeResultFolder", oneIteration
+RunAction "TC1_Test_S2A_PRI_02_028-Check", oneIteration
+RunAction "TC2_Wait1", oneIteration
+RunAction "TC3_DT1_DataTransfer_One", oneIteration
+RunAction "TC4_Test_S2A_PRI_02_028-Artemis", oneIteration
+RunAction "TC5_DT2_DataTransfer_Two", oneIteration
+RunAction "TC6_Test_S2A_PRI_02_029-Delete", oneIteration
+RunAction "TC7_DT3_DataTransfer_three", oneIteration
+RunAction "TC8_Wait2", oneIteration
+RunAction "TC9_Test_S2A_PRI_02_029_Artemis", oneIteration

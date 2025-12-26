@@ -1,0 +1,26 @@
+﻿'''************ Input parameter values for Zephyr sclae result updation function****************
+'These values are common for all the testsets and are mandatory to call at the start of the testset code.
+
+TestSetName = Environment.Value("TestName")
+ActionName = "AT"
+TestPath = Environment.Value("TestDir")
+OpCoName = StrValueOfPath(StrValueOfPathFromEnd(TestPath,2,"\"),0,"_")
+TargetCycle = StrValueOfPath(StrValueOfPathFromEnd(TestPath,2,"\"),1,"_")
+Priority = StrValueOfPathFromEnd(TestPath,1,"\")
+TestIterationVal = 0
+RunTimeId = GenerateRunTimeID() 
+Call ReporterEventRunTimeID(RunTimeId)
+
+'''*****************TC1_Test_06-01-02-02-01-Replenish via MSI Net_TASE***************************
+TC_Path = Parameter("TC1_Path")
+TC_ExcelInputFile = Parameter("TC1_ExcelinputFile")
+TC_DataRowNumber = Parameter("TC1_DataRowNumber")
+TC_DataRowNumber1 = Parameter("TC1_DataRowNumber1")
+gstrresultFolderPath= Parameter("gstrresultFolderPath")	
+RunTimeResultFolder= Parameter("RunTimeResultFolder")
+
+Call UpdateTestPath(TC_Path)
+LoadAndRunAction TC_Path,ActionName,0,TC_ExcelInputFile,TC_DataRowNumber,gstrresultFolderPath,RunTimeResultFolder,TC_DataRowNumber1
+Call PublishTestResults_PY(TestSetName,  StrValueOfLastElement(TC_Path,"\"), Environment.Value("TCExecutionStatus"), OpCoName, TargetCycle,  Environment.Value("HtmlResultReportpath"),RunTimeId,Priority)
+
+

@@ -1,0 +1,15 @@
+﻿RunAction "TC0_RunTimeResultFolder", oneIteration
+RunAction "TC1_Test_MD_01_15_150_P1", oneIteration
+RunAction "TC2_DT1_DataTransfer_One", oneIteration
+RunAction "Wait1", oneIteration
+RunAction "TC3_Test_MD_01_15_150_P2", oneIteration
+RunAction "TC4_DT2_DataTransfer_Two", oneIteration
+RunAction "TC5_Test_MD_01_15_150_P3", oneIteration
+RunAction "TC6_DT3_DataTransfer_three", oneIteration
+RunAction "Wait2", oneIteration
+RunAction "TC7_Test_MD_01_15_150_P4", oneIteration
+RunAction "TC8_DT4_DataTransfer_Four", oneIteration
+RunAction "TC9_Test_MD_01_15_150_P5", oneIteration
+RunAction "Wait3", oneIteration
+RunAction "TC10_DT5_DataTransfer_five", oneIteration
+RunAction "TC11_Test_MD_01_15_150_P6", oneIteration

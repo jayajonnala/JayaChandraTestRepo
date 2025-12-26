@@ -1,0 +1,15 @@
+﻿RunAction "RunTimeResultFolder", oneIteration
+RunAction "TC1_02-04-01-05-02BAOT_TASE", oneIteration
+RunAction "DataTransfer_1", oneIteration
+RunAction "TC2_assortment-BAOT_TASE", oneIteration
+RunAction "DataTransfer_2", oneIteration
+RunAction "TC3_assortmentsRegularArticle", oneIteration
+RunAction "DataTransfer_3", oneIteration
+RunAction "TC4_PerAssortmentAndCondit", oneIteration
+RunAction "DataTransfer_4", oneIteration
+RunAction "TC5_Assortment-BAOT_TASE", oneIteration
+RunAction "DataTransfer_5", oneIteration
+RunAction "TC6_RegularBE_TASE", oneIteration
+RunAction "DataTransfer_6", oneIteration
+RunAction "TC7_ConditionsPerAssortment", oneIteration
+RunAction "Wait_TASE", oneIteration

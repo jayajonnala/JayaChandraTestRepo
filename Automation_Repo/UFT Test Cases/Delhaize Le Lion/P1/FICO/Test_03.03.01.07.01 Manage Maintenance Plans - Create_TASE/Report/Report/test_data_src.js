@@ -1,0 +1,1 @@
+﻿var __testDataSource={items:[{dataFilePath:'Default.xlsx',dataFileFormat:'excel',dataFileFolder:'S:\\9_Backup_and_other\\TASE Local\\Test_03.03.01.07.01 Manage Maintenance Plans - Create_TASE\\Report',namePairs:[]}]};

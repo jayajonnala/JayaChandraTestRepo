@@ -1,0 +1,12 @@
+﻿RunAction "RunTimeResultFolder", oneIteration
+RunAction "TC1_02ORD0201_034_PO_created", oneIteration
+RunAction "DataTransfer_1", oneIteration
+RunAction "TC2_02ORD03_004_Release_PO", oneIteration
+RunAction "DataTransfer_2", oneIteration
+RunAction "TC3_02GR01_001_GR_LV_DC_GR_Deli", oneIteration
+RunAction "DataTransfer_3", oneIteration
+RunAction "TC4_06DCIM03_017_Transfer_stock", oneIteration
+RunAction "DataTransfer_4", oneIteration
+RunAction "TC5_06DCAOM01_002_DC_Inventory", oneIteration
+RunAction "DataTransfer_5", oneIteration
+RunAction "TC6_06DCAOM01_004_DC_Inventory", oneIteration
